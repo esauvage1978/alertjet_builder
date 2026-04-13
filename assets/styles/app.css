@@ -1476,6 +1476,11 @@ body.app-profile-onboarding .main-header {
   flex: 1 1 100%;
 }
 
+/* Fond d’aire pour le parcours : contraste avec la carte blanche (rendu « pro ») */
+.app-adminlte .wrapper.app-shell--parcours .content {
+  background-color: #e8edf3;
+}
+
 /* Marque colorée conservée sur les parcours (pas de content-header complet) */
 .app-adminlte .app-shell__parcours-brand {
   flex-shrink: 0;
@@ -1681,11 +1686,15 @@ body.app-profile-onboarding .main-header {
   align-self: flex-start;
 }
 
-/* Parcours d’initialisation — lisibilité : cartes et champs ne doivent pas être « blanc sur blanc » */
+/* Parcours d’initialisation : carte blanche sur fond plus sombre (hiérarchie lisible) */
 .app-adminlte .setup-wizard-form {
-  background-color: #f1f5f9;
-  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
   color: #0f172a;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 4px 16px rgba(15, 23, 42, 0.07);
 }
 
 .app-adminlte .setup-wizard-form .form-group > label {
