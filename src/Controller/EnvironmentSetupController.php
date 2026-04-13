@@ -98,6 +98,13 @@ final class EnvironmentSetupController extends AbstractController
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
 
+        if ($request->isMethod('POST')) {
+            $orgData = $request->request->get('organization');
+            if (\is_array($orgData)) {
+                $this->applyEmptyOptionalBillingFromPost($organization, $orgData);
+            }
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             if ($wasNewOrg) {
                 $entityManager->persist($organization);
@@ -377,6 +384,35 @@ final class EnvironmentSetupController extends AbstractController
         }
 
         return $this->redirect('/app/initialisation/projet');
+    }
+
+    /**
+     * Force l’effacement des champs d’adresse optionnels lorsque le POST contient une chaîne vide
+     * (évite de conserver l’ancienne valeur en base si le mapping formulaire / parse PHP est ambigu).
+     *
+     * @param array<string, mixed> $orgData
+     */
+    private function applyEmptyOptionalBillingFromPost(Organization $organization, array $orgData): void
+    {
+        $isEmpty = static function (mixed $raw): bool {
+            return $raw === null || $raw === '' || (\is_string($raw) && trim($raw) === '');
+        };
+
+        if (\array_key_exists('billingLine1', $orgData) && $isEmpty($orgData['billingLine1'])) {
+            $organization->setBillingLine1(null);
+        }
+        if (\array_key_exists('billingLine2', $orgData) && $isEmpty($orgData['billingLine2'])) {
+            $organization->setBillingLine2(null);
+        }
+        if (\array_key_exists('billingPostalCode', $orgData) && $isEmpty($orgData['billingPostalCode'])) {
+            $organization->setBillingPostalCode(null);
+        }
+        if (\array_key_exists('billingCity', $orgData) && $isEmpty($orgData['billingCity'])) {
+            $organization->setBillingCity(null);
+        }
+        if (\array_key_exists('billingCountry', $orgData) && $isEmpty($orgData['billingCountry'])) {
+            $organization->setBillingCountry(null);
+        }
     }
 
     private function requireUser(): User
