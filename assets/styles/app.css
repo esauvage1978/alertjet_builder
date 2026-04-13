@@ -1642,10 +1642,17 @@ body.app-spa .main-footer .text-muted {
   color: #fff;
 }
 
+/* Actif : même esprit que .sidebar-dark-primary .nav-link.active (barre + fond corail) */
 .app-spa .main-sidebar .admin-nav-item.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.45);
+  background-color: rgba(255, 90, 54, 0.15) !important;
+  color: #fff !important;
+  box-shadow: inset 3px 0 0 var(--coral);
+  font-weight: 600;
+}
+
+.app-spa .main-sidebar .admin-nav-item.active .nav-icon {
+  color: var(--coral-soft) !important;
+  opacity: 1;
 }
 
 .app-spa .main-sidebar .admin-nav-item > span {
