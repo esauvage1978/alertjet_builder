@@ -55,6 +55,26 @@ class ProjectRepository extends ServiceEntityRepository
     }
 
     /**
+     * Résout un projet à partir du triplet URL public (org + projet + secret webhook).
+     */
+    public function findByWebhookScoped(
+        string $organizationPublicToken,
+        string $projectPublicToken,
+        string $webhookToken,
+    ): ?Project {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.organization', 'o')
+            ->andWhere('o.publicToken = :orgToken')
+            ->andWhere('p.publicToken = :projectToken')
+            ->andWhere('p.webhookToken = :webhookToken')
+            ->setParameter('orgToken', $organizationPublicToken)
+            ->setParameter('projectToken', $projectPublicToken)
+            ->setParameter('webhookToken', $webhookToken)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
      * @return list<Project>
      */
     public function findByOrganizationOrderedByName(Organization $organization): array
