@@ -7,6 +7,11 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    site_vitrine_plans_json: '%kernel.project_dir%/../site_vitrine/src/data/plans.json'
+    # Langues disponibles (liste unique : ajouter un code ISO + traductions + messages.{code}.yaml)
+    app.enabled_locales: [fr, en]
+    # Valeur si la variable d’environnement HSTS_ENABLED est absente (cf. processeur default:)
+    hsts_enabled_default: false
 
 services:
     # default configuration for services in *this* file
@@ -21,3 +26,26 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\MailWebhookService:
+        arguments:
+            $mailWebhookUrl: '%env(string:MAIL_WEBHOOK_URL)%'
+            $mailWebhookSecret: '%env(string:MAIL_WEBHOOK_SECRET)%'
+
+    App\Service\SiteVitrinePlansCatalog:
+        arguments:
+            $plansJsonPath: '%site_vitrine_plans_json%'
+
+    App\I18n\EnabledLocales:
+        arguments:
+            $codes: '%app.enabled_locales%'
+            $defaultLocale: '%kernel.default_locale%'
+
+    App\Service\SecretBoxCrypto:
+        arguments:
+            $appSecret: '%kernel.secret%'
+
+    App\EventSubscriber\SecurityHeadersSubscriber:
+        arguments:
+            $kernelEnvironment: '%kernel.environment%'
+            $hstsEnabled: '%env(bool:default:hsts_enabled_default:HSTS_ENABLED)%'

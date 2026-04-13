@@ -1,0 +1,5 @@
+# Erreurs d’authentification (domaine "security")
+"Invalid credentials.": "Adresse e-mail ou mot de passe incorrect."
+"Username could not be found.": "Aucun compte ne correspond à cet e-mail."
+"Authentication request could not be processed due to a system problem.": "L’authentification a échoué (erreur système)."
+"Too many failed login attempts, please try again later.": "Trop de tentatives. Réessayez plus tard."

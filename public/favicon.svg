@@ -1,18 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="AlertJet">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="AlertJet Builder">
   <defs>
-    <linearGradient id="ajg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#2563eb"/>
+    <linearGradient id="b-ink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1929"/>
+      <stop offset="100%" stop-color="#060d16"/>
     </linearGradient>
   </defs>
-  <rect width="128" height="128" rx="28" fill="url(#ajg)"/>
+  <rect width="128" height="128" rx="28" fill="url(#b-ink)"/>
+  <rect x="24" y="100" width="80" height="6" rx="3" fill="#ff5a36"/>
   <text
     x="64"
-    y="80"
+    y="78"
     text-anchor="middle"
     font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif"
-    font-size="52"
+    font-size="48"
     font-weight="700"
-    fill="#0f172a"
+    fill="#ff7a5c"
   >AJ</text>
 </svg>

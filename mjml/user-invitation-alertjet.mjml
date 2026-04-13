@@ -1,0 +1,210 @@
+<!--
+  Template MJML — Invitation d'un utilisateur dans une organisation (AlertJet Builder)
+
+  Expéditeur prévu : adresse validée dans Mailjet (ex. notification@alertjet.builders).
+
+  Compiler :
+    npx mjml user-invitation-alertjet.mjml -o user-invitation-alertjet.html
+  Puis importer le HTML dans un template Mailjet (mode « éditeur code » ou import)
+  avec l'option « TemplateLanguage » activée.
+
+  Variables Mailjet (déclarer dans le template / API / workflow Make · n8n · Zapier)
+  ─────────────────────────────────────────────────────────────────────────────────
+    {{var:source}}              — alertjet-builder-user-invite (traçabilité)
+    {{var:email}}               — destinataire (alias courant Mailjet)
+    {{var:user_email}}          — même adresse que l'invité (affiché dans le corps)
+    {{var:organization_name}}   — nom de l'organisation dans AlertJet Builder
+    {{var:invite_url}}          — URL unique 24 h (accepter invitation : mot de passe + accès)
+    {{var:acceptInvitationUrl}} — même URL (webhook Symfony / Make)
+    {{var:setPasswordUrl}}      — alias rétrocompat, identique à invite_url
+    {{var:app_url}}             — https://alertjet.builders (sans slash final)
+    {{var:expires_note}}        — ex. « Ce lien expire dans 24 heures. »
+    {{var:submitted_at}}        — ISO 8601, optionnel (horodatage de l'invitation)
+
+  Sujet recommandé dans Mailjet :
+    AlertJet Builder — Invitation à rejoindre {{var:organization_name}}
+
+  Côté app Symfony (MailWebhookService::send), alimenter le champ `data` avec notamment :
+    invite_url, acceptInvitationUrl (lien unique, valable 24 h), setPasswordUrl (alias), app_url, organizationName, email
+-->
+<mjml>
+  <mj-head>
+    <mj-title>AlertJet Builder — Invitation à rejoindre {{var:organization_name}}</mj-title>
+    <mj-preview>Un gestionnaire vous a invité à rejoindre l'organisation {{var:organization_name}} sur AlertJet Builder. Cliquez pour activer votre accès.</mj-preview>
+
+    <mj-attributes>
+      <mj-all font-family="'Segoe UI', system-ui, Helvetica, Arial, sans-serif" />
+      <mj-text color="#0f172a" font-size="16px" line-height="24px" />
+      <mj-button
+        background-color="#ff5a36"
+        color="#ffffff"
+        font-size="15px"
+        font-weight="700"
+        border-radius="10px"
+        inner-padding="14px 32px"
+        letter-spacing="0.01em"
+      />
+    </mj-attributes>
+
+    <mj-style>
+      a { color: #ff5a36; }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#f0f4f8" width="600px">
+
+    <!-- ─── En-tête marque (encre) ────────────────────────────────── -->
+    <mj-section background-color="#0c1929" padding="28px 40px 20px">
+      <mj-column width="100%">
+        <mj-image
+          src="https://alertjet.fr/favicon.ico"
+          alt="AlertJet Builder"
+          width="56px"
+          padding-bottom="12px"
+          href="{{var:app_url}}/"
+          align="center"
+        />
+        <mj-text
+          align="center"
+          font-size="13px"
+          font-weight="700"
+          letter-spacing="0.08em"
+          text-transform="uppercase"
+          color="#ff7a5c"
+          padding="0"
+          line-height="18px"
+        >
+          AlertJet Builder
+        </mj-text>
+        <mj-text
+          align="center"
+          font-size="11px"
+          color="#64748b"
+          padding="4px 0 0"
+          line-height="16px"
+          letter-spacing="0.04em"
+        >
+          Pilotage des alertes et des incidents
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- ─── Liseré accent corail ──────────────────────────────────── -->
+    <mj-section padding="0" background-color="#0c1929">
+      <mj-column width="100%">
+        <mj-divider border-width="3px" border-color="#ff5a36" padding="0" />
+      </mj-column>
+    </mj-section>
+
+    <!-- ─── Titre + accroche ──────────────────────────────────────── -->
+    <mj-section background-color="#ffffff" padding="32px 40px 16px">
+      <mj-column width="100%">
+        <mj-text
+          font-size="22px"
+          font-weight="700"
+          color="#0f172a"
+          padding-bottom="10px"
+          line-height="30px"
+        >
+          Vous avez été invité sur AlertJet Builder
+        </mj-text>
+        <mj-text font-size="15px" color="#475569" padding-bottom="0" line-height="24px">
+          Un gestionnaire vous a ajouté à l'organisation
+          <strong style="color: #0f172a;">{{var:organization_name}}</strong>
+          sur <strong style="color: #0f172a;">AlertJet Builder</strong>,
+          la plateforme de pilotage des alertes, webhooks et tickets d'incidents.
+        </mj-text>
+        <mj-text font-size="15px" color="#475569" padding-top="10px" padding-bottom="0" line-height="24px">
+          Cliquez sur le bouton ci-dessous pour activer votre accès et rejoindre l'organisation.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- ─── Compte concerné ──────────────────────────────────────── -->
+    <mj-section background-color="#ffffff" padding="0 40px 4px">
+      <mj-column width="100%">
+        <mj-text
+          font-size="13px"
+          padding="10px 16px"
+          container-background-color="#fff5f2"
+          color="#3d5a80"
+          line-height="20px"
+        >
+          <span style="display:block; border-left: 3px solid #ff5a36; padding-left: 10px;">
+            <strong>Compte concerné :</strong>&nbsp;<span style="word-break: break-all;">{{var:user_email}}</span>
+          </span>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- ─── CTA ──────────────────────────────────────────────────── -->
+    <mj-section background-color="#ffffff" padding="24px 40px 12px">
+      <mj-column width="100%">
+        <mj-button href="{{var:invite_url}}" align="left">
+          Accéder à AlertJet Builder
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <!-- ─── Lien de secours + expiration ─────────────────────────── -->
+    <mj-section background-color="#ffffff" padding="0 40px 28px">
+      <mj-column width="100%">
+        <mj-text font-size="13px" color="#64748b" padding-top="4px" padding-bottom="0" line-height="20px">
+          Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre
+          navigateur&nbsp;:<br />
+          <span style="word-break: break-all; color: #ff5a36; font-weight: 600;">{{var:invite_url}}</span>
+        </mj-text>
+        <mj-text font-size="13px" color="#64748b" padding-top="14px" padding-bottom="0" line-height="20px">
+          <span style="color: #94a3b8;">&#9432;</span>&nbsp;{{var:expires_note}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- ─── Séparateur avant footer ──────────────────────────────── -->
+    <mj-section padding="0" background-color="#ffffff">
+      <mj-column width="100%">
+        <mj-divider border-width="1px" border-color="#e2e8f0" padding="0" />
+      </mj-column>
+    </mj-section>
+
+    <!-- ─── Ce que vous trouverez sur AlertJet Builder ──────────── -->
+    <mj-section background-color="#f8fafc" padding="20px 40px">
+      <mj-column width="100%">
+        <mj-text font-size="12px" font-weight="700" text-transform="uppercase"
+                 letter-spacing="0.06em" color="#94a3b8" padding-bottom="10px">
+          AlertJet Builder, c'est&nbsp;quoi&nbsp;?
+        </mj-text>
+        <mj-text font-size="13px" color="#475569" padding="0" line-height="22px">
+          &#x2713;&nbsp; <strong style="color: #0f172a;">Webhooks</strong> —
+            Réception d'alertes JSON depuis vos outils.<br />
+          &#x2713;&nbsp; <strong style="color: #0f172a;">Tickets d'incidents</strong> —
+            Suivi centralisé par projet.<br />
+          &#x2713;&nbsp; <strong style="color: #0f172a;">Rôles &amp; équipes</strong> —
+            Gestionnaires, membres, clients.<br />
+          &#x2713;&nbsp; <strong style="color: #0f172a;">Journal d'audit</strong> —
+            Traçabilité de toutes les actions.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- ─── Pied de page ─────────────────────────────────────────── -->
+    <mj-section background-color="#e2e8f0" padding="22px 40px">
+      <mj-column width="100%">
+        <mj-text font-size="12px" color="#64748b" align="center" padding="0" line-height="20px">
+          E-mail automatique — merci de ne pas répondre directement.<br />
+          <a href="{{var:app_url}}/" style="color: #ff5a36; font-weight: 600;">Ouvrir AlertJet Builder</a>
+          &nbsp;·&nbsp;
+          <a href="https://alertjet.fr/" style="color: #64748b;">alertjet.fr</a>
+          <br /><br />
+          <span style="color: #94a3b8; font-size: 11px;">
+            Vous recevez cet e-mail car un gestionnaire de l'organisation
+            <strong style="color: #64748b;">{{var:organization_name}}</strong>
+            a saisi votre adresse. Si vous pensez recevoir cet e-mail par erreur,
+            ignorez simplement ce message.
+          </span>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+  </mj-body>
+</mjml>

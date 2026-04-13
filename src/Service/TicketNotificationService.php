@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Entity\Ticket;
 use App\Enum\TicketPriority;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -18,6 +19,8 @@ final class TicketNotificationService
         private readonly string $notifyTo,
         #[Autowire('%env(ALERTJET_MAIL_FROM)%')]
         private readonly string $mailFrom,
+        private readonly ApplicationErrorLogger $applicationErrorLogger,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -39,7 +42,11 @@ final class TicketNotificationService
 
         try {
             $this->mailer->send($email);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            $this->applicationErrorLogger->logThrowable($e, $this->requestStack->getCurrentRequest(), null, [
+                'layer' => 'ticket_notify_new',
+                'ticketId' => $ticket->getId(),
+            ], 'caught');
         }
     }
 
@@ -57,7 +64,11 @@ final class TicketNotificationService
 
         try {
             $this->mailer->send($email);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            $this->applicationErrorLogger->logThrowable($e, $this->requestStack->getCurrentRequest(), null, [
+                'layer' => 'ticket_notify_merge',
+                'ticketId' => $ticket->getId(),
+            ], 'caught');
         }
     }
 

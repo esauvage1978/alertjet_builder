@@ -1,0 +1,25 @@
+<header class="topnav">
+    <div class="topnav__inner">
+        <a class="topnav__brand" href="{{ path('app_home') }}">AlertJet <span>Builder</span></a>
+        <nav class="topnav__links" aria-label="Compte">
+            {% if app.user %}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('admin_organization_index') }}">Organisations</a>
+                {% endif %}
+                {% if app.user.organizations|length > 0 and app.user.canAccessOrganizationBillingPage %}
+                    <a href="{{ path('app_organization_show') }}">Mon organisation</a>
+                {% endif %}
+                {% if app.user.canViewActivityLog %}
+                <a href="{{ path('app_account_activity') }}">Journal d’activité</a>
+                {% endif %}
+                <form method="post" action="{{ path('app_logout') }}" class="topnav__logout">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                    <button type="submit" class="link-btn">Déconnexion</button>
+                </form>
+            {% else %}
+                <a href="{{ path('app_login') }}">Connexion</a>
+                <a href="{{ path('app_register') }}" class="topnav__pill">Inscription</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>

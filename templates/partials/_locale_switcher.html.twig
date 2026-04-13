@@ -1,0 +1,18 @@
+<div class="locale-switcher">
+    <div class="locale-switcher__shell">
+        <span class="locale-switcher__icon" aria-hidden="true"><i class="fas fa-language"></i></span>
+        <select
+            id="locale-switcher-select"
+            class="locale-switcher__select"
+            aria-label="{{ 'locale.switch'|trans }}"
+            onchange="if (this.value) { window.location.href = this.value; }"
+        >
+            {% for code in enabled_locales %}
+                <option
+                    value="{{ path('app_locale_switch', { locale: code }) }}"
+                    {% if app.request.locale == code %} selected{% endif %}
+                >{{ ('locale.' ~ code)|trans }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>

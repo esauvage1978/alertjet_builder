@@ -79,6 +79,66 @@ final class TicketIngestionService
         return new IngestResult($ticket, false);
     }
 
+    public function ingestFromEmail(
+        Project $project,
+        string $subject,
+        string $body,
+        ?string $messageId,
+        ?string $from = null,
+    ): IngestResult {
+        $title = mb_substr(trim($subject), 0, 255);
+        if ($title === '') {
+            $title = 'E-mail';
+        }
+
+        $description = trim(strip_tags($body));
+        if (strlen($description) > 65000) {
+            $description = mb_substr($description, 0, 65000);
+        }
+
+        $fpSource = $messageId ?? (mb_strtolower($subject.'|'.($from ?? '').'|'.sha1($body)));
+        $fingerprint = hash('sha256', (string) $project->getId().'|email|'.mb_strtolower(trim($fpSource)));
+
+        $existing = $this->ticketRepository->findOpenByFingerprint($project, $fingerprint);
+        if ($existing !== null) {
+            $existing->incrementEventCount();
+            $log = (new TicketLog())
+                ->setType('event')
+                ->setMessage(sprintf('Message e-mail fusionné (#%d)', $existing->getEventCount()))
+                ->setContext(['messageId' => $messageId, 'from' => $from]);
+
+            $existing->addLog($log);
+            $this->em->flush();
+            $this->notificationService->notifyTicketEventMerged($existing);
+
+            return new IngestResult($existing, true);
+        }
+
+        $ticket = (new Ticket())
+            ->setProject($project)
+            ->setTitle($title)
+            ->setDescription($description !== '' ? $description : null)
+            ->setStatus(TicketStatus::Open)
+            ->setPriority(TicketPriority::Medium)
+            ->setSource('email')
+            ->setFingerprint($fingerprint)
+            ->setEventCount(1);
+
+        $ticket->addLog(
+            (new TicketLog())
+                ->setType('created')
+                ->setMessage('Ticket créé depuis la messagerie du projet')
+                ->setContext(['messageId' => $messageId, 'from' => $from]),
+        );
+
+        $this->em->persist($ticket);
+        $this->em->flush();
+
+        $this->notificationService->notifyNewTicket($ticket);
+
+        return new IngestResult($ticket, false);
+    }
+
     /** @param list<string> $keys */
     private function stringFromPayload(?array $json, array $keys, string $fallback): string
     {

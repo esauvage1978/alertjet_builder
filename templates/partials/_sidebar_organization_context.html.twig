@@ -1,0 +1,25 @@
+{% if app.user and app.user.hasAnyOrganization %}
+    <div class="sidebar-org-context">
+        {% if organizations_sorted|length > 1 %}
+            <label for="sidebar-org-select" class="sidebar-org-context__label">{{ 'nav.org_switcher'|trans }}</label>
+            <select
+                id="sidebar-org-select"
+                class="custom-select custom-select-sm sidebar-org-context__select"
+                aria-label="{{ 'nav.org_switcher'|trans }}"
+                onchange="if (this.value) { window.location.href = this.value; }"
+            >
+                {% for org in organizations_sorted %}
+                    <option
+                        value="{{ path('app_organization_context_switch', { orgToken: org.publicToken }) }}"
+                        {% if current_organization and current_organization.id == org.id %} selected{% endif %}
+                    >{{ org.name }}</option>
+                {% endfor %}
+            </select>
+        {% elseif current_organization %}
+            <span class="sidebar-org-context__label">{{ 'nav.current_org'|trans }}</span>
+            <span class="sidebar-org-context__name text-truncate d-block" title="{{ current_organization.name|e('html_attr') }}">
+                <i class="fas fa-building mr-1 opacity-75" aria-hidden="true"></i>{{ current_organization.name }}
+            </span>
+        {% endif %}
+    </div>
+{% endif %}

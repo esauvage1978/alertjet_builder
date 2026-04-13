@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Organization;
 use App\Entity\Project;
 use App\Entity\Ticket;
 use App\Enum\TicketStatus;
@@ -35,5 +36,21 @@ class TicketRepository extends ServiceEntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    /**
+     * @return list<Ticket>
+     */
+    public function findForOrganization(Organization $organization, int $limit = 500): array
+    {
+        return $this->createQueryBuilder('t')
+            ->innerJoin('t.project', 'p')
+            ->addSelect('p')
+            ->where('p.organization = :org')
+            ->setParameter('org', $organization)
+            ->orderBy('t.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 }

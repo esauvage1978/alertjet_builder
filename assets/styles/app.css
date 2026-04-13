@@ -4,6 +4,47 @@
   box-sizing: border-box;
 }
 
+/* =============================================================================
+   Charte AlertJet (encre × corail — alignée builder / vitrine)
+   ============================================================================= */
+:root {
+  --ink: #0c1929;
+  --ink-deep: #060d16;
+  --ink-soft: #152a44;
+  --sidebar-mid: #0a1628;
+  --coral: #ff5a36;
+  --coral-soft: #ff7a5c;
+  --coral-mid: #ff8f6b;
+  --coral-dim: rgba(255, 90, 54, 0.15);
+  --surface: #f0f4f8;
+  --surface-elevated: #ffffff;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: rgba(12, 25, 41, 0.08);
+  --input-bg: #ffffff;
+  --input-border: rgba(15, 23, 42, 0.22);
+  --input-border-hover: rgba(15, 23, 42, 0.32);
+  --input-placeholder: #64748b;
+  --danger: #dc2626;
+  /* Liens & focus d’action : corail charte (l’ancien nom « action-blue » était un bleu ardoise, retiré) */
+  --action: var(--coral);
+  --action-hover: #e04a28;
+}
+
+/* Masquage accessible (pages sans Bootstrap, ex. invité) */
+.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 body {
   margin: 0;
   font-family:
@@ -18,7 +59,7 @@ body {
 }
 
 a {
-  color: #22d3ee;
+  color: var(--coral-soft);
 }
 
 button,
@@ -26,4 +67,3115 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+/* ——— Navigation ——— */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+.topnav__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.topnav__brand {
+  color: #f8fafc;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.topnav__brand span {
+  color: var(--coral-soft);
+  font-weight: 600;
+}
+
+.topnav__links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.topnav__links a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.15s ease;
+}
+
+.topnav__links a:hover {
+  color: #e2e8f0;
+}
+
+.topnav__pill {
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background-color: var(--coral);
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.topnav__pill:hover {
+  background-color: var(--coral-soft);
+}
+
+.topnav__logout {
+  display: inline;
+  margin: 0;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.link-btn:hover {
+  color: #fecaca;
+}
+
+/* ——— Auth : écran scindé (charte encre + corail) ——— */
+.auth-page {
+  position: relative;
+  min-height: 100vh;
+}
+
+.auth-page__locale {
+  position: fixed;
+  top: 0.65rem;
+  right: 0.65rem;
+  z-index: 50;
+  padding: 0.35rem 0.55rem 0.35rem 0.65rem;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+  border: 1px solid #64748b;
+  box-shadow:
+    0 2px 10px rgba(15, 23, 42, 0.14),
+    inset 0 1px 0 #fff;
+}
+
+/* Langue : discret en haut à droite sur les écrans auth */
+.auth-page__locale .locale-switcher__shell {
+  padding: 0.14rem 0.08rem 0.14rem 0.38rem;
+  gap: 0.22rem;
+  border-color: #94a3b8;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.auth-page__locale .locale-switcher__icon {
+  font-size: 0.62rem;
+  color: var(--action);
+}
+
+.auth-page__locale .locale-switcher__select {
+  min-width: 2.75rem;
+  max-width: 6.5rem;
+  padding: 0.12rem 1.35rem 0.12rem 0.08rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background-size: 0.65rem;
+  background-position: right 0.2rem center;
+  color: #0f172a;
+}
+
+.auth-split {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  background: var(--ink-deep);
+}
+
+.auth-split__hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 4rem);
+  overflow: hidden;
+  background-color: var(--ink-deep);
+  background-image:
+    radial-gradient(ellipse 85% 55% at 50% 0%, rgba(255, 90, 54, 0.14), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 100% 100%, rgba(255, 90, 54, 0.08), transparent 50%),
+    linear-gradient(180deg, var(--ink) 0%, var(--ink-deep) 100%);
+  color: #f8fafc;
+}
+
+.auth-split__heroPattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.35) 1px, transparent 1px);
+  background-size: 20px 20px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+}
+
+.auth-split__heroInner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 26rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.auth-split__productName {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.55rem, 3.5vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #f8fafc;
+}
+
+.auth-split__productName span {
+  color: var(--coral-soft);
+  font-weight: 800;
+}
+
+.auth-split__title {
+  margin: 0;
+  font-size: clamp(1.65rem, 4vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  color: #e2e8f0;
+}
+
+.auth-split__titleDot {
+  color: rgba(148, 163, 184, 0.6);
+  font-weight: 500;
+}
+
+.auth-split__titleAccent {
+  color: var(--coral-soft);
+  font-weight: 800;
+}
+
+.auth-split__lead {
+  margin: 1.35rem 0 0;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: #94a3b8;
+  text-wrap: balance;
+}
+
+.auth-split__lead strong {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.auth-split__lead em {
+  color: var(--coral-soft);
+  font-style: normal;
+  font-weight: 500;
+}
+
+.auth-split__bullets {
+  margin: 1.65rem auto 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.88rem;
+  color: #cbd5e1;
+}
+
+.auth-split__bullets li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+  max-width: 22rem;
+}
+
+.auth-split__bullets li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--coral-soft);
+  box-shadow: 0 0 0 2px rgba(255, 90, 54, 0.25);
+  flex-shrink: 0;
+}
+
+@media (min-width: 960px) {
+  .auth-split__heroInner {
+    max-width: 28rem;
+    margin-left: clamp(1.5rem, 6vw, 4.5rem);
+    margin-right: auto;
+    text-align: left;
+  }
+
+  .auth-split__bullets {
+    align-items: flex-start;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .auth-split__bullets li {
+    justify-content: flex-start;
+    text-align: left;
+    max-width: 100%;
+  }
+}
+
+.auth-split__panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background: var(--surface);
+}
+
+.auth-split__panelInner {
+  width: 100%;
+}
+
+.auth-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem 2.25rem 1.75rem;
+  margin: 0 auto;
+  border-radius: 1.25rem;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.auth-card--on-light.auth-card {
+  padding: 2rem 2.5rem 2rem;
+}
+
+.auth-card--in-split {
+  max-width: 420px;
+}
+
+.auth-card--on-light {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-top: 3px solid var(--coral);
+  border-radius: 1rem;
+  box-shadow:
+    0 4px 6px -1px rgba(15, 23, 42, 0.06),
+    0 24px 48px -12px rgba(15, 23, 42, 0.12);
+}
+
+.auth-card__tag--on-light {
+  color: #64748b;
+}
+
+.auth-split__panel .stack-form label,
+.auth-split__panel .form-label {
+  color: #475569;
+}
+
+.auth-split__panel .stack-form input[type='email'],
+.auth-split__panel .stack-form input[type='password'],
+.auth-split__panel .stack-form input[type='text'],
+.auth-split__panel .form-input {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+.auth-split__panel .stack-form input:focus,
+.auth-split__panel .form-input:focus {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.18);
+}
+
+.auth-split__panel .stack-form ul {
+  color: #b91c1c;
+}
+
+.auth-split__panel .auth-card__links {
+  color: #64748b;
+  border-top-color: #e2e8f0;
+}
+
+.auth-split__panel .auth-card__links a {
+  color: var(--coral);
+}
+
+.auth-split__panel .auth-card__links a:hover {
+  color: var(--action);
+}
+
+.auth-card__head {
+  margin-bottom: 1.5rem;
+}
+
+.auth-card__head--compact {
+  margin-bottom: 1.25rem;
+}
+
+.auth-card__head--structured {
+  margin-bottom: 1.65rem;
+}
+
+.auth-panel__title {
+  margin: 1rem 0 0;
+  font-size: clamp(1.35rem, 2.8vw, 1.65rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  color: #0f172a;
+}
+
+.auth-card__head--structured .auth-card__tag {
+  margin-top: 0.45rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  max-width: 36ch;
+}
+
+.auth-panel__trust {
+  margin: 0.65rem 0 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.auth-form.stack-form {
+  gap: 1.25rem;
+}
+
+.auth-form.stack-form > div {
+  gap: 0.4rem;
+}
+
+.auth-form.stack-form label,
+.auth-form .form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.auth-form.stack-form input[type='email'],
+.auth-form.stack-form input[type='password'],
+.auth-form.stack-form input[type='text'] {
+  min-height: 2.875rem;
+  padding: 0.7rem 0.95rem;
+  border-radius: 0.6rem;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  font-size: 1rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.auth-form.stack-form input::placeholder {
+  color: #94a3b8;
+}
+
+.auth-form.stack-form input:focus,
+.auth-field__input:focus {
+  outline: none;
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.18);
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.auth-field__label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.auth-field__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.auth-field__input {
+  width: 100%;
+  min-height: 2.875rem;
+  padding: 0.7rem 0.95rem;
+  border-radius: 0.6rem;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  font-size: 1rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.auth-field__side-link {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--coral);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.auth-field__side-link:hover {
+  color: var(--action);
+  text-decoration: underline;
+}
+
+.btn-auth-submit {
+  width: 100%;
+  margin-top: 0.35rem;
+  min-height: 2.95rem;
+  border-radius: 0.6rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.btn-auth-submit:hover {
+  box-shadow: 0 4px 14px rgba(255, 90, 54, 0.32);
+}
+
+.auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.8rem 1rem;
+  border-radius: 0.65rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+}
+
+.auth-alert__icon {
+  flex-shrink: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1;
+  font-style: normal;
+}
+
+.auth-alert__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.auth-alert--success {
+  background: #ecfdf5;
+  border-color: rgba(52, 211, 153, 0.45);
+  color: #14532d;
+}
+
+.auth-alert--success .auth-alert__icon {
+  background: #10b981;
+  color: #fff;
+}
+
+.auth-alert--danger {
+  background: #fef2f2;
+  border-color: rgba(252, 165, 165, 0.65);
+  color: #991b1b;
+}
+
+.auth-alert--danger .auth-alert__icon {
+  background: #ef4444;
+  color: #fff;
+}
+
+.auth-alert--warning {
+  background: #fffbeb;
+  border-color: rgba(252, 211, 77, 0.5);
+  color: #713f12;
+}
+
+.auth-alert--warning .auth-alert__icon {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.auth-alert--info {
+  background: #eff6ff;
+  border-color: rgba(147, 197, 253, 0.65);
+  color: #1e3a8a;
+}
+
+.auth-alert--info .auth-alert__icon {
+  background: #3b82f6;
+  color: #fff;
+  font-size: 0.58rem;
+}
+
+.auth-card__links--footer {
+  margin-top: 1.75rem;
+  padding-top: 1.35rem;
+  border-top: 1px solid #e2e8f0;
+  justify-content: flex-start;
+  gap: 0.35rem;
+}
+
+.auth-card__links--center {
+  justify-content: center;
+}
+
+.auth-card__links-label {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.auth-card__links-cta {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--coral);
+  text-decoration: none;
+}
+
+.auth-card__links-cta:hover {
+  color: var(--action);
+  text-decoration: underline;
+}
+
+.auth-brand {
+  display: inline-block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #f8fafc;
+  text-decoration: none;
+  letter-spacing: -0.03em;
+}
+
+.auth-brand--panel {
+  font-size: 1.15rem;
+}
+
+.auth-brand span {
+  color: var(--coral-soft);
+  font-weight: 600;
+}
+
+/* Marque sur panneau clair : spécificité > .auth-brand seul (évite texte blanc illisible) */
+.auth-brand.auth-brand--on-light {
+  color: #0f172a;
+}
+
+.auth-brand.auth-brand--on-light span {
+  color: var(--coral);
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .auth-split {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-split__hero {
+    min-height: auto;
+    padding: 2rem 1.35rem 1.75rem;
+  }
+
+  .auth-split__title {
+    font-size: 1.55rem;
+  }
+
+  .auth-split__bullets {
+    margin-top: 1.1rem;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+  }
+
+  .auth-split__bullets li {
+    max-width: 100%;
+  }
+
+  .auth-split__lead {
+    font-size: 0.92rem;
+    margin-top: 0.85rem;
+    text-align: center;
+  }
+}
+
+.auth-card__tag {
+  margin: 0.5rem 0 0;
+  font-size: 0.92rem;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+.stack-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stack-form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.stack-form label,
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.stack-form input[type='email'],
+.stack-form input[type='password'],
+.stack-form input[type='text'],
+.form-input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(2, 6, 23, 0.65);
+  color: #f1f5f9;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.stack-form input:focus,
+.form-input:focus {
+  outline: none;
+  border-color: var(--coral-soft);
+  box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.2);
+}
+
+.stack-form ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.1rem;
+  color: #fecdd3;
+  font-size: 0.8rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: 0.55rem;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    filter 0.12s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background-color: var(--coral);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: var(--coral-soft);
+}
+
+.btn-block {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.flash {
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.55rem;
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+  line-height: 1.45;
+}
+
+.flash--success {
+  background: rgba(6, 78, 59, 0.45);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  color: #d1fae5;
+}
+
+.flash--danger {
+  background: rgba(127, 29, 29, 0.4);
+  border: 1px solid rgba(252, 165, 165, 0.35);
+  color: #fee2e2;
+}
+
+.flash--warning {
+  background: rgba(113, 63, 18, 0.45);
+  border: 1px solid rgba(252, 211, 77, 0.35);
+  color: #fef9c3;
+}
+
+.auth-split__panel .flash--success {
+  background: rgba(6, 78, 59, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #14532d;
+}
+
+.auth-split__panel .flash--danger {
+  background: rgba(127, 29, 29, 0.08);
+  border: 1px solid rgba(252, 165, 165, 0.55);
+  color: #991b1b;
+}
+
+.auth-split__panel .flash--warning {
+  background: rgba(113, 63, 18, 0.12);
+  border: 1px solid rgba(252, 211, 77, 0.45);
+  color: #713f12;
+}
+
+.auth-card__links {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  font-size: 0.88rem;
+  color: #94a3b8;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.auth-card__links a {
+  color: var(--coral-soft);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-card__links a:hover {
+  text-decoration: underline;
+}
+
+.auth-card__links .dot {
+  opacity: 0.5;
+}
+
+/*
+ * Confirmations dans l’app AdminLTE : éviter le vert Bootstrap / AdminLTE trop saturé.
+ * Fond neutre + filet gauche couleur marque (corail).
+ */
+.app-adminlte .content .alert-success {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid var(--coral);
+  color: #1e293b;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.app-adminlte .content .alert-success .close {
+  color: #64748b;
+  text-shadow: none;
+  opacity: 0.8;
+}
+
+.app-adminlte .content .alert-success .close:hover {
+  color: #0f172a;
+  opacity: 1;
+}
+
+/* Infos flash (ex. déjà membre) : hors bleu Bootstrap, aligné encre × surface */
+.app-adminlte .content .alert-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid var(--ink-soft);
+  color: #1e293b;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.app-adminlte .content .alert-info .close {
+  color: #64748b;
+  text-shadow: none;
+  opacity: 0.8;
+}
+
+.app-adminlte .content .alert-info .close:hover {
+  color: #0f172a;
+  opacity: 1;
+}
+
+/* ——— Activity / audit ——— */
+.activity-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+.activity-hero {
+  margin-bottom: 2rem;
+}
+
+.activity-hero__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  letter-spacing: -0.03em;
+}
+
+.activity-hero__meta {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.activity-hero__roles {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.activity-hero__roles code {
+  background: rgba(15, 23, 42, 0.9);
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: #a5f3fc;
+  font-size: 0.8rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge--warn {
+  background: rgba(113, 63, 18, 0.5);
+  color: #fef08a;
+}
+
+.empty-state {
+  color: #64748b;
+  font-style: italic;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  vertical-align: top;
+}
+
+.data-table th {
+  background: rgba(15, 23, 42, 0.95);
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(30, 41, 59, 0.35);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.muted {
+  color: #64748b;
+}
+
+.action-pill {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.35rem;
+  background: rgba(255, 90, 54, 0.18);
+  color: #a5f3fc;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: ui-monospace, monospace;
+}
+
+.log-details {
+  margin: 0;
+  max-width: 520px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: #cbd5e1;
+  background: rgba(2, 6, 23, 0.6);
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+/* ——— Onboarding & cartes organisation ——— */
+.onboarding-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(79, 70, 229, 0.12), transparent 50%),
+    #020617;
+}
+
+.onboarding-card {
+  width: 100%;
+  max-width: 460px;
+}
+
+.onboarding-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+}
+
+.onboarding-logout {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.org-cards {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  margin-top: 1.5rem;
+}
+
+.org-card {
+  padding: 1.25rem 1.35rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.org-card__name {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+}
+
+.org-card__meta {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* =============================================================================
+   AdminLTE shell – AlertJet accents (overrides CDN variables)
+   ============================================================================= */
+.app-adminlte {
+  --brand-cyan: var(--coral);
+  --brand-cyan-dark: var(--ink);
+  --sidebar-width: 250px;
+  --navbar-height: 57px;
+  font-family: "Inter", "Source Sans Pro", system-ui, sans-serif;
+}
+
+/*
+ * AdminLTE `.accent-cyan` (CDN) applique #17a2b8 à .btn-link, .nav-tabs .nav-link et liens génériques.
+ * On reprend les mêmes exclusions que la feuille AdminLTE et on bascule sur la charte corail.
+ */
+body.app-adminlte.accent-cyan .btn-link {
+  color: var(--coral) !important;
+}
+
+body.app-adminlte.accent-cyan .btn-link:hover,
+body.app-adminlte.accent-cyan .btn-link:focus {
+  color: var(--action-hover) !important;
+}
+
+body.app-adminlte.accent-cyan .nav-tabs .nav-link {
+  color: var(--coral) !important;
+}
+
+body.app-adminlte.accent-cyan .nav-tabs .nav-link:hover {
+  color: var(--action-hover) !important;
+}
+
+body.app-adminlte.accent-cyan .nav-tabs .nav-link.active,
+body.app-adminlte.accent-cyan .nav-tabs .nav-link.active:focus {
+  color: #0f172a !important;
+}
+
+body.app-adminlte.accent-cyan
+  a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn) {
+  color: var(--coral);
+}
+
+body.app-adminlte.accent-cyan
+  a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn):hover {
+  color: var(--action-hover);
+}
+
+/* Icônes de titre (accent marque = corail) */
+body.app-adminlte .text-brand-cyan {
+  color: var(--brand-cyan) !important;
+}
+
+/*
+ * AdminLTE vit sur fond clair : le body global (auth, pages isolées) définit
+ * color: #e2e8f0. Sans override, tout le back-office hérite d’un texte clair
+ * sur #f4f6f9 → contraste quasi nul (cartes, titres, paragraphes).
+ */
+body.app-adminlte {
+  background-color: var(--surface);
+  color: var(--text);
+  /* UI back-office plus compacte (AdminLTE par défaut ≈ 1rem) */
+  font-size: 0.875rem;
+}
+
+body.app-adminlte .main-sidebar .nav-header {
+  color: rgba(255, 255, 255, 0.58);
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+body.app-adminlte .text-muted {
+  color: var(--text-muted) !important;
+}
+
+body.app-adminlte section.content a:not(.btn):not(.page-link):not(.dropdown-item):not(.nav-link) {
+  color: var(--action);
+  font-weight: 600;
+}
+
+body.app-adminlte section.content a:not(.btn):not(.page-link):not(.dropdown-item):not(.nav-link):hover {
+  color: var(--action-hover);
+}
+
+body.app-adminlte .card,
+body.app-adminlte .card .card-title,
+body.app-adminlte .card-header .card-title {
+  color: #0f172a;
+}
+
+body.app-adminlte .card-body {
+  color: #1f2937;
+}
+
+body.app-adminlte .main-footer {
+  color: #374151;
+  border-top: 1px solid #dee2e6;
+}
+
+body.app-adminlte .main-footer .text-muted {
+  color: #525252 !important;
+}
+
+.app-adminlte .main-header.navbar {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.app-adminlte .main-header .navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.app-adminlte .main-header .navbar-brand .brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(145deg, var(--coral), var(--coral-mid));
+  box-shadow: 0 0 0 2px rgba(255, 90, 54, 0.35);
+}
+
+/* Fil d’Ariane — barre supérieure (gauche) */
+.app-adminlte .main-header > ul.navbar-nav:first-child {
+  min-width: 0;
+}
+
+.app-adminlte .main-header__breadcrumb-slot {
+  border-left: 1px solid #e9ecef;
+  min-width: 0;
+}
+
+.app-adminlte .main-header-breadcrumb {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.app-adminlte .main-header-breadcrumb .breadcrumb {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.app-adminlte .main-header-breadcrumb .main-header-breadcrumb__current {
+  min-width: 0;
+}
+
+/* Sidebar : dégradé encre (charte officielle) */
+.app-adminlte .main-sidebar {
+  background: linear-gradient(180deg, var(--ink) 0%, var(--ink-deep) 45%, var(--sidebar-mid) 100%) !important;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.app-adminlte .main-sidebar .sidebar {
+  overflow-x: hidden;
+}
+
+.app-adminlte .main-sidebar .sidebar--stack {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.app-adminlte .main-sidebar .sidebar__nav {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  max-width: 100%;
+}
+
+.sidebar-org-context {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding: 0.75rem 0.85rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.sidebar-org-context__label {
+  display: block;
+  color: rgba(248, 250, 252, 0.55);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.sidebar-org-context__name {
+  color: #f8fafc;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.sidebar-org-context__select {
+  background-color: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  color: #f8fafc;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 0.35rem;
+}
+
+.sidebar-org-context__select:focus {
+  border-color: var(--brand-cyan);
+  box-shadow: 0 0 0 0.15rem rgba(255, 90, 54, 0.35);
+  background-color: rgba(15, 23, 42, 0.92);
+  color: #fff;
+}
+
+.sidebar-org-context__select option {
+  color: #0f172a;
+  background-color: #fff;
+}
+
+.app-adminlte .main-sidebar .brand-link {
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+.app-adminlte .main-sidebar .brand-text {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.app-adminlte .main-sidebar .brand-text.app-brand-html span {
+  color: var(--coral-soft);
+  font-weight: 700;
+}
+
+.app-adminlte .content-header__title.app-brand-html span,
+.app-adminlte .main-header-breadcrumb__current span {
+  color: var(--coral);
+  font-weight: 700;
+}
+
+.app-adminlte .main-footer .app-brand-html span {
+  color: var(--coral);
+  font-weight: 700;
+}
+
+.app-adminlte .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+  background-color: rgba(255, 90, 54, 0.15) !important;
+  color: #fff !important;
+  border-left: 3px solid var(--brand-cyan);
+}
+
+.app-adminlte .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link {
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  align-items: flex-start;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.app-adminlte .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link p {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.app-adminlte .nav-sidebar > .nav-item .nav-icon {
+  font-size: 0.95rem !important;
+  width: 1.45rem;
+  margin-top: 0.1rem;
+}
+
+.app-adminlte .sidebar-dark-primary .nav-sidebar .nav-link {
+  color: rgba(248, 250, 252, 0.85);
+}
+
+.app-adminlte .sidebar-dark-primary .nav-sidebar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: #fff;
+}
+
+.app-adminlte .content-wrapper {
+  background-color: var(--surface);
+}
+
+.app-adminlte .org-show-tabs .nav-link {
+  color: var(--action);
+  font-weight: 600;
+}
+
+.app-adminlte .org-show-tabs .nav-link:hover {
+  color: var(--action-hover);
+}
+
+.app-adminlte .org-show-tabs .nav-link.active {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.app-adminlte .org-show-tab-content {
+  border-color: #cbd5e1 !important;
+}
+
+/* Parcours initial & finalisation profil invité : pas de menu latéral, contenu pleine largeur */
+body.app-setup-incomplete .main-sidebar,
+body.app-setup-incomplete .main-header .nav-link[data-widget="pushmenu"],
+body.app-profile-onboarding .main-sidebar,
+body.app-profile-onboarding .main-header .nav-link[data-widget="pushmenu"] {
+  display: none !important;
+}
+
+body.app-setup-incomplete .content-wrapper,
+body.app-setup-incomplete .main-footer,
+body.app-profile-onboarding .content-wrapper,
+body.app-profile-onboarding .main-footer {
+  margin-left: 0 !important;
+}
+
+body.app-setup-incomplete.sidebar-mini .main-header,
+body.app-setup-incomplete .main-header,
+body.app-profile-onboarding.sidebar-mini .main-header,
+body.app-profile-onboarding .main-header {
+  margin-left: 0 !important;
+}
+
+/*
+ * SPA (spa.html.twig) : le body garde sidebar-mini / layout-fixed alors qu’en parcours
+ * la sidebar React n’est pas rendue — AdminLTE laisse margin-left sur .content-wrapper :
+ * le bandeau et le contenu semblent rétrécis. Forcer pleine largeur.
+ */
+.app-adminlte .wrapper.app-shell--parcours {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.app-adminlte .wrapper.app-shell--parcours .content-wrapper {
+  margin-top: 0 !important;
+  margin-left: 0 !important;
+  padding-top: 0;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0;
+  flex: 1 1 100%;
+}
+
+/* Marque colorée conservée sur les parcours (pas de content-header complet) */
+.app-adminlte .app-shell__parcours-brand {
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.app-adminlte .app-shell__parcours-brand-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.app-adminlte .app-shell__parcours-brand-title span {
+  color: var(--coral);
+  font-weight: 800;
+}
+
+/* Stepper parcours d’initialisation (horizontal, sobre — inspiration “stepper” type Vuetify) */
+.app-adminlte .setup-wizard-stepper {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e8eef4;
+}
+
+.app-adminlte .setup-wizard-stepper__scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-left: -0.25rem;
+  margin-right: -0.25rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.app-adminlte .setup-wizard-stepper__track {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  max-width: 40rem;
+  min-width: min(100%, 17rem);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.app-adminlte .setup-wizard-stepper__node-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.app-adminlte .setup-wizard-stepper__connector {
+  flex: 0 1 2.25rem;
+  min-width: 0.35rem;
+  max-width: 3.25rem;
+  height: 2px;
+  align-self: flex-start;
+  margin-top: 13px;
+  background: #e2e8f0;
+  border-radius: 1px;
+  transition: background 0.2s ease;
+}
+
+.app-adminlte .setup-wizard-stepper__connector.is-done {
+  background: rgba(255, 90, 54, 0.42);
+}
+
+.app-adminlte .setup-wizard-stepper__segment {
+  max-width: 6.75rem;
+  text-align: center;
+}
+
+.app-adminlte .setup-wizard-stepper__link,
+.app-adminlte .setup-wizard-stepper__static {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  gap: 0.35rem;
+}
+
+.app-adminlte .setup-wizard-stepper__link {
+  color: inherit;
+  border-radius: 6px;
+  padding: 0.125rem;
+  margin: -0.125rem;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.app-adminlte .setup-wizard-stepper__link:hover {
+  text-decoration: none;
+  opacity: 0.92;
+}
+
+.app-adminlte .setup-wizard-stepper__link:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--coral);
+}
+
+.app-adminlte .setup-wizard-stepper__marker {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  border: 2px solid #cbd5e1;
+  background: #fff;
+  color: #64748b;
+  flex-shrink: 0;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.app-adminlte .setup-wizard-stepper__check {
+  font-size: 0.6rem;
+}
+
+.app-adminlte .setup-wizard-stepper__label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #475569;
+  line-height: 1.25;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+@media (min-width: 576px) {
+  .app-adminlte .setup-wizard-stepper__label {
+    font-size: 0.72rem;
+  }
+}
+
+.app-adminlte .setup-wizard-stepper__segment.is-complete .setup-wizard-stepper__marker {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: #fff;
+}
+
+.app-adminlte .setup-wizard-stepper__segment.is-complete .setup-wizard-stepper__label {
+  color: #334155;
+}
+
+.app-adminlte .setup-wizard-stepper__segment.is-current .setup-wizard-stepper__marker {
+  border-color: var(--coral);
+  background: #fff;
+  color: var(--coral);
+  box-shadow: 0 0 0 3px var(--coral-dim);
+}
+
+.app-adminlte .setup-wizard-stepper__segment.is-current .setup-wizard-stepper__label {
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.app-adminlte .setup-wizard-stepper__segment.is-upcoming .setup-wizard-stepper__marker {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+  color: #94a3b8;
+}
+
+.app-adminlte .setup-wizard-stepper__segment.is-upcoming .setup-wizard-stepper__label {
+  color: #94a3b8;
+}
+
+.app-adminlte .setup-wizard-stepper__static--muted .setup-wizard-stepper__label {
+  color: #94a3b8;
+}
+
+/* Pages du parcours d’initialisation : titre + bouton non pleine largeur */
+.app-adminlte .setup-wizard-page-heading {
+  gap: 0.5rem;
+}
+
+.app-adminlte .setup-wizard-page-icon {
+  color: var(--coral);
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.app-adminlte .setup-wizard-form-actions {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding-top: 0.5rem;
+}
+
+.app-adminlte .setup-wizard-form-actions .btn {
+  width: auto;
+  align-self: flex-start;
+}
+
+/* Bloc adresse — parcours initialisation organisation : champs plus compacts */
+.app-adminlte .setup-org-address-block {
+  padding-top: 0.35rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  padding-left: 0.65rem;
+  border-left: 2px solid #e2e8f0;
+}
+
+.app-adminlte .setup-org-address-block .form-control-sm,
+.app-adminlte .setup-org-address-block .custom-select-sm {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  padding: 0.28rem 0.5rem;
+  min-height: calc(1.35em + 0.56rem + 2px);
+}
+
+.app-adminlte .setup-org-address-block label.small {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.app-adminlte .wrapper.app-shell--parcours .content > .container-fluid {
+  padding-top: 1.25rem;
+}
+
+.app-adminlte .content-header h1 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.app-adminlte .breadcrumb {
+  background: transparent;
+  margin-bottom: 0;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+/*
+ * Fil d’Ariane — corail charte.
+ * AdminLTE (.accent-cyan, liens primaires) colore les .breadcrumb-item a en bleu : forcer le corail.
+ */
+body.app-adminlte .breadcrumb-item > a,
+body.app-adminlte .breadcrumb-item > a:visited {
+  color: var(--coral) !important;
+  font-weight: 600;
+}
+
+body.app-adminlte .breadcrumb-item > a:hover {
+  color: var(--action-hover) !important;
+  text-decoration: underline;
+}
+
+.app-adminlte .content-header .breadcrumb-item.active,
+.app-adminlte .main-header-breadcrumb .breadcrumb-item.active {
+  color: #111827;
+  font-weight: 700;
+}
+
+.app-adminlte .content-header .breadcrumb-item + .breadcrumb-item::before,
+.app-adminlte .main-header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  color: #475569;
+  font-weight: 700;
+}
+
+/* Titres de page contenu */
+.app-adminlte.org-edit-page .content-header h1.m-0,
+.app-adminlte.org-member-form-page .content-header h1.m-0 {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* Formulaire édition organisation (et fiches membre similaires) */
+.app-adminlte .org-edit-card.member-form-card,
+.app-adminlte .member-form-card {
+  border: 1px solid #94a3b8;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
+}
+
+.app-adminlte .org-edit-card .card-header,
+.app-adminlte .member-form-card .card-header {
+  background: #fff;
+  color: #111827;
+  font-weight: 700;
+  border-bottom: 1px solid #64748b;
+}
+
+.app-adminlte .org-edit-card .card-title,
+.app-adminlte .member-form-card .card-title {
+  color: #0f172a;
+}
+
+.app-adminlte .org-edit-form .form-group > label,
+.app-adminlte .org-edit-form label.form-label,
+.app-adminlte.org-edit-page .content .form-group label {
+  color: #111827;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.app-adminlte .org-edit-form .form-control,
+.app-adminlte.member-form-card .form-control {
+  color: #111827;
+  background-color: #fff;
+  border: 1px solid #64748b;
+}
+
+.app-adminlte .org-edit-form .form-control:focus,
+.app-adminlte.member-form-card .form-control:focus {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 0.2rem rgba(255, 90, 54, 0.28);
+}
+
+.app-adminlte .org-edit-form .invalid-feedback,
+.app-adminlte .org-edit-form .form-text {
+  color: #991b1b;
+  font-weight: 500;
+}
+
+.app-adminlte .org-edit-form .form-text.text-muted {
+  color: #374151 !important;
+}
+
+/* Petits écarts : cartes / tableaux cohérents avec l'existant */
+.app-adminlte .card {
+  border-radius: 0.5rem;
+  border-color: #dee2e6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.app-adminlte .card-header {
+  font-weight: 600;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.app-adminlte .table thead th {
+  border-bottom-width: 1px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6c757d;
+}
+
+/* Tableaux back-office : contraste lisible (WCAG) */
+.app-adminlte .admin-data-table thead th {
+  background-color: #dee2e6;
+  color: #111827;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-color: #ced4da;
+}
+
+.app-adminlte .admin-data-table tbody td {
+  color: #1a1a1a;
+  border-color: #dee2e6;
+  vertical-align: middle;
+}
+
+.app-adminlte .admin-data-table.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f8f9fa;
+}
+
+.app-adminlte .admin-data-table.table-hover tbody tr:hover {
+  background-color: #e7f1f3;
+}
+
+.app-adminlte .admin-table-cell-muted {
+  color: #374151;
+}
+
+.app-adminlte .admin-ellipsis {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Page admin utilisateurs (filtres + cartes) */
+.app-adminlte .admin-filter-card .card-header,
+.app-adminlte .admin-list-card .card-header {
+  background: #fff;
+  color: #111827;
+  font-weight: 700;
+  border-bottom: 1px solid #ced4da;
+}
+
+.app-adminlte .admin-filter-card,
+.app-adminlte .admin-list-card {
+  border: 1px solid #ced4da;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+
+.app-adminlte .admin-filter-form .admin-form-label,
+.app-adminlte .admin-crud-page .form-group label.admin-form-label {
+  color: #111827;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.app-adminlte .admin-filter-form .form-control {
+  color: #111827;
+  background-color: #fff;
+  border: 1px solid #6c757d;
+}
+
+.app-adminlte .admin-filter-form .form-control:focus {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 0.2rem rgba(255, 90, 54, 0.25);
+}
+
+.app-adminlte .admin-empty-message {
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.app-adminlte .admin-pagination-toolbar {
+  background: #fff;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Pagination (liste utilisateurs) */
+.app-adminlte.admin-users-page .pagination .page-link {
+  color: var(--action);
+  background-color: #fff;
+  border: 1px solid #94a3b8;
+  font-weight: 600;
+}
+
+.app-adminlte.admin-users-page .pagination .page-item.active .page-link {
+  color: #fff;
+  background-color: var(--coral);
+  border-color: #e04a28;
+}
+
+.app-adminlte.admin-users-page .pagination .page-item.disabled .page-link {
+  color: #64748b;
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* Sélecteur de langue — capsule (icône + liste, chevron net) */
+.locale-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1;
+}
+
+.locale-switcher__shell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.15rem 0.28rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.locale-switcher__shell:hover {
+  border-color: #94a3b8;
+  box-shadow:
+    0 2px 6px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.locale-switcher__shell:focus-within {
+  border-color: var(--coral);
+  box-shadow:
+    0 0 0 3px rgba(255, 90, 54, 0.22),
+    0 1px 2px rgba(15, 23, 42, 0.06);
+  outline: none;
+}
+
+.locale-switcher__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--action);
+  font-size: 0.8rem;
+  opacity: 0.95;
+  flex-shrink: 0;
+}
+
+.locale-switcher__select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  margin: 0;
+  padding: 0.2rem 1.65rem 0.2rem 0.15rem;
+  min-width: 3.5rem;
+  max-width: 10rem;
+  border: none;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.35rem center;
+  background-size: 0.75rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  color: #0f172a;
+  cursor: pointer;
+  text-align: left;
+  text-align-last: left;
+}
+
+.locale-switcher__select:focus {
+  outline: none;
+}
+
+.app-adminlte .locale-switcher__shell {
+  border-color: #94a3b8;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+}
+
+.app-adminlte .navbar-light .locale-switcher__shell {
+  border-color: #cbd5e1;
+}
+
+.auth-split__panel .locale-switcher__shell {
+  border-color: #cbd5e1;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.07),
+    inset 0 1px 0 #fff;
+}
+
+.auth-split__panel .locale-switcher__shell:focus-within {
+  border-color: var(--coral);
+  box-shadow:
+    0 0 0 3px var(--coral-dim),
+    0 1px 3px rgba(15, 23, 42, 0.07);
+}
+
+.adminlte-react-root {
+  min-height: 200px;
+}
+
+.adminlte-form .form-control {
+  border-radius: 0.375rem;
+}
+
+.adminlte-form .btn-primary {
+  background-color: var(--coral);
+  border-color: #e04a28;
+  color: #fff;
+}
+
+.adminlte-form .btn-primary:hover,
+.adminlte-form .btn-primary:focus {
+  background-color: var(--coral-soft);
+  border-color: #c73d20;
+  color: #fff;
+}
+
+/* Boutons primaires Bootstrap / AdminLTE dans le back-office */
+body.app-adminlte .btn-primary {
+  background-color: var(--coral);
+  border-color: #e04a28;
+  color: #fff;
+}
+
+body.app-adminlte .btn-primary:hover,
+body.app-adminlte .btn-primary:focus {
+  background-color: var(--coral-soft);
+  border-color: #c73d20;
+  color: #fff;
+}
+
+/* Assistant d’initialisation — contraste renforcé (titres, fil d’Ariane, formulaires clairs) */
+.app-adminlte.environment-setup-page .content-header h1 {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.app-adminlte.environment-setup-page .breadcrumb-item a,
+.app-adminlte.environment-setup-page .breadcrumb-item a:visited {
+  color: var(--coral) !important;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.app-adminlte.environment-setup-page .breadcrumb-item a:hover {
+  color: var(--action-hover) !important;
+}
+
+.app-adminlte.environment-setup-page .breadcrumb-item.active {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.app-adminlte .environment-setup-card__title {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.app-adminlte .environment-setup-card .card-header {
+  background: #f1f5f9;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.app-adminlte .environment-step-intro {
+  color: #334155;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin-bottom: 1.1rem;
+}
+
+.app-adminlte .environment-step-intro strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.environment-steps__list {
+  font-size: 0.9rem;
+}
+
+.environment-steps__item--current .environment-steps__label {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.environment-steps__item--other .environment-steps__label {
+  color: #475569;
+  font-weight: 600;
+}
+
+.environment-steps__badge--current {
+  background: linear-gradient(135deg, var(--coral), var(--coral-mid)) !important;
+  color: #fff !important;
+}
+
+.environment-steps__badge--done {
+  background-color: #334155 !important;
+  color: #fff !important;
+}
+
+.environment-steps__badge--todo {
+  background-color: #fff !important;
+  color: #334155 !important;
+  border: 2px solid #64748b !important;
+  font-weight: 700;
+}
+
+/* Annule le thème sombre des .stack-form (labels gris clair / inputs sombres) sur fond blanc */
+.app-adminlte .environment-setup .stack-form label,
+.app-adminlte .environment-setup .form-label,
+.app-adminlte .environment-setup legend.col-form-label {
+  color: #1e293b !important;
+  text-transform: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+
+.app-adminlte .environment-setup .stack-form input[type="text"],
+.app-adminlte .environment-setup .stack-form input[type="email"],
+.app-adminlte .environment-setup .stack-form input[type="password"] {
+  background: #fff !important;
+  color: #0f172a !important;
+  border: 1px solid #94a3b8 !important;
+}
+
+.app-adminlte .environment-setup .stack-form input:focus {
+  border-color: var(--action) !important;
+  box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.22) !important;
+}
+
+.app-adminlte .environment-setup .stack-form ul {
+  color: #b91c1c !important;
+}
+
+.app-adminlte .environment-setup .form-check-label,
+.app-adminlte .environment-setup .custom-control-label {
+  color: #1e293b !important;
+}
+
+.app-adminlte .environment-setup small.form-text,
+.app-adminlte .environment-setup .form-text {
+  color: #475569 !important;
+}
+
+.environment-setup-logout {
+  color: #475569 !important;
+}
+
+.environment-setup-logout:hover {
+  color: #0f172a !important;
+}
+
+/* Tuiles de formules (parcours d’initialisation) */
+.environment-plan-tiles .plan-tile {
+  cursor: pointer;
+  display: block;
+}
+
+.environment-plan-tiles .plan-tile__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.environment-plan-tiles .plan-tile__card {
+  position: relative;
+  border-width: 2px;
+  border-color: #cbd5e1;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.environment-plan-tiles .plan-tile__input:focus + .plan-tile__card {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+}
+
+.environment-plan-tiles .plan-tile__input:checked + .plan-tile__card {
+  border-color: var(--action);
+  box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.22);
+}
+
+.environment-plan-tiles .plan-tile--emerald .plan-tile__card {
+  border-color: #6ee7b7;
+}
+
+.environment-plan-tiles .plan-tile--blue .plan-tile__card {
+  border-color: #93c5fd;
+}
+
+.environment-plan-tiles .plan-tile--violet .plan-tile__card {
+  border-color: #c4b5fd;
+}
+
+.environment-plan-tiles .plan-tile__ribbon {
+  position: absolute;
+  top: -0.55rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  background: #7c3aed;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.environment-plan-tiles .plan-tile--violet .plan-tile__card {
+  margin-top: 0.35rem;
+}
+
+.environment-plan-tiles .plan-tile__emoji {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.environment-plan-tiles .plan-tile__name {
+  font-size: 1.05rem;
+}
+
+.environment-plan-tiles .plan-tile__header-badge {
+  background: #d1fae5;
+  color: #047857;
+  border: 1px solid #6ee7b7;
+}
+
+.environment-plan-tiles .plan-tile__price {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.environment-plan-tiles .plan-tile__period {
+  font-size: 1rem;
+  font-weight: 400;
+  margin-left: 0.15rem;
+}
+
+.environment-plan-tiles .plan-tile__target {
+  color: #334155;
+  background: #f8fafc;
+  border-color: #e2e8f0 !important;
+}
+
+.environment-plan-tiles .plan-tile__check {
+  color: var(--action);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.environment-plan-tiles .plan-tile__features li {
+  color: #334155;
+}
+
+.environment-plan-tiles .plan-tile__cta {
+  pointer-events: none;
+  border: 1px solid var(--action);
+  background: #fff;
+  color: var(--action);
+  font-weight: 600;
+}
+
+.environment-plan-tiles .plan-tile__input:checked + .plan-tile__card .plan-tile__cta {
+  background: var(--action);
+  color: #fff;
+}
+
+.environment-plan-tiles .plan-tile__footer-box {
+  border-color: #ddd6fe !important;
+  background: #faf5ff;
+}
+
+.environment-plan-tiles .plan-tile__footer-italic {
+  color: #b45309;
+}
+
+/* Avatar utilisateur (navbar + page profil) */
+.navbar-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 50%;
+  background: var(--avatar-bg, var(--ink));
+  color: var(--avatar-fg, #fff);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  user-select: none;
+}
+
+.navbar-avatar--xl {
+  width: 3.25rem;
+  height: 3.25rem;
+  font-size: 1rem;
+}
+
+.navbar-role-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+/* Gestionnaire : charte encre × corail (remplace badge-info / cyan Bootstrap) */
+.badge.badge-role-manager {
+  background-color: var(--ink-soft);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 90, 54, 0.45);
+  font-weight: 600;
+}
+
+.profile-card .profile-preview__inner {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+}
+
+.profile-card .profile-preview__label {
+  letter-spacing: 0.06em;
+}
+
+.profile-card .profile-preview__avatar {
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+}
+
+.profile-card .profile-preview__initials-line .profile-preview__initials-label {
+  margin-right: 0.35rem;
+}
+
+.profile-card .profile-initials-input {
+  max-width: 5.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.profile-card .form-row .profile-initials-input {
+  max-width: 100%;
+}
+
+.user-profile-form .user-profile-palette,
+.profile-card .user-profile-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+/*
+ * Pastilles couleur profil : avec ChoiceType, choice_attr (fond, titre) est sur
+ * l’INPUT, pas sur le label. Ne pas utiliser background:transparent !important
+ * ni opacity:0 sur l’input — cela masquait les couleurs inline.
+ */
+.user-profile-form .user-profile-palette > .form-check,
+.profile-card .user-profile-palette > .form-check,
+#profile-edit-form .user-profile-palette > .form-check {
+  display: block !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  position: relative;
+  width: 2.5rem !important;
+  max-width: 2.5rem !important;
+  height: 2.5rem !important;
+  flex-shrink: 0;
+  align-items: unset !important;
+  justify-content: unset !important;
+}
+
+.user-profile-form .user-profile-palette .form-check-input,
+.profile-card .user-profile-palette .form-check-input,
+#profile-edit-form .user-profile-palette .form-check-input {
+  position: relative !important;
+  display: block !important;
+  top: auto !important;
+  left: auto !important;
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  margin: 0 !important;
+  float: none !important;
+  flex-shrink: 0;
+  cursor: pointer;
+  z-index: 2;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 3px solid #e9ecef;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0,0.06);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.12s ease;
+}
+
+.user-profile-form .user-profile-palette .form-check-input:hover,
+.profile-card .user-profile-palette .form-check-input:hover,
+#profile-edit-form .user-profile-palette .form-check-input:hover {
+  border-color: #64748b;
+  transform: scale(1.06);
+}
+
+.user-profile-form .user-profile-palette .form-check-input:focus,
+.profile-card .user-profile-palette .form-check-input:focus,
+#profile-edit-form .user-profile-palette .form-check-input:focus {
+  outline: 3px solid var(--coral);
+  outline-offset: 2px;
+}
+
+.user-profile-form .user-profile-palette .form-check-input:checked,
+.profile-card .user-profile-palette .form-check-input:checked,
+#profile-edit-form .user-profile-palette .form-check-input:checked {
+  border-color: #0f172a;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px #0f172a,
+    inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  transform: scale(1.08);
+}
+
+/* Label vide (choice_label=false) : ne pas réserver d’espace */
+.user-profile-form .user-profile-palette .form-check-label:empty,
+.profile-card .user-profile-palette .form-check-label:empty,
+#profile-edit-form .user-profile-palette .form-check-label:empty {
+  display: none !important;
+}
+
+/* Ancienne classe swatch sur le label : sans effet si le fond est sur l’input */
+.user-profile-form .user-profile-palette .avatar-swatch-label:not(:empty),
+.profile-card .user-profile-palette .avatar-swatch-label:not(:empty),
+#profile-edit-form .user-profile-palette .avatar-swatch-label:not(:empty) {
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* =============================================================================
+   Page Utilisateurs de l'organisation (org/users)
+   ============================================================================= */
+
+/* ── Barre d'actions en-tête ── */
+.ou-topbar__count {
+  font-size: 0.75rem;
+  padding: 0.3em 0.65em;
+  border-radius: 20px;
+}
+
+.ou-invite-btn {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.35rem 0.85rem;
+}
+
+.ou-more-btn {
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  color: #6c757d;
+  border-color: #dee2e6;
+}
+
+.ou-more-btn:hover {
+  background: #f8f9fa;
+  color: #343a40;
+}
+
+/* ── Filtres intégrés dans la card ── */
+.ou-card-filter {
+  background: #f8fafc;
+  border-radius: 10px 10px 0 0;
+}
+
+.ou-filter-form .input-group-text {
+  border-right: 0;
+  border-color: #ced4da;
+  background: #fff;
+}
+
+.ou-filter-form .form-control {
+  font-size: 0.8125rem;
+  border-color: #ced4da;
+}
+
+.ou-filter-form .custom-select {
+  font-size: 0.8125rem;
+  border-color: #ced4da;
+}
+
+/* ── Table des membres ── */
+.ou-members-card {
+  border-radius: 10px !important;
+  overflow: hidden;
+}
+
+.ou-members-card .table-responsive {
+  margin: 0.75rem 1rem 1.25rem;
+}
+
+.ou-members-table {
+  font-size: 0.8125rem;
+  color: #1a1a1a;
+}
+
+.ou-members-th-actions {
+  min-width: 5.5rem;
+  width: 1%;
+}
+
+.ou-members-thead th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid #e9ecef;
+  padding: 0.65rem 1rem;
+  white-space: nowrap;
+}
+
+.ou-member-row {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.1s;
+}
+
+.ou-member-row:last-child {
+  border-bottom: 0;
+}
+
+.ou-member-row:hover {
+  background: #f8fbff;
+}
+
+.ou-member-row td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+.ou-member-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.ou-member-name {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+}
+
+.ou-member-email {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+/* badges rôles */
+.ou-role-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.3em 0.6em;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+
+/* statut vérification */
+.ou-status {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ou-status--ok {
+  color: #059669;
+}
+
+.ou-status--warn {
+  color: #d97706;
+}
+
+/* date d'adhésion */
+.ou-date {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* bouton icône retirer */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  border: 1px solid transparent;
+}
+
+.btn-icon--danger {
+  color: #ef4444;
+  background: #fff5f5;
+  border-color: #fecaca;
+}
+
+.btn-icon--danger:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* ── État vide ── */
+.ou-empty-state {
+  padding: 3rem 1.5rem;
+}
+
+.ou-empty-icon {
+  font-size: 2.5rem;
+  color: #cbd5e1;
+}
+
+/* ── Pagination ── */
+.ou-pagination {
+  background: #fafbfc;
+  border-radius: 0 0 10px 10px;
+}
+
+.ou-pagination__info {
+  font-size: 0.75rem;
+}
+
+.ou-pagination .page-link {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  color: #374151;
+  border-color: #e5e7eb;
+  border-radius: 5px !important;
+  margin: 0 2px;
+}
+
+.ou-pagination .page-item.active .page-link {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: #fff;
+}
+
+.ou-pagination .page-item.disabled .page-link {
+  color: #d1d5db;
+}
+
+/* ── Modal inviter ── */
+.ou-invite-modal .modal-content {
+  border-radius: 14px;
+}
+
+.ou-invite-modal__header {
+  padding: 1.5rem 1.5rem 0;
+}
+
+.ou-invite-modal__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--coral), var(--coral-mid));
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.ou-invite-modal__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.ou-invite-modal__subtitle {
+  font-size: 0.8125rem;
+}
+
+.ou-invite-modal__body {
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.ou-invite-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.4rem;
+}
+
+.ou-invite-form .input-group-text {
+  border-right: 0;
+  border-color: #ced4da;
+  background: #fff;
+  color: #9ca3af;
+}
+
+.ou-invite-form .form-control {
+  border-left: 0;
+  font-size: 0.875rem;
+  border-color: #ced4da;
+}
+
+.ou-invite-form .form-control:focus {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 0.15rem rgba(255, 90, 54, 0.25);
+}
+
+/* =============================================================================
+   Page Projets de l'organisation (org/projects) — préfixe op-
+   ============================================================================= */
+
+/* ── Topbar ── */
+.op-topbar__count {
+  font-size: 0.75rem;
+  padding: 0.3em 0.65em;
+  border-radius: 20px;
+}
+
+.op-new-btn,
+.op-more-btn {
+  font-size: 0.8125rem;
+  border-radius: 6px;
+}
+
+.op-new-btn {
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+}
+
+.op-more-btn {
+  padding: 0.35rem 0.6rem;
+  color: #6c757d;
+  border-color: #dee2e6;
+}
+
+.op-more-btn:hover {
+  background: #f8f9fa;
+  color: #343a40;
+}
+
+/* ── Filtre intégré dans la card ── */
+.op-card-filter {
+  background: #f8fafc;
+  border-radius: 10px 10px 0 0;
+}
+
+.op-filter-form .input-group-text {
+  border-right: 0;
+  border-color: #ced4da;
+  background: #fff;
+}
+
+.op-filter-form .form-control {
+  font-size: 0.8125rem;
+  border-color: #ced4da;
+}
+
+/* ── Table projets ── */
+.op-projects-card {
+  border-radius: 10px !important;
+  overflow: hidden;
+}
+
+.op-projects-table {
+  font-size: 0.8125rem;
+  color: #1a1a1a;
+}
+
+.op-projects-thead th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid #e9ecef;
+  padding: 0.65rem 1rem;
+  white-space: nowrap;
+}
+
+.op-project-row {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.1s;
+}
+
+.op-project-row:last-child {
+  border-bottom: 0;
+}
+
+.op-project-row:hover {
+  background: rgba(255, 90, 54, 0.06);
+}
+
+.op-project-row td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+/* Icône dossier projet */
+.op-project-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--coral-dim), rgba(255, 143, 107, 0.22));
+  color: var(--coral);
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.op-project-icon--lg {
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.1rem;
+  border-radius: 10px;
+}
+
+.op-project-name {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+}
+
+.op-project-token {
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-family: ui-monospace, monospace;
+  line-height: 1.3;
+}
+
+/* Avatars des handlers */
+.op-handler-avatar {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.6rem;
+}
+
+/* Compteur de tickets */
+.op-ticket-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.4rem;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.op-date {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* bouton icône édition */
+.btn-icon--primary {
+  color: var(--coral);
+  background: var(--coral-dim);
+  border-color: rgba(255, 90, 54, 0.35);
+}
+
+.btn-icon--primary:hover {
+  background: rgba(255, 90, 54, 0.22);
+  border-color: var(--coral);
+  color: #c73d20;
+}
+
+/* ── État vide ── */
+.op-empty-state {
+  padding: 3.5rem 1.5rem;
+}
+
+.op-empty-icon {
+  font-size: 2.5rem;
+  color: #cbd5e1;
+}
+
+/* ── Modal nouveau projet ── */
+.op-new-modal .modal-content {
+  border-radius: 14px;
+}
+
+.op-new-modal__header {
+  padding: 1.5rem 1.5rem 0;
+}
+
+.op-new-modal__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--coral), var(--coral-mid));
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.op-new-modal__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.op-new-modal__subtitle {
+  font-size: 0.8125rem;
+}
+
+.op-new-modal__body {
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.op-new-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.4rem;
+}
+
+.op-new-form .input-group-text {
+  border-right: 0;
+  border-color: #ced4da;
+  background: #fff;
+  color: #9ca3af;
+}
+
+.op-new-form .form-control {
+  border-left: 0;
+  font-size: 0.875rem;
+  border-color: #ced4da;
+}
+
+.op-new-form .form-control:focus {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 0.15rem rgba(255, 90, 54, 0.25);
+}
+
+/* ── Page édition projet ── */
+.op-edit-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.op-edit-card__header {
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.op-edit-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.op-edit-card__subtitle {
+  font-size: 0.75rem;
+}
+
+.op-webhook-block {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.op-webhook-block__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.op-webhook-block__token {
+  font-size: 0.8rem;
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+  color: #0f172a;
+  background: transparent;
+  word-break: break-all;
+  margin-top: 0.35rem;
+}
+
+.op-copy-btn {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 5px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #475569;
+}
+
+.op-copy-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.op-copy-btn--ok {
+  color: #059669 !important;
+  border-color: #a7f3d0 !important;
+  background: #f0fdf4 !important;
+}
+
+.op-handlers-hint {
+  font-size: 0.8125rem;
+}
+
+.op-edit-form .form-control {
+  font-size: 0.8125rem;
+}
+
+.op-edit-form select.form-control {
+  font-size: 0.8125rem;
+}
+
+/* =============================================================================
+   Édition projet — onglets & cartes membres (aligné esprit page utilisateurs)
+   ============================================================================= */
+
+.pe-edit-page .pe-edit-main-card {
+  border-radius: 10px !important;
+  overflow: hidden;
+}
+
+.pe-edit-card-head {
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+}
+
+.pe-edit-tabs {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pe-edit-tabs .nav-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0;
+}
+
+.pe-edit-tabs .nav-link:hover {
+  color: #334155;
+  border-color: transparent;
+}
+
+.pe-edit-tabs .nav-link.active {
+  color: var(--coral);
+  background: transparent;
+  border-bottom-color: var(--coral);
+}
+
+.pe-edit-tab-content {
+  min-height: 12rem;
+}
+
+.pe-handlers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.65rem;
+}
+
+.pe-handler-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.85rem;
+  margin: 0;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f1f5f9;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pe-handler-card:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.pe-handler-card:has(.pe-handler-card__input:checked) {
+  border-color: var(--coral);
+  background: linear-gradient(135deg, var(--coral-dim), rgba(255, 143, 107, 0.14));
+  box-shadow: 0 0 0 1px rgba(255, 90, 54, 0.18);
+}
+
+.pe-handler-card:has(.pe-handler-card__input:focus-visible) {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+}
+
+.pe-handler-card__avatar {
+  width: 2.35rem;
+  height: 2.35rem;
+  font-size: 0.72rem;
+}
+
+.pe-handler-card__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.pe-handler-card__name {
+  display: block;
+  font-weight: 600;
+  font-size: 0.84rem;
+  color: #1e293b;
+  line-height: 1.25;
+}
+
+.pe-handler-card__email {
+  display: block;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.pe-handler-card__check {
+  flex-shrink: 0;
+  color: var(--coral);
+  font-size: 0.95rem;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.pe-handler-card:has(.pe-handler-card__input:checked) .pe-handler-card__check {
+  opacity: 1;
+}
+
+/* Admin — journal d’audit / erreurs */
+.app-adminlte .admin-audit-json {
+  max-height: 12rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #f8fafc;
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+.app-adminlte .admin-error-message-pre,
+.app-adminlte .admin-error-trace-pre {
+  max-height: 28rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
 }

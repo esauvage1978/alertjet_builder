@@ -2,9 +2,12 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
 
-        # IMPORTANT: You MUST configure your server version,
-        # either here or in the DATABASE_URL env var (see .env file)
-        #server_version: '16'
+        # Avec MariaDB, l’introspection Doctrine lit information_schema.CHECK_CONSTRAINTS.TABLE_NAME
+        # (colonne inexistante côté MariaDB → SQLSTATE[42S22] « i_c.TABLE_NAME » sur schema:update).
+        # Cette valeur force la plateforme « MySQL 8 » pour l’introspection uniquement.
+        # Si DATABASE_URL contient serverVersion=…-MariaDB, ce paramètre d’URL prend le dessus :
+        # retirez-le ou utilisez serverVersion=8.0.32 dans l’URL.
+        server_version: '8.0.32'
 
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true

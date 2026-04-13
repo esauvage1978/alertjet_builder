@@ -1,0 +1,5 @@
+# English locale: optional explicit wording (defaults fall back to Symfony source keys)
+"Invalid credentials.": "Incorrect email or password."
+"Username could not be found.": "No account matches this email."
+"Authentication request could not be processed due to a system problem.": "Sign-in failed (system error)."
+"Too many failed login attempts, please try again later.": "Too many attempts. Please try again later."

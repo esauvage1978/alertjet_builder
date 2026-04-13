@@ -2,8 +2,16 @@
 framework:
     secret: '%env(APP_SECRET)%'
 
-    # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    # Session : httpOnly, SameSite ; cookie_secure=auto sous HTTPS (trusted proxy / X-Forwarded-Proto).
+    session:
+        handler_id: null
+        cookie_secure: auto
+        cookie_samesite: lax
+        cookie_httponly: true
+        name: ALERTJETSESSID
+
+    # Derrière un reverse-proxy TLS : dans .env.local — TRUSTED_PROXIES=127.0.0.1,REMOTE_ADDR
+    # puis activer trusted_proxies / trusted_headers (voir doc Symfony « Trusting Reverse Proxies »).
 
     #esi: true
     #fragments: true

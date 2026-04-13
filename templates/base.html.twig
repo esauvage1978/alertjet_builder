@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ app.request.locale }}">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+        <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+        <title>{% block title %}{{ 'app.title_short'|trans }}{% endblock %}</title>
         <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
         <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
-
-        {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-        {% endblock %}
-
         {% set frankenphpHotReload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
         {% if frankenphpHotReload %}
         <meta name="frankenphp-hot-reload:url" content="{{ frankenphpHotReload }}">
@@ -20,7 +21,207 @@
         <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
         {% endif %}
     </head>
-    <body>
-        {% block body %}{% endblock %}
+    {% set _route = app.request.attributes.get('_route') %}
+    {% set setupIncomplete = app.user and (not app.user.hasAnyOrganization or app.user.needsEnvironmentSetup) %}
+    {% set profileOnboardingPage = _route == 'app_account_profile_onboarding' %}
+    {% set hideAppSidebar = setupIncomplete or profileOnboardingPage %}
+    {% set showMainNavDestinations = not setupIncomplete and not profileOnboardingPage %}
+    <body class="hold-transition {% if not hideAppSidebar %}sidebar-mini {% endif %}layout-fixed accent-cyan app-adminlte {% if setupIncomplete %}app-setup-incomplete{% endif %} {% if profileOnboardingPage %}app-profile-onboarding{% endif %} {% block body_extra_class %}{% endblock %}">
+        <div class="wrapper">
+            <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom-0 elevation-1">
+                <ul class="navbar-nav align-items-center flex-nowrap flex-grow-1 mr-2">
+                    {% if not hideAppSidebar %}
+                        <li class="nav-item flex-shrink-0">
+                            <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="{{ 'nav.toggle_menu'|trans }}"><i class="fas fa-bars"></i></a>
+                        </li>
+                    {% elseif setupIncomplete %}
+                        <li class="nav-item pl-2 pr-3 flex-shrink-0">
+                            <span class="navbar-text d-flex align-items-center mb-0">
+                                <strong class="text-dark">{{ 'nav.brand_html'|trans|raw }}</strong>
+                                <span class="badge badge-secondary ml-2 small font-weight-normal">{{ 'nav.setup_badge'|trans }}</span>
+                            </span>
+                        </li>
+                    {% else %}
+                        <li class="nav-item pl-2 pr-3 flex-shrink-0">
+                            <span class="navbar-text d-flex align-items-center mb-0">
+                                <strong class="text-dark">{{ 'nav.brand_html'|trans|raw }}</strong>
+                                <span class="badge badge-secondary ml-2 small font-weight-normal">{{ 'nav.profile_onboarding_badge'|trans }}</span>
+                            </span>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item d-flex align-items-center min-width-0 flex-grow-1 pl-3 main-header__breadcrumb-slot">
+                        {% block breadcrumb %}
+                            <nav class="main-header-breadcrumb" aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item">
+                                        <a href="{{ path('app_home') }}" class="main-header-breadcrumb__link">{{ 'breadcrumb.home'|trans }}</a>
+                                    </li>
+                                    <li class="breadcrumb-item active text-truncate main-header-breadcrumb__current" aria-current="page">
+                                        {%- block breadcrumb_current -%}
+                                            {{ block('page_title')|striptags|trim }}
+                                        {%- endblock -%}
+                                    </li>
+                                </ol>
+                            </nav>
+                        {% endblock %}
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto align-items-center">
+                    <li class="nav-item d-flex align-items-center mr-2">
+                        {% include 'partials/_locale_switcher.html.twig' %}
+                    </li>
+                    {% if app.user %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link d-flex align-items-center py-1" data-toggle="dropdown" href="#" aria-expanded="false" id="navbar-user-menu">
+                                <span class="navbar-avatar" style="--avatar-bg: {{ app.user.avatarColorOrDefault }}; --avatar-fg: {{ app.user.avatarForegroundColorOrDefault }}">{{ app.user.avatarInitials }}</span>
+                                <span class="ml-2 text-left d-none d-sm-block">
+                                    <span class="d-block small font-weight-bold text-dark text-nowrap">{{ app.user.displayName ? app.user.displayName : app.user.userIdentifier }}</span>
+                                    <span class="badge {{ app.user.roleBadgeClass }} navbar-role-badge">{{ ('user.role.' ~ app.user.primaryRoleCatalogKey)|trans }}</span>
+                                </span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                {% if showMainNavDestinations %}
+                                    <a href="{{ path('app_account_profile') }}" class="dropdown-item"><i class="fas fa-user-edit mr-2"></i> {{ 'nav.profile'|trans }}</a>
+                                    <div class="dropdown-divider"></div>
+                                    {% if app.user.canViewActivityLog %}
+                                    <a href="{{ path('app_account_activity') }}" class="dropdown-item"><i class="fas fa-list-alt mr-2"></i> {{ 'nav.activity_log'|trans }}</a>
+                                    {% endif %}
+                                    {% if app.user.organizations|length > 0 and app.user.canAccessOrganizationBillingPage %}
+                                        <a href="{{ path('app_organization_show') }}" class="dropdown-item"><i class="fas fa-building mr-2"></i> {{ 'nav.org_billing'|trans }}</a>
+                                    {% endif %}
+                                    <div class="dropdown-divider"></div>
+                                {% elseif setupIncomplete %}
+                                    <span class="dropdown-item-text small text-muted">{{ 'nav.setup_hint'|trans }}</span>
+                                    <div class="dropdown-divider"></div>
+                                {% endif %}
+                                <form method="post" action="{{ path('app_logout') }}" class="px-0 m-0">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                                    <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt mr-2"></i> {{ 'nav.logout'|trans }}</button>
+                                </form>
+                            </div>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+
+            {% if not hideAppSidebar %}
+            <aside class="main-sidebar sidebar-dark-primary elevation-4">
+                <a href="{{ path('app_home') }}" class="brand-link">
+                    <span class="brand-text font-weight-light">{{ 'nav.brand_html'|trans|raw }}</span>
+                </a>
+                <div class="sidebar sidebar--stack">
+                    <nav class="mt-2 sidebar__nav">
+                        <ul class="nav nav-pills nav-sidebar flex-column nav-flat" data-widget="treeview" role="menu" data-accordion="false">
+                            <li class="nav-item">
+                                <a href="{{ path('app_home') }}" class="nav-link {{ _route == 'app_home' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-tachometer-alt"></i>
+                                    <p>{{ 'nav.dashboard'|trans }}</p>
+                                </a>
+                            </li>
+                            {% if app.user and app.user.organizations|length > 0 and current_organization %}
+                                <li class="nav-header">{{ 'nav.section_administration'|trans }}</li>
+                                {% if app.user.canAccessOrganizationBillingPage %}
+                                <li class="nav-item">
+                                    <a href="{{ path('app_organization_show') }}" class="nav-link {{ _route == 'app_organization_show' ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-building"></i>
+                                        <p>{{ 'nav.org_billing'|trans }}</p>
+                                    </a>
+                                </li>
+                                {% endif %}
+                                {% if is_granted('ORGANIZATION_EDIT', current_organization) %}
+                                    <li class="nav-item">
+                                        <a href="{{ path('app_organization_users') }}" class="nav-link {{ _route == 'app_organization_users' ? 'active' : '' }}">
+                                            <i class="nav-icon fas fa-user-group"></i>
+                                            <p>{{ 'nav.org_users'|trans }}</p>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                <li class="nav-header">{{ 'nav.section_tickets'|trans }}</li>
+                                {% if is_granted('ORGANIZATION_EDIT', current_organization) %}
+                                    <li class="nav-item">
+                                        <a href="{{ path('app_organization_projects', { orgToken: current_organization.publicToken }) }}" class="nav-link {{ _route in ['app_organization_projects', 'app_organization_project_edit'] ? 'active' : '' }}">
+                                            <i class="nav-icon fas fa-folder-open"></i>
+                                            <p>{{ 'nav.project'|trans }}</p>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                <li class="nav-item">
+                                    <a href="{{ path('app_organization_tickets') }}" class="nav-link {{ _route == 'app_organization_tickets' ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-ticket-alt"></i>
+                                        <p>{{ 'nav.tickets'|trans }}</p>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if app.user.canViewActivityLog %}
+                            <li class="nav-item">
+                                <a href="{{ path('app_account_activity') }}" class="nav-link {{ _route == 'app_account_activity' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-clipboard-list"></i>
+                                    <p>{{ 'nav.activity_log'|trans }}</p>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <li class="nav-header">{{ 'nav.admin_header'|trans }}</li>
+                                <li class="nav-item">
+                                    <a href="{{ path('admin_organization_index') }}" class="nav-link {{ _route starts with 'admin_organization' ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-sitemap"></i>
+                                        <p>{{ 'nav.organizations_admin'|trans }}</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ path('admin_user_index') }}" class="nav-link {{ _route starts with 'admin_user' ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-users"></i>
+                                        <p>{{ 'nav.users_admin'|trans }}</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ path('admin_audit_actions') }}" class="nav-link {{ _route == 'admin_audit_actions' ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-history"></i>
+                                        <p>{{ 'nav.admin_audit_actions'|trans }}</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ path('admin_audit_errors') }}" class="nav-link {{ _route in ['admin_audit_errors', 'admin_audit_error_show'] ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-bug"></i>
+                                        <p>{{ 'nav.admin_audit_errors'|trans }}</p>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% include 'partials/_sidebar_organization_context.html.twig' %}
+                </div>
+            </aside>
+            {% endif %}
+
+            <div class="content-wrapper">
+                <div class="content-header">
+                    <div class="container-fluid">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap" style="gap:.5rem; min-height:2.25rem;">
+                            <h1 class="m-0 text-dark content-header__title">{% block page_title %}{{ 'page.dashboard.title'|trans }}{% endblock %}</h1>
+                            {% block page_actions %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+                <section class="content">
+                    <div class="container-fluid">
+                        {% include 'partials/_flashes.html.twig' %}
+                        {% block body %}{% endblock %}
+                    </div>
+                </section>
+            </div>
+
+            <footer class="main-footer text-sm">
+                <strong>{{ 'app.title_short'|trans }}</strong> — {{ 'footer.tagline'|trans }}
+                <div class="float-right d-none d-sm-inline text-muted">{% block footer_right %}{% endblock %}</div>
+            </footer>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js" crossorigin="anonymous"></script>
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
     </body>
 </html>

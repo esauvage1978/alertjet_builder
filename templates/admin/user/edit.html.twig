@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
+{% block title %}{{ 'admin.user.edit.title'|trans({ '%email%': user.email }) }}{% endblock %}
+
+{% block page_title %}{{ 'admin.user.edit.page_title'|trans }}{% endblock %}
+
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card card-warning card-outline">
+            <div class="card-header">
+                <h3 class="card-title mb-0">{{ user.email }}</h3>
+                <div class="card-tools text-muted small">{{ 'admin.user.edit.meta'|trans({ '%id%': user.id }) }}</div>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">{{ 'admin.user.edit.password_hint'|trans }}</p>
+                {{ form_start(form, { attr: { class: 'adminlte-form' } }) }}
+                    {{ form_row(form.email) }}
+                    {{ form_row(form.displayName) }}
+                    {{ form_row(form.primaryRole) }}
+                    {{ form_row(form.organizations) }}
+                    {{ form_row(form.plainPassword) }}
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-1"></i> {{ 'admin.user.edit.submit'|trans }}</button>
+                    <a href="{{ path('admin_user_index') }}" class="btn btn-default border">{{ 'admin.user.edit.back'|trans }}</a>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

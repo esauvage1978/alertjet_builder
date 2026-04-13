@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
+{% block title %}{{ 'admin.user.new.title'|trans }}{% endblock %}
+
+{% block page_title %}{{ 'admin.user.new.page_title'|trans }}{% endblock %}
+
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title mb-0">{{ 'admin.user.new.card_title'|trans }}</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">{{ 'admin.user.new.help_verified'|trans }}</p>
+                {{ form_start(form, { attr: { class: 'adminlte-form' } }) }}
+                    {{ form_row(form.email) }}
+                    {{ form_row(form.displayName) }}
+                    {{ form_row(form.primaryRole) }}
+                    {{ form_row(form.organizations) }}
+                    {{ form_row(form.plainPassword) }}
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-1"></i> {{ 'admin.user.new.submit'|trans }}</button>
+                    <a href="{{ path('admin_user_index') }}" class="btn btn-default border">{{ 'admin.user.new.cancel'|trans }}</a>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
