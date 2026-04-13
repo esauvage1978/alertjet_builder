@@ -2074,8 +2074,8 @@ body.app-profile-onboarding .main-header {
 
 /* Liste projets : pas de marque dans le content-header (titre injecté par la page). */
 .app-spa .content-header.content-header--projects {
-  padding-top: 0.65rem;
-  padding-bottom: 0.65rem;
+  padding-top: 1.5rem;
+  padding-bottom: 0.85rem;
 }
 
 .app-spa .content-header.content-header--projects h1.content-header__title.op-projects-page__title {
