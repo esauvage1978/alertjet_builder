@@ -46,8 +46,7 @@ export default function AppShell() {
   const isOrgProjectsList = orgProjectsListMatch !== null || isShortProjectsList;
   const isProjectEditPage = orgProjectsEditMatch !== null || shortProjectsEditMatch !== null;
   const isProjectViewPage =
-    (shortProjectsViewMatch !== null && shortProjectsEditMatch === null) ||
-    (orgProjectsViewMatch !== null && orgProjectsEditMatch === null);
+    !isProjectEditPage && (shortProjectsViewMatch !== null || orgProjectsViewMatch !== null);
   /** Jeton public du projet (fiche ou édition), pour fil d’Ariane. */
   const projectContextToken =
     shortProjectsEditMatch?.[1] ??
