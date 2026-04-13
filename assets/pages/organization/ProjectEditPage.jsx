@@ -433,12 +433,26 @@ export default function ProjectEditPage() {
               <button
                 type="button"
                 className="btn btn-sm op-project-edit__btn-outline"
-                disabled={busy || !data.testImapCsrf}
+                disabled={busy || imapTestBusy || !data.testImapCsrf}
                 onClick={() => onTestImap()}
               >
-                <i className="fas fa-plug mr-1" aria-hidden="true" />
-                Tester la connexion
+                {imapTestBusy ? (
+                  <i className="fas fa-circle-notch fa-spin mr-1" aria-hidden="true" />
+                ) : (
+                  <i className="fas fa-plug mr-1" aria-hidden="true" />
+                )}
+                {imapTestBusy ? 'Test en cours…' : 'Tester la connexion'}
               </button>
+              {imapTestFeedback ? (
+                <div
+                  className={`alert mt-3 mb-0 py-2 small ${
+                    imapTestFeedback.type === 'success' ? 'alert-success' : 'alert-danger'
+                  }`}
+                  role="status"
+                >
+                  {imapTestFeedback.message}
+                </div>
+              ) : null}
             </div>
           ) : null}
 
