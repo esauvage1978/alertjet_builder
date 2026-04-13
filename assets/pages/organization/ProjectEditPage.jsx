@@ -184,6 +184,64 @@ export default function ProjectEditPage() {
     navigator.clipboard.writeText(url).catch(() => {});
   }
 
+  async function onTestWebhook() {
+    const url = data?.project?.webhookUrl;
+    if (!url) return;
+    setWebhookTestBusy(true);
+    setWebhookTestFeedback(null);
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          title: 'Test webhook (AlertJet Builder)',
+          message: "Requête de test envoyée depuis l'onglet Webhook.",
+        }),
+      });
+      const ct = res.headers.get('Content-Type') || '';
+      let payload = null;
+      if (ct.includes('application/json')) {
+        try {
+          payload = await res.json();
+        } catch {
+          payload = null;
+        }
+      }
+      if (res.status === 429) {
+        setWebhookTestFeedback({
+          type: 'warning',
+          message: 'Trop de requêtes — réessayez dans quelques secondes.',
+        });
+        return;
+      }
+      if (res.ok && payload && payload.ok === true) {
+        const id = payload.publicId != null ? String(payload.publicId) : payload.ticketId;
+        setWebhookTestFeedback({
+          type: 'success',
+          message: payload.merged
+            ? `Événement fusionné sur le ticket ${id}.`
+            : `Ticket créé — identifiant ${id}.`,
+        });
+        return;
+      }
+      const errMsg =
+        payload?.error === 'unknown_webhook_token'
+          ? 'Jeton webhook inconnu.'
+          : typeof payload?.error === 'string'
+            ? payload.error
+            : res.statusText || `Erreur ${res.status}`;
+      setWebhookTestFeedback({ type: 'danger', message: errMsg });
+    } catch (e) {
+      setWebhookTestFeedback({ type: 'danger', message: e.message || 'Erreur réseau' });
+    } finally {
+      setWebhookTestBusy(false);
+    }
+  }
+
   if (!orgToken || !projectId) {
     return (
       <ErrorAlert message="Organisation ou projet manquant. Revenez à la liste des projets." />
