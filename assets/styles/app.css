@@ -31,6 +31,26 @@
   --action-hover: #e04a28;
 }
 
+/*
+ * Bootstrap (CDN) colore le focus des .form-control en bleu (#80bdff / rgba bleu).
+ * Toute l’interface SPA AdminLTE utilise le corail charte.
+ */
+body.app-adminlte .form-control:focus,
+body.app-adminlte .custom-select:focus,
+body.app-adminlte textarea.form-control:focus,
+body.app-adminlte select.custom-select:focus {
+  border-color: var(--coral) !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 90, 54, 0.28) !important;
+}
+
+body.app-adminlte .form-control.is-invalid:focus,
+body.app-adminlte .custom-select.is-invalid:focus,
+body.app-adminlte textarea.form-control.is-invalid:focus {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.28) !important;
+}
+
 /* Masquage accessible (pages sans Bootstrap, ex. invité) */
 .sr-only,
 .visually-hidden {
@@ -1688,9 +1708,9 @@ body.app-profile-onboarding .main-header {
 .app-adminlte .setup-wizard-form .form-control:focus,
 .app-adminlte .setup-wizard-form .custom-select:focus {
   background-color: #fff;
-  border-color: var(--coral);
+  border-color: var(--coral) !important;
   color: #0f172a;
-  box-shadow: 0 0 0 0.2rem rgba(255, 90, 54, 0.2);
+  box-shadow: 0 0 0 0.2rem rgba(255, 90, 54, 0.28) !important;
 }
 
 .app-adminlte .setup-wizard-form .form-control.is-invalid,
@@ -2173,8 +2193,8 @@ body.app-adminlte .btn-primary:focus {
 }
 
 .app-adminlte .environment-setup .stack-form input:focus {
-  border-color: var(--action) !important;
-  box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.22) !important;
+  border-color: var(--coral) !important;
+  box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.28) !important;
 }
 
 .app-adminlte .environment-setup .stack-form ul {
@@ -2227,8 +2247,8 @@ body.app-adminlte .btn-primary:focus {
 }
 
 .environment-plan-tiles .plan-tile__input:checked + .plan-tile__card {
-  border-color: var(--action);
-  box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.22);
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.28);
 }
 
 .environment-plan-tiles .plan-tile--emerald .plan-tile__card {
