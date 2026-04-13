@@ -225,20 +225,50 @@ export default function ProjectEditPage() {
           {activeTab === 'pe-pane-members' ? (
             <div className="pe-pane" id="pe-pane-members">
               <h2 className="op-project-edit__pane-title h6">Membres affectés aux tickets</h2>
-              <p className="op-project-edit__hint small mb-3">Parmi les membres de l’organisation.</p>
-              <div className="pe-handlers-form-widget d-flex flex-column" style={{ gap: '0.5rem' }}>
-                {(data.members ?? []).map((m) => (
-                  <label key={m.id} className="d-flex align-items-center mb-0" style={{ gap: '0.5rem' }}>
-                    <input
-                      type="checkbox"
-                      checked={ticketHandlerIds.includes(m.id)}
-                      onChange={() => toggleHandler(m.id)}
-                      disabled={busy}
-                    />
-                    <span>{m.label}</span>
-                  </label>
-                ))}
-              </div>
+              <p className="op-project-edit__hint small mb-3">Cliquez sur une carte pour inclure ou retirer un membre du traitement des tickets.</p>
+              {(data.members ?? []).length === 0 ? (
+                <p className="op-project-edit__hint small mb-0">Aucun membre dans cette organisation.</p>
+              ) : (
+                <div
+                  className="ticket-handler-mini-card-grid"
+                  role="group"
+                  aria-label="Membres affectés aux tickets"
+                >
+                  {(data.members ?? []).map((m) => {
+                    const selected = ticketHandlerIds.includes(m.id);
+                    const displayName =
+                      typeof m.displayName === 'string' && m.displayName.trim() !== ''
+                        ? m.displayName
+                        : typeof m.label === 'string' && m.label.includes('(')
+                          ? m.label.replace(/\s*\([^)]*\)\s*$/, '').trim()
+                          : m.label ?? '—';
+                    const email = typeof m.email === 'string' ? m.email : '';
+                    const initials =
+                      typeof m.initials === 'string' && m.initials.trim() !== ''
+                        ? m.initials
+                        : displayName
+                            .split(/\s+/)
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .map((p) => p[0])
+                            .join('')
+                            .toUpperCase() || '?';
+                    return (
+                      <TicketHandlerMiniCard
+                        key={m.id}
+                        displayName={displayName}
+                        email={email}
+                        initials={initials}
+                        avatarColor={m.avatarColor}
+                        avatarForegroundColor={m.avatarForegroundColor}
+                        selected={selected}
+                        disabled={busy}
+                        onToggle={() => toggleHandler(m.id)}
+                      />
+                    );
+                  })}
+                </div>
+              )}
             </div>
           ) : null}
 
