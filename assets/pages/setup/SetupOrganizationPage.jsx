@@ -75,6 +75,13 @@ export default function SetupOrganizationPage() {
     const cityV = val('setup-org-billing-city');
     const countryV = val('setup-org-billing-country');
 
+    setName(nameV);
+    setL1(l1V);
+    setL2(l2V);
+    setPostal(postalV);
+    setCity(cityV);
+    setCountry(countryV);
+
     const fields = {
       'organization[name]': nameV,
       'organization[billingLine1]': l1V,
