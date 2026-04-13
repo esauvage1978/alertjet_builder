@@ -14,6 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -21,7 +22,10 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\Range;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use App\Service\WebhookCorsHelper;
 
 final class ManagerProjectFormType extends AbstractType
 {
@@ -75,6 +79,20 @@ final class ManagerProjectFormType extends AbstractType
                 'label' => 'form.manager_project.webhook_integration_enabled',
                 'required' => false,
                 'false_values' => [null, false, '', '0'],
+            ])
+            ->add('webhookCorsAllowedOrigins', TextareaType::class, [
+                'label' => 'form.manager_project.webhook_cors_allowed_origins',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control form-control-sm',
+                    'rows' => 4,
+                    'placeholder' => 'https://app.exemple.fr',
+                    'spellcheck' => 'false',
+                ],
+                'help' => 'form.manager_project.webhook_cors_allowed_origins_help',
+                'constraints' => [
+                    new Callback([$this, 'validateWebhookCorsAllowedOrigins']),
+                ],
             ])
             ->add('imapHost', TextType::class, [
                 'label' => 'form.manager_project.imap_host',
