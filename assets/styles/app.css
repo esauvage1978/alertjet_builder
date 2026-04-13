@@ -4342,7 +4342,7 @@ a.op-project-name--link:hover {
 }
 
 .pe-mail-switch__input:checked + .pe-mail-switch__track .pe-mail-switch__thumb {
-  transform: translateX(1.125rem);
+  transform: translateX(1.25rem);
 }
 
 .pe-mail-switch__label {

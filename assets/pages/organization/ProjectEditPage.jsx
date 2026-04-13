@@ -424,8 +424,10 @@ export default function ProjectEditPage() {
                   <input
                     id="pe-imap-enabled"
                     type="checkbox"
+                    role="switch"
                     className="pe-mail-switch__input"
                     checked={imapEnabled}
+                    aria-checked={imapEnabled}
                     onChange={(e) => setImapEnabled(e.target.checked)}
                     disabled={busy}
                   />
