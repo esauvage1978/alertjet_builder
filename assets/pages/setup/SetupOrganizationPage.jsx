@@ -62,13 +62,26 @@ export default function SetupOrganizationPage() {
     setFormErrors([]);
     setSummaryMessage('');
 
+    const form = e.currentTarget;
+    const val = (id) => {
+      const el = form.querySelector(`#${id}`);
+      return el && 'value' in el ? String(el.value ?? '') : '';
+    };
+
+    const nameV = val('setup-org-name');
+    const l1V = val('setup-org-billing-line1');
+    const l2V = val('setup-org-billing-line2');
+    const postalV = val('setup-org-billing-postal');
+    const cityV = val('setup-org-billing-city');
+    const countryV = val('setup-org-billing-country');
+
     const fields = {
-      'organization[name]': name,
-      'organization[billingLine1]': l1,
-      'organization[billingLine2]': l2,
-      'organization[billingPostalCode]': postal,
-      'organization[billingCity]': city,
-      'organization[billingCountry]': country,
+      'organization[name]': nameV,
+      'organization[billingLine1]': l1V,
+      'organization[billingLine2]': l2V,
+      'organization[billingPostalCode]': postalV,
+      'organization[billingCity]': cityV,
+      'organization[billingCountry]': countryV,
       'organization[_token]': meta.csrf,
     };
     const raw = await postFormRedirect(meta.action, fields, { preferJsonErrors: true, sendEmpty: true });

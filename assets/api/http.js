@@ -62,7 +62,9 @@ export async function postFormRedirect(url, fields, options = {}) {
   const body = new URLSearchParams();
   Object.entries(fields).forEach(([k, v]) => {
     if (sendEmpty) {
-      if (v !== undefined && v !== null) body.set(k, String(v));
+      // Toujours envoyer la clé (ex. organization[billingLine2]=) pour que PHP / Symfony
+      // reçoivent bien une chaîne vide et puissent effacer les champs optionnels.
+      body.set(k, v == null ? '' : String(v));
     } else if (v != null && v !== '') {
       body.set(k, String(v));
     }
