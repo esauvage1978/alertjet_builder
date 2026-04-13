@@ -528,25 +528,61 @@ export default function ProjectEditPage() {
             <div className="pe-pane" id="pe-pane-webhook">
               <h2 className="op-project-edit__pane-title h6">URL du webhook (POST)</h2>
               <p className="op-project-edit__hint small mb-3">
-                Envoyez du JSON ou du texte brut. GET pour vérifier que le jeton est valide.
+                Envoyez du JSON ou du texte brut. Un GET sur l’URL vérifie que le jeton est valide (sans créer de ticket).
               </p>
-              <div className="input-group input-group-sm op-project-edit__webhook-group mb-2">
-                <input
-                  type="text"
-                  readOnly
-                  className="form-control font-monospace small"
-                  value={p.webhookUrl || ''}
-                />
-                <div className="input-group-append">
-                  <button
-                    type="button"
-                    className="btn op-project-edit__btn-input-addon"
-                    onClick={() => copyWebhook(p.webhookUrl)}
+              {p.webhookUrl ? (
+                <>
+                  <div
+                    className="fw-url-box fw-url-box--compact fw-url-box--workflow-card mb-2"
+                    title={p.webhookUrl}
                   >
-                    Copier
-                  </button>
-                </div>
-              </div>
+                    <div className="fw-url-box__text">
+                      <code className="fw-url-code">{formatWebhookUrlForDisplay(p.webhookUrl)}</code>
+                    </div>
+                    <div className="fw-url-box__actions">
+                      <button
+                        type="button"
+                        className="fw-btn-ghost"
+                        title="Envoyer un POST JSON de test (peut créer ou fusionner un ticket selon le contenu)"
+                        disabled={webhookTestBusy || busy}
+                        onClick={() => onTestWebhook()}
+                      >
+                        {webhookTestBusy ? (
+                          <>
+                            <i className="fas fa-circle-notch fa-spin mr-1" aria-hidden="true" />
+                            Test…
+                          </>
+                        ) : (
+                          'Tester'
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        className="fw-btn-ghost"
+                        onClick={() => copyWebhook(p.webhookUrl)}
+                      >
+                        Copier
+                      </button>
+                    </div>
+                  </div>
+                  {webhookTestFeedback ? (
+                    <div
+                      className={`alert py-2 small mb-2 ${
+                        webhookTestFeedback.type === 'success'
+                          ? 'alert-success'
+                          : webhookTestFeedback.type === 'warning'
+                            ? 'alert-warning'
+                            : 'alert-danger'
+                      }`}
+                      role="status"
+                    >
+                      {webhookTestFeedback.message}
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <p className="op-project-edit__hint small mb-0">URL indisponible.</p>
+              )}
               {p.webhookPingUrl ? (
                 <p className="op-project-edit__hint small mb-0">
                   <a className="op-project-edit__link" href={p.webhookPingUrl} target="_blank" rel="noreferrer">
