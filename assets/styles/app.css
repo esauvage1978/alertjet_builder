@@ -4394,6 +4394,51 @@ a.op-project-name--link:hover {
   }
 }
 
+/* Exemple JSON — onglet Webhook */
+.fw-json-example__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.fw-json-example__inline {
+  font-size: 0.8em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: rgba(12, 25, 41, 0.06);
+  color: var(--ink);
+}
+
+.fw-json-example__fields {
+  line-height: 1.5;
+}
+
+.fw-json-example__fields li {
+  margin-bottom: 0.35rem;
+}
+
+.fw-json-example__pre {
+  margin: 0 0 0.5rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(12, 25, 41, 0.12);
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.fw-json-example__pre code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  white-space: pre;
+  color: inherit;
+}
+
 .op-project-edit__btn-input-addon {
   border: 1px solid var(--input-border);
   background: #f8fafc;
