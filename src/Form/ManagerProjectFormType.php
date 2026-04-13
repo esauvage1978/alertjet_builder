@@ -68,6 +68,8 @@ final class ManagerProjectFormType extends AbstractType
             ->add('imapEnabled', CheckboxType::class, [
                 'label' => 'form.manager_project.imap_enabled',
                 'required' => false,
+                /** POST JSON / SPA : on peut envoyer « 0 » pour décocher explicitement */
+                'false_values' => [null, false, '', '0'],
             ])
             ->add('imapHost', TextType::class, [
                 'label' => 'form.manager_project.imap_host',
@@ -85,6 +87,7 @@ final class ManagerProjectFormType extends AbstractType
             ->add('imapTls', CheckboxType::class, [
                 'label' => 'form.manager_project.imap_tls',
                 'required' => false,
+                'false_values' => [null, false, '', '0'],
             ])
             ->add('imapUsername', TextType::class, [
                 'label' => 'form.manager_project.imap_username',

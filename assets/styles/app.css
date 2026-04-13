@@ -5,7 +5,7 @@
 }
 
 /* =============================================================================
-   Charte AlertJet (encre × corail — alignée builder / vitrine)
+   Charte : bleu nuit (#0c1929) × corail vif (#ff5a36) — alignée réf. Webhooky
    ============================================================================= */
 :root {
   --ink: #0c1929;
@@ -21,32 +21,39 @@
   --text: #0f172a;
   --text-muted: #64748b;
   --border: rgba(12, 25, 41, 0.08);
+  /** Champs de saisie : bordure lisible sur fond blanc / gris très clair */
   --input-bg: #ffffff;
   --input-border: rgba(15, 23, 42, 0.22);
   --input-border-hover: rgba(15, 23, 42, 0.32);
   --input-placeholder: #64748b;
   --danger: #dc2626;
-  /* Liens & focus d’action : corail charte (l’ancien nom « action-blue » était un bleu ardoise, retiré) */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(12, 25, 41, 0.08);
+  --shadow-lg: 0 12px 40px rgba(12, 25, 41, 0.12);
+  --sidebar-w: 272px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  /* Liens & actions SPA */
   --action: var(--coral);
   --action-hover: #e04a28;
 }
 
 /*
  * Bootstrap (CDN) colore le focus des .form-control en bleu (#80bdff / rgba bleu).
- * Toute l’interface SPA AdminLTE utilise le corail charte.
+ * Toute l’interface SPA back-office utilise le corail charte.
  */
-body.app-adminlte .form-control:focus,
-body.app-adminlte .custom-select:focus,
-body.app-adminlte textarea.form-control:focus,
-body.app-adminlte select.custom-select:focus {
+body.app-spa .form-control:focus,
+body.app-spa .custom-select:focus,
+body.app-spa textarea.form-control:focus,
+body.app-spa select.custom-select:focus {
   border-color: var(--coral) !important;
   outline: 0 !important;
   box-shadow: 0 0 0 0.2rem rgba(255, 90, 54, 0.28) !important;
 }
 
-body.app-adminlte .form-control.is-invalid:focus,
-body.app-adminlte .custom-select.is-invalid:focus,
-body.app-adminlte textarea.form-control.is-invalid:focus {
+body.app-spa .form-control.is-invalid:focus,
+body.app-spa .custom-select.is-invalid:focus,
+body.app-spa textarea.form-control.is-invalid:focus {
   border-color: #dc3545 !important;
   box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.28) !important;
 }
@@ -910,7 +917,7 @@ textarea {
  * Confirmations dans l’app AdminLTE : éviter le vert Bootstrap / AdminLTE trop saturé.
  * Fond neutre + filet gauche couleur marque (corail).
  */
-.app-adminlte .content .alert-success {
+.app-spa .content .alert-success {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-left: 4px solid var(--coral);
@@ -918,19 +925,19 @@ textarea {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
-.app-adminlte .content .alert-success .close {
+.app-spa .content .alert-success .close {
   color: #64748b;
   text-shadow: none;
   opacity: 0.8;
 }
 
-.app-adminlte .content .alert-success .close:hover {
+.app-spa .content .alert-success .close:hover {
   color: #0f172a;
   opacity: 1;
 }
 
 /* Infos flash (ex. déjà membre) : hors bleu Bootstrap, aligné encre × surface */
-.app-adminlte .content .alert-info {
+.app-spa .content .alert-info {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-left: 4px solid var(--ink-soft);
@@ -938,13 +945,13 @@ textarea {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
-.app-adminlte .content .alert-info .close {
+.app-spa .content .alert-info .close {
   color: #64748b;
   text-shadow: none;
   opacity: 0.8;
 }
 
-.app-adminlte .content .alert-info .close:hover {
+.app-spa .content .alert-info .close:hover {
   color: #0f172a;
   opacity: 1;
 }
@@ -1127,54 +1134,161 @@ textarea {
 }
 
 /* =============================================================================
-   AdminLTE shell – AlertJet accents (overrides CDN variables)
+   Shell back-office (sidebar + barre du haut + zone de contenu — sans AdminLTE)
    ============================================================================= */
-.app-adminlte {
+.app-spa {
   --brand-cyan: var(--coral);
   --brand-cyan-dark: var(--ink);
-  --sidebar-width: 250px;
+  --sidebar-width: var(--sidebar-w);
   --navbar-height: 57px;
-  font-family: "Inter", "Source Sans Pro", system-ui, sans-serif;
+  /* Barre du haut : fond blanc opaque (équivalent admin-topbar / shell « Webhooky ») */
+  --topbar-bg: var(--surface-elevated);
+  --topbar-border: var(--border);
+  font-family: inherit;
+}
+
+/* Grille fixe : barre du haut à droite de la sidebar, zone principale décalée */
+body.app-spa .wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  /* Réserve l’espace de la barre fixe sans margin sur .content-wrapper (évite dépassement flex) */
+  padding-top: var(--navbar-height);
+  box-sizing: border-box;
+}
+
+body.app-spa #root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+body.app-spa .main-header {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  z-index: 1020;
+  margin: 0;
+  min-height: var(--navbar-height);
+  background-color: var(--topbar-bg) !important;
+  background-image: none !important;
+  box-shadow: 0 1px 0 var(--topbar-border);
+  isolation: isolate;
+}
+
+body.app-spa .main-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  z-index: 1030;
+  margin: 0;
+}
+
+body.app-spa .content-wrapper {
+  margin-left: var(--sidebar-width);
+  margin-top: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+body.app-spa .main-footer {
+  margin-left: var(--sidebar-width);
+  flex-shrink: 0;
+}
+
+@media (max-width: 991.98px) {
+  body.app-spa .main-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  body.app-spa .main-header {
+    left: 0;
+  }
+
+  body.app-spa .content-wrapper,
+  body.app-spa .main-footer {
+    margin-left: 0;
+  }
+
+  body.app-spa .wrapper.app-shell--sidebar-open .main-sidebar {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.28);
+  }
+}
+
+@media (min-width: 992px) {
+  body.app-spa .app-shell__backdrop {
+    display: none !important;
+  }
+
+  body.app-spa .main-sidebar {
+    transform: none !important;
+  }
+}
+
+body.app-spa .app-shell__backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1025;
+}
+
+body.app-spa .wrapper.app-shell--sidebar-open .app-shell__backdrop {
+  display: block;
 }
 
 /*
- * AdminLTE `.accent-cyan` (CDN) applique #17a2b8 à .btn-link, .nav-tabs .nav-link et liens génériques.
+ * Liens d’action (.btn-link, .nav-tabs) : charte corail (remplace l’ancien thème accent bleu).
  * On reprend les mêmes exclusions que la feuille AdminLTE et on bascule sur la charte corail.
  */
-body.app-adminlte.accent-cyan .btn-link {
+body.app-spa .btn-link {
   color: var(--coral) !important;
 }
 
-body.app-adminlte.accent-cyan .btn-link:hover,
-body.app-adminlte.accent-cyan .btn-link:focus {
+body.app-spa .btn-link:hover,
+body.app-spa .btn-link:focus {
   color: var(--action-hover) !important;
 }
 
-body.app-adminlte.accent-cyan .nav-tabs .nav-link {
+body.app-spa .nav-tabs .nav-link {
   color: var(--coral) !important;
 }
 
-body.app-adminlte.accent-cyan .nav-tabs .nav-link:hover {
+body.app-spa .nav-tabs .nav-link:hover {
   color: var(--action-hover) !important;
 }
 
-body.app-adminlte.accent-cyan .nav-tabs .nav-link.active,
-body.app-adminlte.accent-cyan .nav-tabs .nav-link.active:focus {
+body.app-spa .nav-tabs .nav-link.active,
+body.app-spa .nav-tabs .nav-link.active:focus {
   color: #0f172a !important;
 }
 
-body.app-adminlte.accent-cyan
-  a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn) {
+/* Menu latéral : exclure du corail global accent-cyan (NavLink = <a class="admin-nav-item">) */
+body.app-spa
+  a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn):not(.admin-nav-item):not(.admin-brand) {
   color: var(--coral);
 }
 
-body.app-adminlte.accent-cyan
-  a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn):hover {
+body.app-spa
+  a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn):not(.admin-nav-item):not(.admin-brand):hover {
   color: var(--action-hover);
 }
 
 /* Icônes de titre (accent marque = corail) */
-body.app-adminlte .text-brand-cyan {
+body.app-spa .text-brand-cyan {
   color: var(--brand-cyan) !important;
 }
 
@@ -1183,56 +1297,68 @@ body.app-adminlte .text-brand-cyan {
  * color: #e2e8f0. Sans override, tout le back-office hérite d’un texte clair
  * sur #f4f6f9 → contraste quasi nul (cartes, titres, paragraphes).
  */
-body.app-adminlte {
+body.app-spa {
   background-color: var(--surface);
   color: var(--text);
   /* UI back-office plus compacte (AdminLTE par défaut ≈ 1rem) */
   font-size: 0.875rem;
+  margin: 0;
+  overflow: hidden;
+  /* Annule body { min-height: 100vh } global : évite 100vh + marge interne */
+  min-height: 0;
+  /* Hauteur viewport verrouillée : scroll uniquement dans .content-wrapper */
+  height: 100vh;
+  max-height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
 }
 
-body.app-adminlte .main-sidebar .nav-header {
+body.app-spa .main-sidebar .nav-header {
   color: rgba(255, 255, 255, 0.58);
   font-weight: 600;
   font-size: 0.75rem;
 }
 
-body.app-adminlte .text-muted {
+body.app-spa .text-muted {
   color: var(--text-muted) !important;
 }
 
-body.app-adminlte section.content a:not(.btn):not(.page-link):not(.dropdown-item):not(.nav-link) {
+body.app-spa section.content a:not(.btn):not(.page-link):not(.dropdown-item):not(.nav-link) {
   color: var(--action);
   font-weight: 600;
 }
 
-body.app-adminlte section.content a:not(.btn):not(.page-link):not(.dropdown-item):not(.nav-link):hover {
+body.app-spa section.content a:not(.btn):not(.page-link):not(.dropdown-item):not(.nav-link):hover {
   color: var(--action-hover);
 }
 
-body.app-adminlte .card,
-body.app-adminlte .card .card-title,
-body.app-adminlte .card-header .card-title {
+body.app-spa .card,
+body.app-spa .card .card-title,
+body.app-spa .card-header .card-title {
   color: #0f172a;
 }
 
-body.app-adminlte .card-body {
+body.app-spa .card-body {
   color: #1f2937;
 }
 
-body.app-adminlte .main-footer {
+body.app-spa .main-footer {
   color: #374151;
   border-top: 1px solid #dee2e6;
 }
 
-body.app-adminlte .main-footer .text-muted {
+body.app-spa .main-footer .text-muted {
   color: #525252 !important;
 }
 
-.app-adminlte .main-header.navbar {
-  border-bottom: 1px solid #e9ecef;
+.app-spa .main-header.app-topbar.navbar,
+.app-spa .main-header.navbar {
+  border-bottom: none;
+  background-color: var(--topbar-bg) !important;
+  background-image: none !important;
 }
 
-.app-adminlte .main-header .navbar-brand {
+.app-spa .main-header .navbar-brand {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1240,7 +1366,7 @@ body.app-adminlte .main-footer .text-muted {
   color: #212529;
 }
 
-.app-adminlte .main-header .navbar-brand .brand-mark {
+.app-spa .main-header .navbar-brand .brand-mark {
   width: 28px;
   height: 28px;
   border-radius: 8px;
@@ -1249,49 +1375,49 @@ body.app-adminlte .main-footer .text-muted {
 }
 
 /* Fil d’Ariane — barre supérieure (gauche) */
-.app-adminlte .main-header > ul.navbar-nav:first-child {
+.app-spa .main-header > ul.navbar-nav:first-child {
   min-width: 0;
 }
 
-.app-adminlte .main-header__breadcrumb-slot {
+.app-spa .main-header__breadcrumb-slot {
   border-left: 1px solid #e9ecef;
   min-width: 0;
 }
 
-.app-adminlte .main-header-breadcrumb {
+.app-spa .main-header-breadcrumb {
   min-width: 0;
   max-width: 100%;
 }
 
-.app-adminlte .main-header-breadcrumb .breadcrumb {
+.app-spa .main-header-breadcrumb .breadcrumb {
   flex-wrap: nowrap;
   align-items: center;
 }
 
-.app-adminlte .main-header-breadcrumb .main-header-breadcrumb__current {
+.app-spa .main-header-breadcrumb .main-header-breadcrumb__current {
   min-width: 0;
 }
 
 /* Sidebar : dégradé encre (charte officielle) */
-.app-adminlte .main-sidebar {
+.app-spa .main-sidebar {
   background: linear-gradient(180deg, var(--ink) 0%, var(--ink-deep) 45%, var(--sidebar-mid) 100%) !important;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
 }
 
-.app-adminlte .main-sidebar .sidebar {
+.app-spa .main-sidebar .sidebar {
   overflow-x: hidden;
 }
 
-.app-adminlte .main-sidebar .sidebar--stack {
+.app-spa .main-sidebar .sidebar--stack {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
-.app-adminlte .main-sidebar .sidebar__nav {
+.app-spa .main-sidebar .sidebar__nav {
   flex: 1 1 auto;
   overflow-y: auto;
   overflow-x: hidden;
@@ -1345,13 +1471,13 @@ body.app-adminlte .main-footer .text-muted {
   background-color: #fff;
 }
 
-.app-adminlte .main-sidebar .brand-link {
+.app-spa .main-sidebar .brand-link {
   flex-shrink: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   color: #f8fafc;
 }
 
-.app-adminlte .main-sidebar .brand-text {
+.app-spa .main-sidebar .brand-text {
   font-weight: 700;
   letter-spacing: 0.02em;
   font-size: 0.95rem;
@@ -1360,29 +1486,29 @@ body.app-adminlte .main-footer .text-muted {
   word-break: break-word;
 }
 
-.app-adminlte .main-sidebar .brand-text.app-brand-html span {
+.app-spa .main-sidebar .brand-text.app-brand-html span {
   color: var(--coral-soft);
   font-weight: 700;
 }
 
-.app-adminlte .content-header__title.app-brand-html span,
-.app-adminlte .main-header-breadcrumb__current span {
+.app-spa .content-header__title.app-brand-html span,
+.app-spa .main-header-breadcrumb__current span {
   color: var(--coral);
   font-weight: 700;
 }
 
-.app-adminlte .main-footer .app-brand-html span {
+.app-spa .main-footer .app-brand-html span {
   color: var(--coral);
   font-weight: 700;
 }
 
-.app-adminlte .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+.app-spa .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
   background-color: rgba(255, 90, 54, 0.15) !important;
   color: #fff !important;
   border-left: 3px solid var(--brand-cyan);
 }
 
-.app-adminlte .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link {
+.app-spa .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link {
   font-size: 0.8125rem;
   line-height: 1.25;
   align-items: flex-start;
@@ -1390,55 +1516,225 @@ body.app-adminlte .main-footer .text-muted {
   padding-bottom: 0.5rem;
 }
 
-.app-adminlte .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link p {
+.app-spa .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link p {
   white-space: normal !important;
   word-break: break-word;
   overflow-wrap: anywhere;
   margin: 0;
 }
 
-.app-adminlte .nav-sidebar > .nav-item .nav-icon {
+.app-spa .nav-sidebar > .nav-item .nav-icon {
   font-size: 0.95rem !important;
   width: 1.45rem;
   margin-top: 0.1rem;
 }
 
-.app-adminlte .sidebar-dark-primary .nav-sidebar .nav-link {
+.app-spa .sidebar-dark-primary .nav-sidebar .nav-link {
   color: rgba(248, 250, 252, 0.85);
 }
 
-.app-adminlte .sidebar-dark-primary .nav-sidebar .nav-link:hover {
+.app-spa .sidebar-dark-primary .nav-sidebar .nav-link:hover {
   background-color: rgba(255, 255, 255, 0.06) !important;
   color: #fff;
 }
 
-.app-adminlte .content-wrapper {
+/* ── Menu latéral type vitrine (admin-brand, admin-nav-item) ── */
+.app-spa .main-sidebar .admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.35rem 1.25rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.app-spa .main-sidebar .admin-brand:hover {
+  color: #fff;
+}
+
+.app-spa .main-sidebar .admin-brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm, 8px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.06) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+}
+
+.app-spa .main-sidebar .admin-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.app-spa .main-sidebar .admin-brand-text .app-brand-html {
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Pas de corail sur le titre dans la sidebar (.text-brand-cyan du HTML) */
+.app-spa .main-sidebar .admin-brand .app-brand-html span {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.app-spa .main-sidebar .main-sidebar__charte {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.app-spa .main-sidebar .admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 0.75rem;
+  flex: 1 1 auto;
+}
+
+.app-spa .main-sidebar .admin-nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.app-spa .main-sidebar .admin-nav-section + .admin-nav-section {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.app-spa .main-sidebar .admin-nav-section-title {
+  margin: 0 0 0.2rem;
+  padding: 0.35rem 1rem 0.15rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+/* Entrées menu latéral — règles alignées sur la charte (sélecteur préfixé au shell) */
+.app-spa .main-sidebar .admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.72rem 1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.app-spa .main-sidebar .admin-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.app-spa .main-sidebar .admin-nav-item.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.45);
+}
+
+.app-spa .main-sidebar .admin-nav-item > span {
+  line-height: 1.35;
+}
+
+.app-spa .main-sidebar .admin-nav .nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  line-height: 1;
+  opacity: 0.9;
+  color: currentColor !important;
+  /* Glyphes FA : centre optique légèrement au-dessus du texte sans flex pur */
+  transform: translateY(1px);
+}
+
+.app-spa .main-sidebar .admin-sidebar-footer {
+  padding: 1rem 1.25rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.app-spa .main-sidebar .admin-org-label {
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.65rem;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.app-spa .main-sidebar .admin-org-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.app-spa .main-sidebar .admin-org-switch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.app-spa .main-sidebar .admin-org-select {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.45rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(12, 25, 41, 0.85);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.8rem;
+  font-family: inherit;
+}
+
+.app-spa .content-wrapper {
   background-color: var(--surface);
 }
 
-.app-adminlte .org-show-tabs .nav-link {
+.app-spa .org-show-tabs .nav-link {
   color: var(--action);
   font-weight: 600;
 }
 
-.app-adminlte .org-show-tabs .nav-link:hover {
+.app-spa .org-show-tabs .nav-link:hover {
   color: var(--action-hover);
 }
 
-.app-adminlte .org-show-tabs .nav-link.active {
+.app-spa .org-show-tabs .nav-link.active {
   color: #0f172a;
   font-weight: 700;
 }
 
-.app-adminlte .org-show-tab-content {
+.app-spa .org-show-tab-content {
   border-color: #cbd5e1 !important;
 }
 
 /* Parcours initial & finalisation profil invité : pas de menu latéral, contenu pleine largeur */
 body.app-setup-incomplete .main-sidebar,
-body.app-setup-incomplete .main-header .nav-link[data-widget="pushmenu"],
+body.app-setup-incomplete .main-header .app-spa__sidebar-toggle,
 body.app-profile-onboarding .main-sidebar,
-body.app-profile-onboarding .main-header .nav-link[data-widget="pushmenu"] {
+body.app-profile-onboarding .main-header .app-spa__sidebar-toggle {
   display: none !important;
 }
 
@@ -1449,46 +1745,47 @@ body.app-profile-onboarding .main-footer {
   margin-left: 0 !important;
 }
 
-body.app-setup-incomplete.sidebar-mini .main-header,
 body.app-setup-incomplete .main-header,
-body.app-profile-onboarding.sidebar-mini .main-header,
 body.app-profile-onboarding .main-header {
   margin-left: 0 !important;
 }
 
 /*
- * SPA (spa.html.twig) : le body garde sidebar-mini / layout-fixed alors qu’en parcours
- * la sidebar React n’est pas rendue — AdminLTE laisse margin-left sur .content-wrapper :
+ * SPA (spa.html.twig) : en parcours la sidebar React n’est pas rendue — sans reset,
+ * .content-wrapper garderait un margin-left :
  * le bandeau et le contenu semblent rétrécis. Forcer pleine largeur.
  */
-.app-adminlte .wrapper.app-shell--parcours {
+.app-spa .wrapper.app-shell--parcours {
   width: 100% !important;
   max-width: 100% !important;
+  padding-top: 0 !important;
 }
 
-.app-adminlte .wrapper.app-shell--parcours .content-wrapper {
+.app-spa .wrapper.app-shell--parcours .content-wrapper {
   margin-top: 0 !important;
   margin-left: 0 !important;
   padding-top: 0;
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0;
-  flex: 1 1 100%;
+  flex: 1 1 auto;
+  min-height: 0 !important;
+  overflow-y: auto;
 }
 
 /* Fond d’aire pour le parcours : contraste avec la carte blanche (rendu « pro ») */
-.app-adminlte .wrapper.app-shell--parcours .content {
+.app-spa .wrapper.app-shell--parcours .content {
   background-color: #e8edf3;
 }
 
 /* Marque colorée conservée sur les parcours (pas de content-header complet) */
-.app-adminlte .app-shell__parcours-brand {
+.app-spa .app-shell__parcours-brand {
   flex-shrink: 0;
   width: 100%;
   box-sizing: border-box;
 }
 
-.app-adminlte .app-shell__parcours-brand-title {
+.app-spa .app-shell__parcours-brand-title {
   font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -1496,19 +1793,19 @@ body.app-profile-onboarding .main-header {
   line-height: 1.25;
 }
 
-.app-adminlte .app-shell__parcours-brand-title span {
+.app-spa .app-shell__parcours-brand-title span {
   color: var(--coral);
   font-weight: 800;
 }
 
 /* Stepper parcours d’initialisation (horizontal, sobre — inspiration “stepper” type Vuetify) */
-.app-adminlte .setup-wizard-stepper {
+.app-spa .setup-wizard-stepper {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid #e8eef4;
 }
 
-.app-adminlte .setup-wizard-stepper__scroll {
+.app-spa .setup-wizard-stepper__scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   margin-left: -0.25rem;
@@ -1517,7 +1814,7 @@ body.app-profile-onboarding .main-header {
   padding-right: 0.25rem;
 }
 
-.app-adminlte .setup-wizard-stepper__track {
+.app-spa .setup-wizard-stepper__track {
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -1528,14 +1825,14 @@ body.app-profile-onboarding .main-header {
   margin-right: auto;
 }
 
-.app-adminlte .setup-wizard-stepper__node-col {
+.app-spa .setup-wizard-stepper__node-col {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
   justify-content: center;
 }
 
-.app-adminlte .setup-wizard-stepper__connector {
+.app-spa .setup-wizard-stepper__connector {
   flex: 0 1 2.25rem;
   min-width: 0.35rem;
   max-width: 3.25rem;
@@ -1547,17 +1844,17 @@ body.app-profile-onboarding .main-header {
   transition: background 0.2s ease;
 }
 
-.app-adminlte .setup-wizard-stepper__connector.is-done {
+.app-spa .setup-wizard-stepper__connector.is-done {
   background: rgba(255, 90, 54, 0.42);
 }
 
-.app-adminlte .setup-wizard-stepper__segment {
+.app-spa .setup-wizard-stepper__segment {
   max-width: 6.75rem;
   text-align: center;
 }
 
-.app-adminlte .setup-wizard-stepper__link,
-.app-adminlte .setup-wizard-stepper__static {
+.app-spa .setup-wizard-stepper__link,
+.app-spa .setup-wizard-stepper__static {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1566,7 +1863,7 @@ body.app-profile-onboarding .main-header {
   gap: 0.35rem;
 }
 
-.app-adminlte .setup-wizard-stepper__link {
+.app-spa .setup-wizard-stepper__link {
   color: inherit;
   border-radius: 6px;
   padding: 0.125rem;
@@ -1574,17 +1871,17 @@ body.app-profile-onboarding .main-header {
   transition: opacity 0.15s ease, color 0.15s ease;
 }
 
-.app-adminlte .setup-wizard-stepper__link:hover {
+.app-spa .setup-wizard-stepper__link:hover {
   text-decoration: none;
   opacity: 0.92;
 }
 
-.app-adminlte .setup-wizard-stepper__link:focus {
+.app-spa .setup-wizard-stepper__link:focus {
   outline: none;
   box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--coral);
 }
 
-.app-adminlte .setup-wizard-stepper__marker {
+.app-spa .setup-wizard-stepper__marker {
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -1605,11 +1902,11 @@ body.app-profile-onboarding .main-header {
     box-shadow 0.2s ease;
 }
 
-.app-adminlte .setup-wizard-stepper__check {
+.app-spa .setup-wizard-stepper__check {
   font-size: 0.6rem;
 }
 
-.app-adminlte .setup-wizard-stepper__label {
+.app-spa .setup-wizard-stepper__label {
   font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -1620,59 +1917,59 @@ body.app-profile-onboarding .main-header {
 }
 
 @media (min-width: 576px) {
-  .app-adminlte .setup-wizard-stepper__label {
+  .app-spa .setup-wizard-stepper__label {
     font-size: 0.72rem;
   }
 }
 
-.app-adminlte .setup-wizard-stepper__segment.is-complete .setup-wizard-stepper__marker {
+.app-spa .setup-wizard-stepper__segment.is-complete .setup-wizard-stepper__marker {
   background: var(--coral);
   border-color: var(--coral);
   color: #fff;
 }
 
-.app-adminlte .setup-wizard-stepper__segment.is-complete .setup-wizard-stepper__label {
+.app-spa .setup-wizard-stepper__segment.is-complete .setup-wizard-stepper__label {
   color: #334155;
 }
 
-.app-adminlte .setup-wizard-stepper__segment.is-current .setup-wizard-stepper__marker {
+.app-spa .setup-wizard-stepper__segment.is-current .setup-wizard-stepper__marker {
   border-color: var(--coral);
   background: #fff;
   color: var(--coral);
   box-shadow: 0 0 0 3px var(--coral-dim);
 }
 
-.app-adminlte .setup-wizard-stepper__segment.is-current .setup-wizard-stepper__label {
+.app-spa .setup-wizard-stepper__segment.is-current .setup-wizard-stepper__label {
   color: var(--ink-soft);
   font-weight: 700;
 }
 
-.app-adminlte .setup-wizard-stepper__segment.is-upcoming .setup-wizard-stepper__marker {
+.app-spa .setup-wizard-stepper__segment.is-upcoming .setup-wizard-stepper__marker {
   border-color: #e2e8f0;
   background: #f8fafc;
   color: #94a3b8;
 }
 
-.app-adminlte .setup-wizard-stepper__segment.is-upcoming .setup-wizard-stepper__label {
+.app-spa .setup-wizard-stepper__segment.is-upcoming .setup-wizard-stepper__label {
   color: #94a3b8;
 }
 
-.app-adminlte .setup-wizard-stepper__static--muted .setup-wizard-stepper__label {
+.app-spa .setup-wizard-stepper__static--muted .setup-wizard-stepper__label {
   color: #94a3b8;
 }
 
 /* Pages du parcours d’initialisation : titre + bouton non pleine largeur */
-.app-adminlte .setup-wizard-page-heading {
+.app-spa .setup-wizard-page-heading {
   gap: 0.5rem;
 }
 
-.app-adminlte .setup-wizard-page-icon {
+.app-spa .setup-wizard-page-icon {
   color: var(--coral);
   font-size: 1.1em;
   line-height: 1;
 }
 
-.app-adminlte .setup-wizard-form-actions {
+.app-spa .setup-wizard-form-actions {
   display: flex;
   justify-content: flex-start;
   flex-wrap: wrap;
@@ -1681,13 +1978,13 @@ body.app-profile-onboarding .main-header {
   padding-top: 0.5rem;
 }
 
-.app-adminlte .setup-wizard-form-actions .btn {
+.app-spa .setup-wizard-form-actions .btn {
   width: auto;
   align-self: flex-start;
 }
 
 /* Parcours d’initialisation : carte blanche sur fond plus sombre (hiérarchie lisible) */
-.app-adminlte .setup-wizard-form {
+.app-spa .setup-wizard-form {
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
@@ -1697,7 +1994,7 @@ body.app-profile-onboarding .main-header {
     0 4px 16px rgba(15, 23, 42, 0.07);
 }
 
-.app-adminlte .setup-wizard-form .form-group > label {
+.app-spa .setup-wizard-form .form-group > label {
   color: #0f172a;
   font-weight: 600;
 }
@@ -1706,21 +2003,21 @@ body.app-profile-onboarding .main-header {
  * Champs vs carte : la carte reste blanche ; les inputs ne sont PLUS blancs sur blanc —
  * fond gris très clair + bordure foncée + léger inset (zone de saisie visible sans ambiguïté).
  */
-.app-adminlte .setup-wizard-form .form-control,
-.app-adminlte .setup-wizard-form .custom-select {
+.app-spa .setup-wizard-form .form-control,
+.app-spa .setup-wizard-form .custom-select {
   background-color: #f1f5f9 !important;
   border: 1px solid #475569 !important;
   color: #0f172a !important;
   box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
-.app-adminlte .setup-wizard-form .form-control::placeholder {
+.app-spa .setup-wizard-form .form-control::placeholder {
   color: #64748b;
   opacity: 1;
 }
 
-.app-adminlte .setup-wizard-form .form-control:focus,
-.app-adminlte .setup-wizard-form .custom-select:focus {
+.app-spa .setup-wizard-form .form-control:focus,
+.app-spa .setup-wizard-form .custom-select:focus {
   background-color: #ffffff !important;
   border-color: var(--coral) !important;
   color: #0f172a !important;
@@ -1729,13 +2026,13 @@ body.app-profile-onboarding .main-header {
     0 0 0 0.2rem rgba(255, 90, 54, 0.28) !important;
 }
 
-.app-adminlte .setup-wizard-form .form-control.is-invalid,
-.app-adminlte .setup-wizard-form .custom-select.is-invalid {
+.app-spa .setup-wizard-form .form-control.is-invalid,
+.app-spa .setup-wizard-form .custom-select.is-invalid {
   border-color: #dc3545;
 }
 
 /* Bloc adresse — parcours initialisation organisation : champs plus compacts */
-.app-adminlte .setup-org-address-block {
+.app-spa .setup-org-address-block {
   padding-top: 0.35rem;
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
@@ -1743,32 +2040,48 @@ body.app-profile-onboarding .main-header {
   border-left: 3px solid #94a3b8;
 }
 
-.app-adminlte .setup-org-address-block .form-control-sm,
-.app-adminlte .setup-org-address-block .custom-select-sm {
+.app-spa .setup-org-address-block .form-control-sm,
+.app-spa .setup-org-address-block .custom-select-sm {
   font-size: 0.8125rem;
   line-height: 1.35;
   padding: 0.28rem 0.5rem;
   min-height: calc(1.35em + 0.56rem + 2px);
 }
 
-.app-adminlte .setup-org-address-block label.small {
+.app-spa .setup-org-address-block label.small {
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.01em;
   color: #334155;
 }
 
-.app-adminlte .wrapper.app-shell--parcours .content > .container-fluid {
+.app-spa .wrapper.app-shell--parcours .content > .container-fluid {
   padding-top: 1.25rem;
 }
 
-.app-adminlte .content-header h1 {
+.app-spa .content-header h1 {
   font-size: 1.35rem;
   font-weight: 600;
   color: #1a1a1a;
 }
 
-.app-adminlte .breadcrumb {
+/* Liste projets : pas de marque dans le content-header (titre injecté par la page). */
+.app-spa .content-header.content-header--projects {
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+.app-spa .content-header.content-header--projects h1.content-header__title.op-projects-page__title {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.op-projects-content-header-inner {
+  gap: 0.75rem;
+}
+
+.app-spa .breadcrumb {
   background: transparent;
   margin-bottom: 0;
   padding: 0;
@@ -1779,100 +2092,100 @@ body.app-profile-onboarding .main-header {
  * Fil d’Ariane — corail charte.
  * AdminLTE (.accent-cyan, liens primaires) colore les .breadcrumb-item a en bleu : forcer le corail.
  */
-body.app-adminlte .breadcrumb-item > a,
-body.app-adminlte .breadcrumb-item > a:visited {
+body.app-spa .breadcrumb-item > a,
+body.app-spa .breadcrumb-item > a:visited {
   color: var(--coral) !important;
   font-weight: 600;
 }
 
-body.app-adminlte .breadcrumb-item > a:hover {
+body.app-spa .breadcrumb-item > a:hover {
   color: var(--action-hover) !important;
   text-decoration: underline;
 }
 
-.app-adminlte .content-header .breadcrumb-item.active,
-.app-adminlte .main-header-breadcrumb .breadcrumb-item.active {
+.app-spa .content-header .breadcrumb-item.active,
+.app-spa .main-header-breadcrumb .breadcrumb-item.active {
   color: #111827;
   font-weight: 700;
 }
 
-.app-adminlte .content-header .breadcrumb-item + .breadcrumb-item::before,
-.app-adminlte .main-header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+.app-spa .content-header .breadcrumb-item + .breadcrumb-item::before,
+.app-spa .main-header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
   color: #475569;
   font-weight: 700;
 }
 
 /* Titres de page contenu */
-.app-adminlte.org-edit-page .content-header h1.m-0,
-.app-adminlte.org-member-form-page .content-header h1.m-0 {
+.app-spa.org-edit-page .content-header h1.m-0,
+.app-spa.org-member-form-page .content-header h1.m-0 {
   color: #0f172a;
   font-weight: 700;
 }
 
 /* Formulaire édition organisation (et fiches membre similaires) */
-.app-adminlte .org-edit-card.member-form-card,
-.app-adminlte .member-form-card {
+.app-spa .org-edit-card.member-form-card,
+.app-spa .member-form-card {
   border: 1px solid #94a3b8;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
 }
 
-.app-adminlte .org-edit-card .card-header,
-.app-adminlte .member-form-card .card-header {
+.app-spa .org-edit-card .card-header,
+.app-spa .member-form-card .card-header {
   background: #fff;
   color: #111827;
   font-weight: 700;
   border-bottom: 1px solid #64748b;
 }
 
-.app-adminlte .org-edit-card .card-title,
-.app-adminlte .member-form-card .card-title {
+.app-spa .org-edit-card .card-title,
+.app-spa .member-form-card .card-title {
   color: #0f172a;
 }
 
-.app-adminlte .org-edit-form .form-group > label,
-.app-adminlte .org-edit-form label.form-label,
-.app-adminlte.org-edit-page .content .form-group label {
+.app-spa .org-edit-form .form-group > label,
+.app-spa .org-edit-form label.form-label,
+.app-spa.org-edit-page .content .form-group label {
   color: #111827;
   font-weight: 700;
   font-size: 0.95rem;
 }
 
-.app-adminlte .org-edit-form .form-control,
-.app-adminlte.member-form-card .form-control {
+.app-spa .org-edit-form .form-control,
+.app-spa.member-form-card .form-control {
   color: #111827;
   background-color: #fff;
   border: 1px solid #64748b;
 }
 
-.app-adminlte .org-edit-form .form-control:focus,
-.app-adminlte.member-form-card .form-control:focus {
+.app-spa .org-edit-form .form-control:focus,
+.app-spa.member-form-card .form-control:focus {
   border-color: var(--coral);
   box-shadow: 0 0 0 0.2rem rgba(255, 90, 54, 0.28);
 }
 
-.app-adminlte .org-edit-form .invalid-feedback,
-.app-adminlte .org-edit-form .form-text {
+.app-spa .org-edit-form .invalid-feedback,
+.app-spa .org-edit-form .form-text {
   color: #991b1b;
   font-weight: 500;
 }
 
-.app-adminlte .org-edit-form .form-text.text-muted {
+.app-spa .org-edit-form .form-text.text-muted {
   color: #374151 !important;
 }
 
 /* Petits écarts : cartes / tableaux cohérents avec l'existant */
-.app-adminlte .card {
+.app-spa .card {
   border-radius: 0.5rem;
   border-color: #dee2e6;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
-.app-adminlte .card-header {
+.app-spa .card-header {
   font-weight: 600;
   border-bottom: 1px solid #e9ecef;
 }
 
-.app-adminlte .table thead th {
+.app-spa .table thead th {
   border-bottom-width: 1px;
   font-size: 0.85rem;
   text-transform: uppercase;
@@ -1881,7 +2194,7 @@ body.app-adminlte .breadcrumb-item > a:hover {
 }
 
 /* Tableaux back-office : contraste lisible (WCAG) */
-.app-adminlte .admin-data-table thead th {
+.app-spa .admin-data-table thead th {
   background-color: #dee2e6;
   color: #111827;
   font-weight: 700;
@@ -1889,88 +2202,88 @@ body.app-adminlte .breadcrumb-item > a:hover {
   border-color: #ced4da;
 }
 
-.app-adminlte .admin-data-table tbody td {
+.app-spa .admin-data-table tbody td {
   color: #1a1a1a;
   border-color: #dee2e6;
   vertical-align: middle;
 }
 
-.app-adminlte .admin-data-table.table-striped tbody tr:nth-of-type(odd) {
+.app-spa .admin-data-table.table-striped tbody tr:nth-of-type(odd) {
   background-color: #f8f9fa;
 }
 
-.app-adminlte .admin-data-table.table-hover tbody tr:hover {
+.app-spa .admin-data-table.table-hover tbody tr:hover {
   background-color: #e7f1f3;
 }
 
-.app-adminlte .admin-table-cell-muted {
+.app-spa .admin-table-cell-muted {
   color: #374151;
 }
 
-.app-adminlte .admin-ellipsis {
+.app-spa .admin-ellipsis {
   color: #6b7280;
   font-weight: 500;
 }
 
 /* Page admin utilisateurs (filtres + cartes) */
-.app-adminlte .admin-filter-card .card-header,
-.app-adminlte .admin-list-card .card-header {
+.app-spa .admin-filter-card .card-header,
+.app-spa .admin-list-card .card-header {
   background: #fff;
   color: #111827;
   font-weight: 700;
   border-bottom: 1px solid #ced4da;
 }
 
-.app-adminlte .admin-filter-card,
-.app-adminlte .admin-list-card {
+.app-spa .admin-filter-card,
+.app-spa .admin-list-card {
   border: 1px solid #ced4da;
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
 }
 
-.app-adminlte .admin-filter-form .admin-form-label,
-.app-adminlte .admin-crud-page .form-group label.admin-form-label {
+.app-spa .admin-filter-form .admin-form-label,
+.app-spa .admin-crud-page .form-group label.admin-form-label {
   color: #111827;
   font-weight: 600;
   font-size: 0.9rem;
 }
 
-.app-adminlte .admin-filter-form .form-control {
+.app-spa .admin-filter-form .form-control {
   color: #111827;
   background-color: #fff;
   border: 1px solid #6c757d;
 }
 
-.app-adminlte .admin-filter-form .form-control:focus {
+.app-spa .admin-filter-form .form-control:focus {
   border-color: var(--coral);
   box-shadow: 0 0 0 0.2rem rgba(255, 90, 54, 0.25);
 }
 
-.app-adminlte .admin-empty-message {
+.app-spa .admin-empty-message {
   color: #374151;
   font-size: 0.95rem;
 }
 
-.app-adminlte .admin-pagination-toolbar {
+.app-spa .admin-pagination-toolbar {
   background: #fff;
   color: #1f2937;
   font-weight: 500;
 }
 
 /* Pagination (liste utilisateurs) */
-.app-adminlte.admin-users-page .pagination .page-link {
+.app-spa.admin-users-page .pagination .page-link {
   color: var(--action);
   background-color: #fff;
   border: 1px solid #94a3b8;
   font-weight: 600;
 }
 
-.app-adminlte.admin-users-page .pagination .page-item.active .page-link {
+.app-spa.admin-users-page .pagination .page-item.active .page-link {
   color: #fff;
   background-color: var(--coral);
   border-color: #e04a28;
 }
 
-.app-adminlte.admin-users-page .pagination .page-item.disabled .page-link {
+.app-spa.admin-users-page .pagination .page-item.disabled .page-link {
   color: #64748b;
   background-color: #f1f5f9;
   border-color: #cbd5e1;
@@ -2054,12 +2367,12 @@ body.app-adminlte .breadcrumb-item > a:hover {
   outline: none;
 }
 
-.app-adminlte .locale-switcher__shell {
+.app-spa .locale-switcher__shell {
   border-color: #94a3b8;
   background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
 }
 
-.app-adminlte .navbar-light .locale-switcher__shell {
+.app-spa .navbar-light .locale-switcher__shell {
   border-color: #cbd5e1;
 }
 
@@ -2100,60 +2413,60 @@ body.app-adminlte .breadcrumb-item > a:hover {
 }
 
 /* Boutons primaires Bootstrap / AdminLTE dans le back-office */
-body.app-adminlte .btn-primary {
+body.app-spa .btn-primary {
   background-color: var(--coral);
   border-color: #e04a28;
   color: #fff;
 }
 
-body.app-adminlte .btn-primary:hover,
-body.app-adminlte .btn-primary:focus {
+body.app-spa .btn-primary:hover,
+body.app-spa .btn-primary:focus {
   background-color: var(--coral-soft);
   border-color: #c73d20;
   color: #fff;
 }
 
 /* Assistant d’initialisation — contraste renforcé (titres, fil d’Ariane, formulaires clairs) */
-.app-adminlte.environment-setup-page .content-header h1 {
+.app-spa.environment-setup-page .content-header h1 {
   color: #0f172a;
   font-weight: 700;
 }
 
-.app-adminlte.environment-setup-page .breadcrumb-item a,
-.app-adminlte.environment-setup-page .breadcrumb-item a:visited {
+.app-spa.environment-setup-page .breadcrumb-item a,
+.app-spa.environment-setup-page .breadcrumb-item a:visited {
   color: var(--coral) !important;
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.app-adminlte.environment-setup-page .breadcrumb-item a:hover {
+.app-spa.environment-setup-page .breadcrumb-item a:hover {
   color: var(--action-hover) !important;
 }
 
-.app-adminlte.environment-setup-page .breadcrumb-item.active {
+.app-spa.environment-setup-page .breadcrumb-item.active {
   color: #0f172a;
   font-weight: 600;
 }
 
-.app-adminlte .environment-setup-card__title {
+.app-spa .environment-setup-card__title {
   color: #0f172a;
   font-weight: 700;
 }
 
-.app-adminlte .environment-setup-card .card-header {
+.app-spa .environment-setup-card .card-header {
   background: #f1f5f9;
   border-bottom: 1px solid #cbd5e1;
 }
 
-.app-adminlte .environment-step-intro {
+.app-spa .environment-step-intro {
   color: #334155;
   font-size: 1.05rem;
   line-height: 1.55;
   margin-bottom: 1.1rem;
 }
 
-.app-adminlte .environment-step-intro strong {
+.app-spa .environment-step-intro strong {
   color: #0f172a;
   font-weight: 700;
 }
@@ -2190,9 +2503,9 @@ body.app-adminlte .btn-primary:focus {
 }
 
 /* Annule le thème sombre des .stack-form (labels gris clair / inputs sombres) sur fond blanc */
-.app-adminlte .environment-setup .stack-form label,
-.app-adminlte .environment-setup .form-label,
-.app-adminlte .environment-setup legend.col-form-label {
+.app-spa .environment-setup .stack-form label,
+.app-spa .environment-setup .form-label,
+.app-spa .environment-setup legend.col-form-label {
   color: #1e293b !important;
   text-transform: none;
   font-size: 0.95rem;
@@ -2200,30 +2513,30 @@ body.app-adminlte .btn-primary:focus {
   letter-spacing: normal;
 }
 
-.app-adminlte .environment-setup .stack-form input[type="text"],
-.app-adminlte .environment-setup .stack-form input[type="email"],
-.app-adminlte .environment-setup .stack-form input[type="password"] {
+.app-spa .environment-setup .stack-form input[type="text"],
+.app-spa .environment-setup .stack-form input[type="email"],
+.app-spa .environment-setup .stack-form input[type="password"] {
   background: #fff !important;
   color: #0f172a !important;
   border: 1px solid #94a3b8 !important;
 }
 
-.app-adminlte .environment-setup .stack-form input:focus {
+.app-spa .environment-setup .stack-form input:focus {
   border-color: var(--coral) !important;
   box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.28) !important;
 }
 
-.app-adminlte .environment-setup .stack-form ul {
+.app-spa .environment-setup .stack-form ul {
   color: #b91c1c !important;
 }
 
-.app-adminlte .environment-setup .form-check-label,
-.app-adminlte .environment-setup .custom-control-label {
+.app-spa .environment-setup .form-check-label,
+.app-spa .environment-setup .custom-control-label {
   color: #1e293b !important;
 }
 
-.app-adminlte .environment-setup small.form-text,
-.app-adminlte .environment-setup .form-text {
+.app-spa .environment-setup small.form-text,
+.app-spa .environment-setup .form-text {
   color: #475569 !important;
 }
 
@@ -2807,7 +3120,272 @@ body.app-adminlte .btn-primary:focus {
    Page Projets de l'organisation (org/projects) — préfixe op-
    ============================================================================= */
 
-/* ── Topbar ── */
+/* ── En-tête page liste projets ── */
+.op-projects-page__header {
+  gap: 0.75rem;
+}
+
+.op-projects-page__heading {
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.op-projects-page__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--coral) 0%, var(--coral-mid) 100%);
+  box-shadow: 0 6px 20px rgba(255, 90, 54, 0.28);
+  color: #fff;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.op-projects-page__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.op-projects-page__count {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+/* =============================================================================
+   Page Projets — charte vitrine complète (.webhook-projects-page)
+   ============================================================================= */
+
+/* Carte type « content-card » (réf. vitrine) */
+.content-card {
+  box-sizing: border-box;
+  width: 100%;
+  background: var(--surface-elevated);
+  border-radius: var(--radius);
+  border: 1px solid rgba(12, 25, 41, 0.12);
+  box-shadow:
+    0 1px 2px rgba(12, 25, 41, 0.06),
+    0 6px 20px rgba(12, 25, 41, 0.07);
+}
+
+.ou-members-card.content-card {
+  overflow: hidden;
+  padding: 0;
+}
+
+.content-card--projects .op-projects-card-body {
+  padding: 1.5rem 1.75rem;
+}
+
+/* En-tête « hero » (liste projets) — aligné Intégrations */
+.webhook-projects-page.wp-projects-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  margin: 0;
+}
+
+.webhook-projects-page .wp-projects-hero .integrations-hub-intro {
+  flex: 1 1 18rem;
+  min-width: 0;
+  margin: 0;
+}
+
+.webhook-projects-page .wp-projects-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.webhook-projects-page .wp-proj-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.webhook-projects-page .wp-proj-hero-btn i {
+  font-size: 0.92em;
+}
+
+.webhook-projects-page .wp-proj-page-title,
+.webhook-projects-page .wp-proj-modal-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.webhook-projects-page .wp-proj-page-title i,
+.webhook-projects-page .wp-proj-org-title i {
+  color: var(--coral);
+  font-size: 0.95em;
+}
+
+.webhook-projects-page .wp-proj-modal-title i {
+  color: var(--coral);
+  font-size: 0.95em;
+}
+
+/* Tableau : en-têtes avec icône + libellé */
+.webhook-projects-page .org-table .wp-proj-th-icon {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.webhook-projects-page .org-table .wp-proj-th-icon i {
+  opacity: 0.72;
+  font-size: 0.95rem;
+}
+
+.webhook-projects-page .org-table .wp-proj-th-icon span {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.webhook-projects-page .org-table thead th.wp-proj-th-icon {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.webhook-projects-page .org-table th.wp-proj-th-icon i {
+  display: inline;
+  vertical-align: middle;
+}
+
+.webhook-projects-page .org-table th.wp-proj-th-icon span {
+  display: inline;
+  vertical-align: middle;
+}
+
+.webhook-projects-page .org-table th.wp-proj-th-center,
+.webhook-projects-page .org-table td.wp-proj-count-cell {
+  text-align: center;
+}
+
+.webhook-projects-page .wp-proj-count-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.webhook-projects-page .wp-proj-count-inner i {
+  opacity: 0.65;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+
+.webhook-projects-page .wp-proj-count-value {
+  font-weight: 700;
+  color: var(--coral);
+  font-size: 0.88rem;
+}
+
+.webhook-projects-page .org-table th.org-table-th-actions,
+.webhook-projects-page .org-table td.actions {
+  width: 1%;
+  white-space: nowrap;
+  vertical-align: middle;
+  text-align: right;
+}
+
+.webhook-projects-page .org-table-actions-inner--proj {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.webhook-projects-page .org-table-action-btn i {
+  font-size: 0.88em;
+  line-height: 1;
+}
+
+/* État vide */
+.webhook-projects-page .op-projects-empty.fw-empty {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  background: transparent;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+}
+
+.webhook-projects-page .op-projects-empty.fw-empty h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.webhook-projects-page .op-projects-empty.fw-empty p {
+  margin: 0 0 1.25rem;
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
+/* Modale création projet — esprit .sc-modal */
+.webhook-projects-modal .webhook-projects-modal__panel {
+  border-radius: var(--radius-sm) !important;
+  border: 1px solid var(--input-border);
+  box-shadow: 0 16px 48px rgba(12, 25, 41, 0.18);
+}
+
+.webhook-projects-modal .sc-modal-head {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.webhook-projects-modal .sc-modal-head .wp-proj-modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.webhook-projects-modal .sc-modal-head .op-new-modal__subtitle {
+  width: 100%;
+  line-height: 1.45;
+}
+
+.webhook-projects-modal .modal-footer {
+  padding: 0.75rem 1rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.webhook-projects-modal .modal-footer .btn-outline-secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+.webhook-projects-modal .modal-footer .btn-outline-secondary:hover:not(:disabled) {
+  background: var(--surface);
+}
+
+/* ── Topbar (legacy badge) ── */
 .op-topbar__count {
   font-size: 0.75rem;
   padding: 0.3em 0.65em;
@@ -2853,45 +3431,119 @@ body.app-adminlte .btn-primary:focus {
   border-color: #ced4da;
 }
 
-/* ── Table projets ── */
-.op-projects-card {
-  border-radius: 10px !important;
+/* ── Table projets (charte type content-card + org-table-wrap) ── */
+.ou-members-card.op-projects-card {
+  background: var(--surface-elevated);
+  border: 1px solid rgba(12, 25, 41, 0.12) !important;
+  border-radius: var(--radius) !important;
+  box-shadow:
+    0 1px 2px rgba(12, 25, 41, 0.06),
+    0 6px 20px rgba(12, 25, 41, 0.07);
   overflow: hidden;
 }
 
+/* Padding type content-card */
+.op-projects-card-body {
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+/* Bloc tableau : même esprit que .org-table-wrap (réf. charte) */
+.op-projects-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  margin-top: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(12, 25, 41, 0.13);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, var(--surface) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 2px 6px rgba(12, 25, 41, 0.05),
+    0 8px 22px rgba(12, 25, 41, 0.06);
+}
+
+.ou-members-card.op-projects-card .op-projects-card-body .op-projects-table-wrap .table-responsive {
+  margin: 0 !important;
+}
+
+.op-projects-card-body .table {
+  width: 100%;
+}
+
 .op-projects-table {
-  font-size: 0.8125rem;
-  color: #1a1a1a;
+  font-size: 0.875rem;
+  color: var(--text);
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .op-projects-thead th {
-  background: #f8fafc;
-  color: #64748b;
-  font-size: 0.7rem;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(12, 25, 41, 0.07) 0%,
+    rgba(12, 25, 41, 0.045) 100%
+  );
+  color: var(--ink);
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  border-bottom: 1px solid #e9ecef;
-  padding: 0.65rem 1rem;
+  border-bottom: 2px solid rgba(12, 25, 41, 0.14);
+  padding: 0.65rem 0.75rem;
   white-space: nowrap;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.op-projects-thead th:first-child {
+  border-top-left-radius: var(--radius-sm);
+}
+
+.op-projects-thead th:last-child {
+  border-top-right-radius: var(--radius-sm);
+}
+
+.op-projects-thead__col-name {
+  width: 60%;
 }
 
 .op-project-row {
-  border-bottom: 1px solid #f1f5f9;
-  transition: background 0.1s;
+  transition: background 0.12s ease;
 }
 
-.op-project-row:last-child {
-  border-bottom: 0;
-}
-
-.op-project-row:hover {
-  background: rgba(255, 90, 54, 0.06);
+/* Annule le survol bleu générique des lignes membres */
+.op-projects-table .op-project-row:hover {
+  background: transparent;
 }
 
 .op-project-row td {
-  padding: 0.75rem 1rem;
+  padding: 0.65rem 0.75rem;
   vertical-align: middle;
+  border-bottom: 1px solid rgba(12, 25, 41, 0.1);
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+
+.op-projects-table tbody tr:nth-child(even) td {
+  background: rgba(12, 25, 41, 0.028);
+}
+
+.op-projects-table tbody tr:hover td {
+  background: rgba(255, 90, 54, 0.09);
+}
+
+.op-projects-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.op-projects-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+.op-projects-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--radius-sm);
 }
 
 /* Icône dossier projet */
@@ -2901,11 +3553,12 @@ body.app-adminlte .btn-primary:focus {
   justify-content: center;
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: linear-gradient(135deg, var(--coral-dim), rgba(255, 143, 107, 0.22));
   color: var(--coral);
   font-size: 0.875rem;
   flex-shrink: 0;
+  border: 1px solid rgba(255, 90, 54, 0.18);
 }
 
 .op-project-icon--lg {
@@ -2917,13 +3570,14 @@ body.app-adminlte .btn-primary:focus {
 
 .op-project-name {
   font-weight: 600;
-  color: #1e293b;
-  font-size: 0.8125rem;
+  color: var(--ink-soft);
+  font-size: 0.875rem;
   line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
 .op-project-token {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 0.72rem;
   font-family: ui-monospace, monospace;
   line-height: 1.3;
@@ -2941,14 +3595,14 @@ body.app-adminlte .btn-primary:focus {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.6rem;
-  height: 1.6rem;
-  padding: 0 0.4rem;
-  border-radius: 20px;
-  background: #f1f5f9;
-  color: #64748b;
-  font-size: 0.72rem;
+  min-width: 1.65rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--coral-dim);
+  color: var(--coral);
+  font-size: 0.8rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .op-date {
@@ -2987,6 +3641,10 @@ body.app-adminlte .btn-primary:focus {
 
 .op-new-modal__header {
   padding: 1.5rem 1.5rem 0;
+}
+
+.webhook-projects-modal .op-new-modal__header.sc-modal-head {
+  padding: 0.85rem 1rem;
 }
 
 .op-new-modal__icon {
@@ -3236,7 +3894,7 @@ body.app-adminlte .btn-primary:focus {
 }
 
 /* Admin — journal d’audit / erreurs */
-.app-adminlte .admin-audit-json {
+.app-spa .admin-audit-json {
   max-height: 12rem;
   overflow: auto;
   white-space: pre-wrap;
@@ -3246,8 +3904,8 @@ body.app-adminlte .btn-primary:focus {
   padding: 0.5rem;
 }
 
-.app-adminlte .admin-error-message-pre,
-.app-adminlte .admin-error-trace-pre {
+.app-spa .admin-error-message-pre,
+.app-spa .admin-error-trace-pre {
   max-height: 28rem;
   overflow: auto;
   white-space: pre-wrap;

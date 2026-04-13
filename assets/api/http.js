@@ -28,16 +28,30 @@ export async function fetchJson(url, options = {}) {
 export async function postForm(url, fields, options = {}) {
   const body = new URLSearchParams();
   Object.entries(fields).forEach(([k, v]) => {
-    if (v != null && v !== '') body.set(k, String(v));
+    if (v === null || v === undefined) return;
+    if (Array.isArray(v)) {
+      v.forEach((item) => {
+        if (item != null && item !== '') body.append(k, String(item));
+      });
+    } else if (v !== '') {
+      body.set(k, String(v));
+    }
   });
+  /** Réponses JSON Symfony (XHR) : évite opaqueredirect / status 0 sur POST→302 */
+  const jsonMode = options.json === true;
   return fetch(url, {
     method: 'POST',
     credentials: 'include',
     cache: 'no-store',
-    redirect: options.redirect ?? 'manual',
+    redirect: options.redirect ?? (jsonMode ? 'follow' : 'manual'),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      Accept: 'application/json',
+      ...(jsonMode
+        ? {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          }
+        : {}),
       ...options.headers,
     },
     body: body.toString(),

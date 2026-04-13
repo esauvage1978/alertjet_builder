@@ -23,6 +23,7 @@ import AdminAuditErrorDetailPage from './pages/admin/AdminAuditErrorDetailPage.j
 const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage.jsx'));
 const OrganizationUsersPage = lazy(() => import('./pages/organization/OrganizationUsersPage.jsx'));
 const ProjectsPage = lazy(() => import('./pages/organization/ProjectsPage.jsx'));
+const ProjectEditPage = lazy(() => import('./pages/organization/ProjectEditPage.jsx'));
 const TicketsPage = lazy(() => import('./pages/organization/TicketsPage.jsx'));
 const ActivityPage = lazy(() => import('./pages/account/ActivityPage.jsx'));
 const StubPage = lazy(() => import('./pages/account/StubPage.jsx'));
@@ -105,14 +106,28 @@ export default function App() {
                   </Suspense>
                 }
               />
+              {/* URL courte (Symfony / bootstrap → /app/projects) — même page, org. depuis le contexte */}
+              <Route
+                path="projects/:projectId/edit"
+                element={
+                  <Suspense fallback={<LoadingState message="Chargement de la page…" />}>
+                    <ProjectEditPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="projects"
+                element={
+                  <Suspense fallback={<LoadingState message="Chargement de la page…" />}>
+                    <ProjectsPage />
+                  </Suspense>
+                }
+              />
               <Route
                 path="organization/:orgToken/projects/:projectId/edit"
                 element={
                   <Suspense fallback={<LoadingState message="Chargement de la page…" />}>
-                    <StubPage
-                      title="Édition projet"
-                      hint="Formulaire complet : POST vers la route Symfony /organisation/…/projets/…/edit (champs manager_project_form). À brancher sur une API JSON si besoin."
-                    />
+                    <ProjectEditPage />
                   </Suspense>
                 }
               />

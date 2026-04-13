@@ -27,8 +27,23 @@ export default function ActivityPage() {
         <ul className="list-group list-group-flush">
           {data.logs?.map((l) => (
             <li key={l.id} className="list-group-item small">
-              <strong>{l.action}</strong>
-              <span className="text-muted ml-2">{new Date(l.createdAt).toLocaleString()}</span>
+              <div>
+                <strong>{l.action}</strong>
+                <span className="text-muted ml-2">{new Date(l.createdAt).toLocaleString()}</span>
+              </div>
+              {l.details && typeof l.details === 'object' && Object.keys(l.details).length > 0 ? (
+                <details className="mt-1 mb-0">
+                  <summary className="text-muted" style={{ cursor: 'pointer', fontSize: '0.8rem' }}>
+                    Détails
+                  </summary>
+                  <pre
+                    className="mb-0 mt-1 p-2 bg-light rounded border text-muted"
+                    style={{ fontSize: '0.72rem', maxHeight: '12rem', overflow: 'auto' }}
+                  >
+                    {JSON.stringify(l.details, null, 2)}
+                  </pre>
+                </details>
+              ) : null}
             </li>
           ))}
         </ul>

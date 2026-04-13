@@ -10,6 +10,8 @@ use App\Entity\User;
 use App\Enum\UserRole;
 use App\Repository\OrganizationRepository;
 use App\Repository\UserRepository;
+use App\Service\ProjectAuditHelper;
+use App\Service\UserActionLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -44,6 +46,8 @@ final class CreateAlertjetManagerCommand extends Command
         private readonly UserRepository $userRepository,
         private readonly OrganizationRepository $organizationRepository,
         private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly UserActionLogger $userActionLogger,
+        private readonly ProjectAuditHelper $projectAuditHelper,
     ) {
         parent::__construct();
     }
@@ -110,17 +114,32 @@ final class CreateAlertjetManagerCommand extends Command
             $user->addOrganization($organization);
         }
 
+        $defaultProjectCreated = null;
         if ($organization->getProjects()->isEmpty()) {
-            $project = (new Project())
+            $defaultProjectCreated = (new Project())
                 ->setName(self::DEFAULT_PROJECT_NAME)
                 ->setWebhookToken(bin2hex(random_bytes(16)));
-            $organization->addProject($project);
-            $this->entityManager->persist($project);
+            $organization->addProject($defaultProjectCreated);
+            $this->entityManager->persist($defaultProjectCreated);
         }
 
         $user->setEnvironmentInitializedAt(new \DateTimeImmutable());
 
         $this->entityManager->flush();
+
+        if ($defaultProjectCreated !== null) {
+            $this->userActionLogger->log(
+                'CLI_DEFAULT_PROJECT_CREATED',
+                null,
+                null,
+                array_merge($this->projectAuditHelper->contextualize($defaultProjectCreated, $organization), [
+                    'event' => 'created',
+                    'source' => 'app:create-alertjet-manager',
+                    'initialSnapshot' => $this->projectAuditHelper->snapshot($defaultProjectCreated),
+                ]),
+                null,
+            );
+        }
 
         $io->success(\sprintf(
             '%s | %s | organisation « %s » (plan_exempt) — %s.',

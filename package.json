@@ -1,28 +1,22 @@
 {
-    "devDependencies": {
-        "@babel/core": "^7.17.0",
-        "@babel/preset-env": "^7.16.0",
-        "@babel/preset-react": "^7.28.5",
-        "@symfony/webpack-encore": "^6.0.0",
-        "core-js": "^3.38.0",
-        "regenerator-runtime": "^0.13.9",
-        "webpack": "^5.72",
-        "webpack-cli": "^6.0.0",
-        "chokidar": "^4.0.3"
-    },
-    "license": "UNLICENSED",
-    "private": true,
-    "scripts": {
-        "dev-server": "encore dev-server",
-        "dev": "encore dev",
-        "watch": "encore dev --watch",
-        "build": "encore production --progress",
-        "ship": "node scripts/ship.mjs",
-        "ship:watch": "node scripts/ship-watch.mjs"
-    },
-    "dependencies": {
-        "react": "^19.2.4",
-        "react-dom": "^19.2.4",
-        "react-router-dom": "^7.14.0"
-    }
+  "name": "alertjet-builder-assets",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "ship": "node scripts/ship.mjs",
+    "ship:watch": "node scripts/ship-watch.mjs"
+  },
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.14.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11",
+    "vite-plugin-symfony": "^8.2.4"
+  }
 }

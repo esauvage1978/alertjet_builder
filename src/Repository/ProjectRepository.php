@@ -14,9 +14,39 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ProjectRepository extends ServiceEntityRepository
 {
+    private const TOKEN_RANDOM_ATTEMPTS = 64;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Project::class);
+    }
+
+    public function assignUniquePublicToken(Project $project): void
+    {
+        for ($attempt = 0; $attempt < self::TOKEN_RANDOM_ATTEMPTS; ++$attempt) {
+            $token = bin2hex(random_bytes(6));
+            if ($this->isPublicTokenAvailable($token, $project->getId())) {
+                $project->setPublicToken($token);
+
+                return;
+            }
+        }
+
+        throw new \RuntimeException('Impossible de générer un jeton public unique pour le projet.');
+    }
+
+    public function isPublicTokenAvailable(string $token, ?int $excludeProjectId = null): bool
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.publicToken = :t')
+            ->setParameter('t', $token);
+
+        if ($excludeProjectId !== null) {
+            $qb->andWhere('p.id != :id')->setParameter('id', $excludeProjectId);
+        }
+
+        return 0 === (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     public function findByWebhookToken(string $token): ?Project
@@ -74,5 +104,15 @@ class ProjectRepository extends ServiceEntityRepository
         }
 
         return (int) $qb->getQuery()->getSingleScalarResult() > 0;
+    }
+
+    public function countByOrganization(Organization $organization): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.organization = :org')
+            ->setParameter('org', $organization)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

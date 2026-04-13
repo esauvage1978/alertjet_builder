@@ -52,14 +52,34 @@ export default function AdminAuditActionsPage() {
                 <th>Date</th>
                 <th>Action</th>
                 <th>Acteur</th>
+                <th>Détails</th>
               </tr>
             </thead>
             <tbody>
               {data.logs.map((log) => (
                 <tr key={log.id}>
                   <td>{new Date(log.createdAt).toLocaleString()}</td>
-                  <td>{log.action}</td>
+                  <td>
+                    <code className="small">{log.action}</code>
+                  </td>
                   <td>{log.actorEmail || '—'}</td>
+                  <td style={{ maxWidth: '28rem' }}>
+                    {log.details && typeof log.details === 'object' && Object.keys(log.details).length > 0 ? (
+                      <details>
+                        <summary className="small text-muted" style={{ cursor: 'pointer' }}>
+                          Voir ({Object.keys(log.details).length} clé{Object.keys(log.details).length > 1 ? 's' : ''})
+                        </summary>
+                        <pre
+                          className="small mb-0 mt-1 p-2 bg-light rounded border"
+                          style={{ fontSize: '0.7rem', maxHeight: '14rem', overflow: 'auto', whiteSpace: 'pre-wrap' }}
+                        >
+                          {JSON.stringify(log.details, null, 2)}
+                        </pre>
+                      </details>
+                    ) : (
+                      <span className="text-muted small">—</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

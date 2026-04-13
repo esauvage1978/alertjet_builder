@@ -13,6 +13,7 @@ use App\Form\UserProfileFormType;
 use App\Form\FirstProjectFormType;
 use App\Form\OrganizationType;
 use App\Service\EnvironmentSetupWizard;
+use App\Service\ProjectAuditHelper;
 use App\Service\SiteVitrinePlansCatalog;
 use App\Service\UserActionLogger;
 use Doctrine\ORM\EntityManagerInterface;
@@ -314,6 +315,7 @@ final class EnvironmentSetupController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         UserActionLogger $userActionLogger,
+        ProjectAuditHelper $projectAuditHelper,
         CsrfTokenManagerInterface $csrfTokenManager,
     ): Response {
         $user = $this->requireUser();
@@ -354,11 +356,11 @@ final class EnvironmentSetupController extends AbstractController
                 'ENVIRONMENT_SETUP_PROJECT',
                 $user,
                 null,
-                [
-                    'projectId' => $proj->getId(),
-                    'name' => $proj->getName(),
-                    'organizationId' => $organization->getId(),
-                ],
+                array_merge($projectAuditHelper->contextualize($proj, $organization), [
+                    'event' => 'created',
+                    'source' => 'environment_setup_wizard',
+                    'initialSnapshot' => $projectAuditHelper->snapshot($proj),
+                ]),
                 $request,
             );
 

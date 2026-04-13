@@ -23,12 +23,21 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
     message: 'validation.project_name.unique_in_org',
     errorPath: 'name',
 )]
+#[UniqueEntity(fields: ['publicToken'], message: 'validation.project_public_token.unique')]
 class Project
 {
+    public const PUBLIC_TOKEN_LENGTH = 12;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    /**
+     * Jeton opaque dans les URLs (12 caractères hexadécimaux), unique globalement.
+     */
+    #[ORM\Column(name: 'public_token', length: 12, unique: true)]
+    private string $publicToken = '';
 
     #[ORM\Column(length: 180)]
     private string $name;
@@ -98,6 +107,25 @@ class Project
         return $this->id;
     }
 
+    public function getPublicToken(): string
+    {
+        return $this->publicToken;
+    }
+
+    public function setPublicToken(string $publicToken): self
+    {
+        $publicToken = strtolower($publicToken);
+        if (\strlen($publicToken) !== self::PUBLIC_TOKEN_LENGTH) {
+            throw new \InvalidArgumentException(\sprintf('Le jeton public doit comporter exactement %d caractères.', self::PUBLIC_TOKEN_LENGTH));
+        }
+        if (!preg_match('/^[a-f0-9]{12}$/', $publicToken)) {
+            throw new \InvalidArgumentException('Le jeton public doit être hexadécimal en minuscules.');
+        }
+        $this->publicToken = $publicToken;
+
+        return $this;
+    }
+
     public function getName(): string
     {
         return $this->name;
@@ -105,7 +133,7 @@ class Project
 
     public function setName(string $name): self
     {
-        $this->name = $name;
+        $this->name = trim($name);
 
         return $this;
     }

@@ -9,10 +9,10 @@
         <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
         <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+        {{ vite_entry_link_tags('app') }}
         {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
+
         {% endblock %}
         {% set frankenphpHotReload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
         {% if frankenphpHotReload %}
@@ -26,13 +26,16 @@
     {% set profileOnboardingPage = _route == 'app_account_profile_onboarding' %}
     {% set hideAppSidebar = setupIncomplete or profileOnboardingPage %}
     {% set showMainNavDestinations = not setupIncomplete and not profileOnboardingPage %}
-    <body class="hold-transition {% if not hideAppSidebar %}sidebar-mini {% endif %}layout-fixed accent-cyan app-adminlte {% if setupIncomplete %}app-setup-incomplete{% endif %} {% if profileOnboardingPage %}app-profile-onboarding{% endif %} {% block body_extra_class %}{% endblock %}">
+    <body class="app-spa hold-transition {% if setupIncomplete %}app-setup-incomplete{% endif %} {% if profileOnboardingPage %}app-profile-onboarding{% endif %} {% block body_extra_class %}{% endblock %}">
         <div class="wrapper">
-            <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom-0 elevation-1">
+            {% if not hideAppSidebar %}
+            <div class="app-shell__backdrop" aria-hidden="true"></div>
+            {% endif %}
+            <nav class="main-header app-topbar navbar navbar-expand navbar-white navbar-light border-bottom-0">
                 <ul class="navbar-nav align-items-center flex-nowrap flex-grow-1 mr-2">
                     {% if not hideAppSidebar %}
-                        <li class="nav-item flex-shrink-0">
-                            <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="{{ 'nav.toggle_menu'|trans }}"><i class="fas fa-bars"></i></a>
+                        <li class="nav-item flex-shrink-0 d-lg-none">
+                            <button type="button" class="nav-link btn btn-link border-0 p-2 app-spa__sidebar-toggle" aria-label="{{ 'nav.toggle_menu'|trans }}"><i class="fas fa-bars"></i></button>
                         </li>
                     {% elseif setupIncomplete %}
                         <li class="nav-item pl-2 pr-3 flex-shrink-0">
@@ -105,13 +108,13 @@
             </nav>
 
             {% if not hideAppSidebar %}
-            <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <aside class="main-sidebar sidebar-dark-primary shadow">
                 <a href="{{ path('app_home') }}" class="brand-link">
                     <span class="brand-text font-weight-light">{{ 'nav.brand_html'|trans|raw }}</span>
                 </a>
                 <div class="sidebar sidebar--stack">
                     <nav class="mt-2 sidebar__nav">
-                        <ul class="nav nav-pills nav-sidebar flex-column nav-flat" data-widget="treeview" role="menu" data-accordion="false">
+                        <ul class="nav nav-pills nav-sidebar flex-column nav-flat" role="menu">
                             <li class="nav-item">
                                 <a href="{{ path('app_home') }}" class="nav-link {{ _route == 'app_home' ? 'active' : '' }}">
                                     <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -139,7 +142,7 @@
                                 <li class="nav-header">{{ 'nav.section_tickets'|trans }}</li>
                                 {% if is_granted('ORGANIZATION_EDIT', current_organization) %}
                                     <li class="nav-item">
-                                        <a href="{{ path('app_organization_projects', { orgToken: current_organization.publicToken }) }}" class="nav-link {{ _route in ['app_organization_projects', 'app_organization_project_edit'] ? 'active' : '' }}">
+                                        <a href="{{ path('app_spa_catch', { reactPath: 'projects' }) }}" class="nav-link {{ _route in ['app_organization_projects', 'app_organization_project_edit'] ? 'active' : '' }}">
                                             <i class="nav-icon fas fa-folder-open"></i>
                                             <p>{{ 'nav.project'|trans }}</p>
                                         </a>
@@ -219,9 +222,26 @@
 
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js" crossorigin="anonymous"></script>
+        <script>
+        (function () {
+            var w = document.querySelector('body.app-spa .wrapper');
+            if (!w) return;
+            w.querySelectorAll('.app-spa__sidebar-toggle').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    w.classList.toggle('app-shell--sidebar-open');
+                });
+            });
+            var bd = w.querySelector('.app-shell__backdrop');
+            if (bd) {
+                bd.addEventListener('click', function () {
+                    w.classList.remove('app-shell--sidebar-open');
+                });
+            }
+        })();
+        </script>
         {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
+
         {% endblock %}
     </body>
 </html>

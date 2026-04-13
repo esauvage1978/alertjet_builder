@@ -1,6 +1,8 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useBootstrap } from '../../context/BootstrapContext.jsx';
 import SetupWizardStepper from '../setup/SetupWizardStepper.jsx';
+import MainSidebarNav from './MainSidebarNav.jsx';
 import { LocaleSwitcher } from './LocaleSwitcher.jsx';
 
 function FlashBanner({ flashes }) {
@@ -26,24 +28,62 @@ function FlashBanner({ flashes }) {
 
 export default function AppShell() {
   const { data } = useBootstrap();
+  const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, flags, routes, spaPaths, i18n, organizations, currentOrganization } = data;
   const hideSidebar = flags.hideAppSidebar;
   /** Parcours initialisation / finalisation profil : pas de barre supérieure ni fil d’Ariane global. */
   const hideMainHeader = flags.hideAppSidebar;
   const org = currentOrganization;
 
-  const navCls = ({ isActive }) => `nav-link${isActive ? ' active' : ''}`;
+  const path = location.pathname;
+  const orgProjectsListMatch = path.match(/^\/organization\/([^/]+)\/projects\/?$/);
+  const orgProjectsEditMatch = path.match(/^\/organization\/([^/]+)\/projects\/([^/]+)\/edit\/?$/);
+  const shortProjectsEditMatch = path.match(/^\/projects\/([^/]+)\/edit\/?$/);
+  const isShortProjectsList = path === '/projects' || path === '/projects/';
+  const isOrgProjectsList = orgProjectsListMatch !== null || isShortProjectsList;
+  const isProjectEditPage = orgProjectsEditMatch !== null || shortProjectsEditMatch !== null;
+  const projectEditToken = shortProjectsEditMatch?.[1] ?? orgProjectsEditMatch?.[2] ?? null;
+  /** Org. courante (URL courte) ou segment URL longue pour le lien « Projets ». */
+  const projectsListOrgToken = org?.publicToken ?? orgProjectsListMatch?.[1] ?? orgProjectsEditMatch?.[1] ?? null;
+  /** Liste projets URL courte : le titre de page est rendu dans la page (portail), pas la marque ici. */
+  const isProjectsListPage = path === '/projects' || path === '/projects/';
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  const wrapperClass = [
+    'wrapper',
+    hideMainHeader ? 'app-shell--parcours' : '',
+    !hideSidebar && sidebarOpen ? 'app-shell--sidebar-open' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <div className={`wrapper${hideMainHeader ? ' app-shell--parcours' : ''}`}>
+    <div className={wrapperClass}>
+      {!hideSidebar && sidebarOpen ? (
+        <div
+          className="app-shell__backdrop"
+          aria-hidden
+          onClick={() => setSidebarOpen(false)}
+        />
+      ) : null}
       {!hideMainHeader ? (
-        <nav className="main-header navbar navbar-expand navbar-white navbar-light border-bottom-0 elevation-1">
+        <nav className="main-header app-topbar navbar navbar-expand navbar-white navbar-light border-bottom-0">
           <ul className="navbar-nav align-items-center flex-nowrap flex-grow-1 mr-2">
             {!hideSidebar ? (
-              <li className="nav-item flex-shrink-0">
-                <a className="nav-link" data-widget="pushmenu" href="#" role="button" aria-label={i18n.nav_toggle}>
+              <li className="nav-item flex-shrink-0 d-lg-none">
+                <button
+                  type="button"
+                  className="nav-link btn btn-link border-0 p-2 app-spa__sidebar-toggle"
+                  aria-expanded={sidebarOpen}
+                  aria-label={i18n.nav_toggle}
+                  onClick={() => setSidebarOpen((v) => !v)}
+                >
                   <i className="fas fa-bars" />
-                </a>
+                </button>
               </li>
             ) : null}
             <li className="nav-item d-flex align-items-center min-width-0 flex-grow-1 pl-3 main-header__breadcrumb-slot">
@@ -54,11 +94,38 @@ export default function AppShell() {
                       {i18n.breadcrumb_home}
                     </Link>
                   </li>
-                  <li
-                    className="breadcrumb-item active text-truncate main-header-breadcrumb__current"
-                    aria-current="page"
-                    dangerouslySetInnerHTML={{ __html: i18n.brand_html }}
-                  />
+                  {isProjectEditPage && projectsListOrgToken && projectEditToken ? (
+                    <>
+                      <li className="breadcrumb-item">
+                        <Link to="/projects" className="main-header-breadcrumb__link">
+                          {i18n.breadcrumb_org_projects}
+                        </Link>
+                      </li>
+                      <li
+                        className="breadcrumb-item text-truncate text-monospace main-header-breadcrumb__current"
+                        style={{ fontSize: '0.8125rem', maxWidth: '11rem' }}
+                        title={projectEditToken}
+                      >
+                        {projectEditToken}
+                      </li>
+                      <li
+                        className="breadcrumb-item active text-truncate main-header-breadcrumb__current"
+                        aria-current="page"
+                      >
+                        {i18n.breadcrumb_org_projects_edit}
+                      </li>
+                    </>
+                  ) : isOrgProjectsList ? (
+                    <li className="breadcrumb-item active text-truncate main-header-breadcrumb__current" aria-current="page">
+                      {i18n.breadcrumb_org_projects}
+                    </li>
+                  ) : (
+                    <li
+                      className="breadcrumb-item active text-truncate main-header-breadcrumb__current"
+                      aria-current="page"
+                      dangerouslySetInnerHTML={{ __html: i18n.brand_html }}
+                    />
+                  )}
                 </ol>
               </nav>
             </li>
@@ -117,133 +184,27 @@ export default function AppShell() {
       ) : null}
 
       {!hideSidebar ? (
-        <aside className="main-sidebar sidebar-dark-primary elevation-4">
-          <a href={routes.spa} className="brand-link">
-            <span className="brand-text font-weight-light app-brand-html" dangerouslySetInnerHTML={{ __html: i18n.brand_html }} />
-          </a>
-          <div className="sidebar sidebar--stack">
-            <nav className="mt-2 sidebar__nav">
-              <ul
-                className="nav nav-pills nav-sidebar flex-column nav-flat"
-                data-widget="treeview"
-                role="menu"
-                data-accordion="false"
-              >
-                <li className="nav-item">
-                  <NavLink to="/" end className={navCls}>
-                    <i className="nav-icon fas fa-tachometer-alt" />
-                    <p>{i18n.nav_dashboard}</p>
-                  </NavLink>
-                </li>
-                {org && organizations?.length > 0 ? (
-                  <>
-                    <li className="nav-header">{i18n.nav_section_admin}</li>
-                    {flags.canAccessOrganizationBillingPage ? (
-                      <li className="nav-item">
-                        <NavLink to={spaPaths.organizationBilling} className={navCls}>
-                          <i className="nav-icon fas fa-building" />
-                          <p>{i18n.nav_org_billing}</p>
-                        </NavLink>
-                      </li>
-                    ) : null}
-                    {flags.canEditCurrentOrganization ? (
-                      <li className="nav-item">
-                        <NavLink to={spaPaths.organizationUsers} className={navCls}>
-                          <i className="nav-icon fas fa-user-group" />
-                          <p>{i18n.nav_org_users}</p>
-                        </NavLink>
-                      </li>
-                    ) : null}
-                    <li className="nav-header">{i18n.nav_section_tickets}</li>
-                    {flags.canEditCurrentOrganization && spaPaths.organizationProjects ? (
-                      <li className="nav-item">
-                        <NavLink to={spaPaths.organizationProjects} className={navCls}>
-                          <i className="nav-icon fas fa-folder-open" />
-                          <p>{i18n.nav_project}</p>
-                        </NavLink>
-                      </li>
-                    ) : null}
-                    <li className="nav-item">
-                      <NavLink to={spaPaths.organizationTickets} className={navCls}>
-                        <i className="nav-icon fas fa-ticket-alt" />
-                        <p>{i18n.nav_tickets}</p>
-                      </NavLink>
-                    </li>
-                  </>
-                ) : null}
-                {flags.canViewActivityLog ? (
-                  <li className="nav-item">
-                    <NavLink to={spaPaths.accountActivity} className={navCls}>
-                      <i className="nav-icon fas fa-clipboard-list" />
-                      <p>{i18n.nav_activity}</p>
-                    </NavLink>
-                  </li>
-                ) : null}
-                {flags.isAdmin ? (
-                  <>
-                    <li className="nav-header">{i18n.nav_admin_header}</li>
-                    <li className="nav-item">
-                      <NavLink to={spaPaths.adminOrganizations} className={navCls}>
-                        <i className="nav-icon fas fa-sitemap" />
-                        <p>{i18n.nav_admin_orgs}</p>
-                      </NavLink>
-                    </li>
-                    <li className="nav-item">
-                      <NavLink to={spaPaths.adminUsers} className={navCls}>
-                        <i className="nav-icon fas fa-users" />
-                        <p>{i18n.nav_admin_users}</p>
-                      </NavLink>
-                    </li>
-                    <li className="nav-item">
-                      <NavLink to={spaPaths.adminAuditActions} className={navCls}>
-                        <i className="nav-icon fas fa-history" />
-                        <p>{i18n.nav_admin_audit_actions}</p>
-                      </NavLink>
-                    </li>
-                    <li className="nav-item">
-                      <NavLink to={spaPaths.adminAuditErrors} className={navCls}>
-                        <i className="nav-icon fas fa-bug" />
-                        <p>{i18n.nav_admin_audit_errors}</p>
-                      </NavLink>
-                    </li>
-                  </>
-                ) : null}
-              </ul>
-            </nav>
-            {organizations?.length > 1 ? (
-              <div className="p-2 border-top border-secondary">
-                <select
-                  className="custom-select custom-select-sm"
-                  value={org?.publicToken || ''}
-                  onChange={(e) => {
-                    const tok = e.target.value;
-                    if (!tok) return;
-                    window.location.href = routes.orgContextSwitch.replace('__token__', tok);
-                  }}
-                  aria-label={i18n.nav_section_admin}
-                >
-                  {organizations.map((o) => (
-                    <option key={o.publicToken} value={o.publicToken}>
-                      {o.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : null}
-          </div>
+        <aside className="main-sidebar sidebar-dark-primary shadow">
+          <MainSidebarNav data={data} />
         </aside>
       ) : null}
 
       <div className="content-wrapper">
         {!hideMainHeader ? (
-          <div className="content-header">
-            <div className="container-fluid">
-              <h1
-                className="m-0 text-dark content-header__title app-brand-html"
-                dangerouslySetInnerHTML={{ __html: i18n.brand_html }}
-              />
+          isProjectsListPage ? (
+            <div className="content-header content-header--projects">
+              <div className="container-fluid" id="spa-projects-content-header" />
             </div>
-          </div>
+          ) : (
+            <div className="content-header">
+              <div className="container-fluid">
+                <h1
+                  className="m-0 text-dark content-header__title app-brand-html"
+                  dangerouslySetInnerHTML={{ __html: i18n.brand_html }}
+                />
+              </div>
+            </div>
+          )
         ) : (
           <div className="app-shell__parcours-brand border-bottom bg-white elevation-1">
             <div className="container-fluid py-3">

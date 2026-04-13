@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Controller\Api;
 
 use App\Entity\Project;
+use App\Entity\User;
 use App\Repository\ProjectRepository;
+use App\Service\ProjectAuditHelper;
+use App\Service\UserActionLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +21,8 @@ final class ProjectApiController extends AbstractController
     public function __construct(
         private readonly ProjectRepository $projectRepository,
         private readonly EntityManagerInterface $em,
+        private readonly UserActionLogger $userActionLogger,
+        private readonly ProjectAuditHelper $projectAuditHelper,
     ) {
     }
 
@@ -49,6 +54,20 @@ final class ProjectApiController extends AbstractController
         $this->em->persist($project);
         $this->em->flush();
 
+        $actor = $this->getUser();
+        $this->userActionLogger->log(
+            'API_PROJECT_CREATED',
+            $actor instanceof User ? $actor : null,
+            null,
+            array_merge($this->projectAuditHelper->contextualize($project, $project->getOrganization()), [
+                'event' => 'created',
+                'source' => 'POST /api/projects',
+                'initialSnapshot' => $this->projectAuditHelper->snapshot($project),
+                'unauthenticated' => !$actor instanceof User,
+            ]),
+            $request,
+        );
+
         return $this->json($this->serializeProject($project), Response::HTTP_CREATED);
     }
 
@@ -57,6 +76,7 @@ final class ProjectApiController extends AbstractController
     {
         return [
             'id' => $p->getId(),
+            'publicToken' => $p->getPublicToken(),
             'name' => $p->getName(),
             'webhookToken' => $p->getWebhookToken(),
             'webhookUrl' => $this->generateUrl(
