@@ -95,6 +95,12 @@ class Project
     #[ORM\Column(nullable: true)]
     private ?int $slaResolveTargetMinutes = null;
 
+    /**
+     * Afficher l’intégration webhook dans l’UI (l’URL API reste valide si désactivé).
+     */
+    #[ORM\Column(options: ['default' => true])]
+    private bool $webhookIntegrationEnabled = true;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -328,6 +334,18 @@ class Project
     public function setSlaResolveTargetMinutes(?int $slaResolveTargetMinutes): self
     {
         $this->slaResolveTargetMinutes = $slaResolveTargetMinutes;
+
+        return $this;
+    }
+
+    public function isWebhookIntegrationEnabled(): bool
+    {
+        return $this->webhookIntegrationEnabled;
+    }
+
+    public function setWebhookIntegrationEnabled(bool $webhookIntegrationEnabled): self
+    {
+        $this->webhookIntegrationEnabled = $webhookIntegrationEnabled;
 
         return $this;
     }
