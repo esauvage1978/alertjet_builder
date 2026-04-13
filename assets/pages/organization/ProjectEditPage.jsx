@@ -704,6 +704,28 @@ export default function ProjectEditPage() {
                 <p className="op-project-edit__hint small mb-0">URL indisponible.</p>
               )}
 
+              <div className="form-group mb-0">
+                <label htmlFor="pe-webhook-cors" className="small font-weight-bold d-block mb-1">
+                  Origines autorisées (CORS)
+                </label>
+                <textarea
+                  id="pe-webhook-cors"
+                  className="form-control form-control-sm"
+                  rows={4}
+                  value={webhookCorsAllowedOrigins}
+                  onChange={(e) => setWebhookCorsAllowedOrigins(e.target.value)}
+                  disabled={busy}
+                  placeholder="https://app.exemple.fr"
+                  spellCheck={false}
+                  autoComplete="off"
+                />
+                <p className="op-project-edit__hint small mt-2 mb-0">
+                  Une URL par ligne (http ou https). Vide = pas de filtre sur l’en-tête Origin (outils en ligne de
+                  commande, scripts serveur). Si au moins une origine est indiquée, les POST depuis un navigateur dont
+                  l’origine n’est pas listée sont refusés.
+                </p>
+              </div>
+
               <div className="fw-json-example mt-3">
                 <h3 className="fw-json-example__title">Exemple de corps JSON (POST)</h3>
                 <p className="op-project-edit__hint small mb-2">
