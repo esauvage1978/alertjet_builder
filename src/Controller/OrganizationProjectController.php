@@ -514,8 +514,18 @@ final class OrganizationProjectController extends AbstractController
 
         $this->denyAccessUnlessGranted(ProjectVoter::MANAGE, $project);
 
+        $wantsJson = AcceptJson::wants($request) || $request->isXmlHttpRequest();
+
         $token = new CsrfToken('test_imap_'.$project->getId(), (string) $request->request->get('_token'));
         if (!$csrfTokenManager->isTokenValid($token)) {
+            if ($wantsJson) {
+                return $this->json([
+                    'ok' => false,
+                    'error' => 'invalid_csrf',
+                    'message' => $this->trans('error.invalid_csrf'),
+                ], 403);
+            }
+
             throw $this->createAccessDeniedException($this->trans('error.invalid_csrf'));
         }
 
@@ -527,6 +537,8 @@ final class OrganizationProjectController extends AbstractController
                 $params['%error%'] = '—';
             }
         }
+
+        $message = $this->trans($result->messageKey, $params);
 
         /** @var User|null $actor */
         $actor = $this->getUser();
@@ -542,9 +554,16 @@ final class OrganizationProjectController extends AbstractController
             $request,
         );
 
+        if ($wantsJson) {
+            return $this->json([
+                'ok' => $result->success,
+                'message' => $message,
+            ]);
+        }
+
         $this->addFlash(
             $result->success ? 'success' : 'danger',
-            $this->trans($result->messageKey, $params),
+            $message,
         );
 
         return $this->redirect('/app/projects/'.$project->getPublicToken().'/edit#pe-pane-mail');

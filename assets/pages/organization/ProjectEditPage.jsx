@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { fetchJson, postForm, postFormRedirect } from '../../api/http.js';
+import { fetchJson, postForm } from '../../api/http.js';
 import { TicketHandlerMiniCard } from '../../components/project/TicketHandlerMiniCard.jsx';
 import { PageCard } from '../../components/ui/PageCard.jsx';
 import { ErrorAlert } from '../../components/ui/ErrorAlert.jsx';
@@ -33,6 +33,8 @@ export default function ProjectEditPage() {
   const [activeTab, setActiveTab] = useState('pe-pane-general');
   const [busy, setBusy] = useState(false);
   const [imapPassword, setImapPassword] = useState('');
+  const [imapTestBusy, setImapTestBusy] = useState(false);
+  const [imapTestFeedback, setImapTestFeedback] = useState(null);
 
   const [name, setName] = useState('');
   const [ticketHandlerIds, setTicketHandlerIds] = useState([]);
@@ -130,9 +132,41 @@ export default function ProjectEditPage() {
 
   async function onTestImap() {
     if (!data?.testImapCsrf || !orgToken || !projectId) return;
-    await postFormRedirect(`/organisation/${orgToken}/projets/${projectId}/test-imap`, {
-      _token: data.testImapCsrf,
-    });
+    setImapTestBusy(true);
+    setImapTestFeedback(null);
+    try {
+      const res = await postForm(
+        `/organisation/${orgToken}/projets/${projectId}/test-imap`,
+        { _token: data.testImapCsrf },
+        { json: true },
+      );
+      const ct = res.headers.get('Content-Type') || '';
+      if (!ct.includes('application/json')) {
+        throw new Error('Réponse inattendue du serveur.');
+      }
+      const payload = await res.json();
+      if (res.ok) {
+        setImapTestFeedback({
+          type: payload.ok ? 'success' : 'danger',
+          message: typeof payload.message === 'string' ? payload.message : '',
+        });
+        return;
+      }
+      setImapTestFeedback({
+        type: 'danger',
+        message:
+          typeof payload.message === 'string' && payload.message
+            ? payload.message
+            : `Erreur ${res.status}`,
+      });
+    } catch (e) {
+      setImapTestFeedback({
+        type: 'danger',
+        message: e.message || 'Erreur réseau',
+      });
+    } finally {
+      setImapTestBusy(false);
+    }
   }
 
   function copyWebhook(url) {
