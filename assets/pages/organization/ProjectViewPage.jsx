@@ -118,25 +118,27 @@ export default function ProjectViewPage() {
         </div>
       </PageCard>
 
-      <PageCard className="op-projects-card content-card op-project-edit-card mb-3">
-        <div className="op-projects-card-body op-project-edit-card-body">
-          <h2 className="op-project-edit__pane-title h6">Webhook</h2>
-          <p className="op-project-edit__hint small mb-2">URL d’ingestion (POST).</p>
-          <input
-            type="text"
-            readOnly
-            className="form-control form-control-sm font-monospace small mb-2"
-            value={p.webhookUrl || ''}
-          />
-          {p.webhookPingUrl ? (
-            <p className="op-project-edit__hint small mb-0">
-              <a className="op-project-edit__link" href={p.webhookPingUrl} target="_blank" rel="noreferrer">
-                Ping (GET)
-              </a>
-            </p>
-          ) : null}
-        </div>
-      </PageCard>
+      {p.webhookIntegrationEnabled !== false ? (
+        <PageCard className="op-projects-card content-card op-project-edit-card mb-3">
+          <div className="op-projects-card-body op-project-edit-card-body">
+            <h2 className="op-project-edit__pane-title h6">Webhook</h2>
+            <p className="op-project-edit__hint small mb-2">URL d’ingestion (POST).</p>
+            <input
+              type="text"
+              readOnly
+              className="form-control form-control-sm font-monospace small mb-2"
+              value={p.webhookUrl || ''}
+            />
+            {p.webhookPingUrl ? (
+              <p className="op-project-edit__hint small mb-0">
+                <a className="op-project-edit__link" href={p.webhookPingUrl} target="_blank" rel="noreferrer">
+                  Ping (GET)
+                </a>
+              </p>
+            ) : null}
+          </div>
+        </PageCard>
+      ) : null}
 
       <PageCard className="op-projects-card content-card op-project-edit-card">
         <div className="op-projects-card-body op-project-edit-card-body">

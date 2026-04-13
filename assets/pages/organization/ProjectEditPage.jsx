@@ -238,7 +238,7 @@ export default function ProjectEditPage() {
         },
         body: JSON.stringify({
           title: 'Test webhook (AlertJet Builder)',
-          message: "Requête de test envoyée depuis l'onglet Webhook.",
+          message: "Requête de test envoyée depuis l'onglet Intégrations.",
         }),
       });
       const ct = res.headers.get('Content-Type') || '';
