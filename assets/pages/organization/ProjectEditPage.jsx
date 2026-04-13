@@ -419,16 +419,20 @@ export default function ProjectEditPage() {
           {activeTab === 'pe-pane-mail' ? (
             <div className="pe-pane" id="pe-pane-mail">
               <h2 className="op-project-edit__pane-title h6">Messagerie IMAP</h2>
-              <div className="form-group form-check">
-                <label className="form-check-label">
+              <div className="form-group pe-mail-switch-row">
+                <label className="pe-mail-switch" htmlFor="pe-imap-enabled">
                   <input
+                    id="pe-imap-enabled"
                     type="checkbox"
-                    className="form-check-input"
+                    className="pe-mail-switch__input"
                     checked={imapEnabled}
                     onChange={(e) => setImapEnabled(e.target.checked)}
                     disabled={busy}
                   />
-                  Activer la récupération des e-mails en tickets
+                  <span className="pe-mail-switch__track" aria-hidden="true">
+                    <span className="pe-mail-switch__thumb" />
+                  </span>
+                  <span className="pe-mail-switch__label">Activer la récupération des e-mails en tickets</span>
                 </label>
               </div>
               <div className="form-row">
@@ -458,16 +462,20 @@ export default function ProjectEditPage() {
                   />
                 </div>
               </div>
-              <div className="form-group form-check">
-                <label className="form-check-label">
+              <div className="form-group pe-mail-switch-row">
+                <label className="pe-mail-switch" htmlFor="pe-imap-tls">
                   <input
+                    id="pe-imap-tls"
                     type="checkbox"
-                    className="form-check-input"
+                    className="pe-mail-switch__input"
                     checked={imapTls}
                     onChange={(e) => setImapTls(e.target.checked)}
                     disabled={busy}
                   />
-                  Connexion TLS/SSL
+                  <span className="pe-mail-switch__track" aria-hidden="true">
+                    <span className="pe-mail-switch__thumb" />
+                  </span>
+                  <span className="pe-mail-switch__label">Connexion TLS/SSL</span>
                 </label>
               </div>
               <div className="form-group">
