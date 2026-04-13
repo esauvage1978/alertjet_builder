@@ -1298,6 +1298,8 @@ body.app-spa .text-brand-cyan {
  * sur #f4f6f9 → contraste quasi nul (cartes, titres, paragraphes).
  */
 body.app-spa {
+  /* Aligné avec .content-header--projects : espace au-dessus du titre de page */
+  --spa-page-title-padding-top: 1.5rem;
   background-color: var(--surface);
   color: var(--text);
   /* UI back-office plus compacte (AdminLTE par défaut ≈ 1rem) */

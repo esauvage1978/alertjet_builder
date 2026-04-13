@@ -46,9 +46,6 @@ export default function AppShell() {
   const projectEditToken = shortProjectsEditMatch?.[1] ?? orgProjectsEditMatch?.[2] ?? null;
   /** Org. courante (URL courte) ou segment URL longue pour le lien « Projets ». */
   const projectsListOrgToken = org?.publicToken ?? orgProjectsListMatch?.[1] ?? orgProjectsEditMatch?.[1] ?? null;
-  /** Liste projets (URL courte ou `/organization/:token/projects`) : titre injecté par portail dans le content-header. */
-  const isProjectsListPage = path === '/projects' || path === '/projects/';
-
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
@@ -57,6 +54,14 @@ export default function AppShell() {
     'wrapper',
     hideMainHeader ? 'app-shell--parcours' : '',
     !hideSidebar && sidebarOpen ? 'app-shell--sidebar-open' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  /** Même retrait vertical qu’au-dessus du titre « Projets » (liste : pas de double marge, le titre est dans le content-header). */
+  const contentOutletClassName = [
+    'container-fluid',
+    !hideMainHeader && (isOrgProjectsList ? 'app-spa-content-main app-spa-content-main--flush' : 'app-spa-content-main'),
   ]
     .filter(Boolean)
     .join(' ');
@@ -191,7 +196,7 @@ export default function AppShell() {
 
       <div className="content-wrapper">
         {!hideMainHeader ? (
-          isProjectsListPage ? (
+          isOrgProjectsList ? (
             <div className="content-header content-header--projects">
               <div className="container-fluid" id="spa-projects-content-header" />
             </div>
@@ -209,7 +214,7 @@ export default function AppShell() {
         )}
         <section className="content">
           <FlashBanner flashes={data.flashes} />
-          <div className="container-fluid">
+          <div className={contentOutletClassName}>
             <Outlet />
           </div>
         </section>
