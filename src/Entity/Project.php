@@ -101,6 +101,13 @@ class Project
     #[ORM\Column(options: ['default' => true])]
     private bool $webhookIntegrationEnabled = true;
 
+    /**
+     * Origines autorisées pour les POST navigateur (CORS), une par ligne (https://…).
+     * Vide = pas de filtrage sur l’en-tête Origin.
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $webhookCorsAllowedOrigins = null;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -346,6 +353,18 @@ class Project
     public function setWebhookIntegrationEnabled(bool $webhookIntegrationEnabled): self
     {
         $this->webhookIntegrationEnabled = $webhookIntegrationEnabled;
+
+        return $this;
+    }
+
+    public function getWebhookCorsAllowedOrigins(): ?string
+    {
+        return $this->webhookCorsAllowedOrigins;
+    }
+
+    public function setWebhookCorsAllowedOrigins(?string $webhookCorsAllowedOrigins): self
+    {
+        $this->webhookCorsAllowedOrigins = $webhookCorsAllowedOrigins;
 
         return $this;
     }
