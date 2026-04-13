@@ -490,7 +490,7 @@ export default function ProjectEditPage() {
           ) : null}
 
           <div className="op-project-edit__actions d-flex flex-wrap align-items-center">
-            <button type="submit" className="btn btn-sm btn-primary op-new-btn" disabled={busy || !name.trim()}>
+            <button type="submit" className="btn btn-sm btn-primary" disabled={busy || !name.trim()}>
               {busy ? (
                 <>
                   <i className="fas fa-circle-notch fa-spin mr-1" aria-hidden="true" />

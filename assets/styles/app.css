@@ -4306,6 +4306,21 @@ body.app-spa .btn-primary:focus {
 .op-project-edit__actions {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
-  gap: 0.65rem;
+  gap: 0.75rem;
   border-top: 1px solid rgba(12, 25, 41, 0.1);
+}
+
+/* Barre d’actions : même hauteur / padding (primaire vs secondaire — la hiérarchie = couleur, pas la taille). */
+.op-project-edit__actions > .btn,
+.op-project-edit__actions > a.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2.375rem;
+  padding: 0.5rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  box-sizing: border-box;
 }
