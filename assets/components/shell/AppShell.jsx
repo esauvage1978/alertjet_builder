@@ -195,16 +195,7 @@ export default function AppShell() {
             <div className="content-header content-header--projects">
               <div className="container-fluid" id="spa-projects-content-header" />
             </div>
-          ) : (
-            <div className="content-header">
-              <div className="container-fluid">
-                <h1
-                  className="m-0 text-dark content-header__title app-brand-html"
-                  dangerouslySetInnerHTML={{ __html: i18n.brand_html }}
-                />
-              </div>
-            </div>
-          )
+          ) : null
         ) : (
           <div className="app-shell__parcours-brand border-bottom bg-white elevation-1">
             <div className="container-fluid py-3">
