@@ -4352,6 +4352,75 @@ a.op-project-name--link:hover {
   line-height: 1.35;
 }
 
+/* Onglet Intégrations : sous-menu + panneaux */
+.pe-int-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.pe-int-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 10rem;
+  padding: 0.35rem 0;
+  border-right: 1px solid rgba(12, 25, 41, 0.1);
+  padding-right: 1rem;
+}
+
+.pe-int-nav__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.65rem;
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  background: transparent;
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.pe-int-nav__btn:hover {
+  background: rgba(12, 25, 41, 0.06);
+}
+
+.pe-int-nav__btn--active {
+  background: var(--coral-dim);
+  color: var(--coral);
+}
+
+.pe-int-body {
+  flex: 1;
+  min-width: min(100%, 18rem);
+}
+
+.pe-int-panel {
+  max-width: 42rem;
+}
+
+.pe-int-panel__title {
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 575.98px) {
+  .pe-int-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid rgba(12, 25, 41, 0.1);
+    padding-right: 0;
+    padding-bottom: 0.75rem;
+    min-width: 100%;
+  }
+}
+
 .pe-handlers-form-widget label {
   padding: 0.35rem 0.5rem;
   margin: 0 !important;
