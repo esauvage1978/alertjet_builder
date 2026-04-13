@@ -24,6 +24,11 @@ export function TicketHandlerMiniCard({
       disabled={disabled}
       aria-pressed={selected}
     >
+      {selected ? (
+        <span className="ticket-handler-mini-card__tick" aria-hidden="true">
+          <i className="fas fa-check" />
+        </span>
+      ) : null}
       <UserAvatar
         initials={initials}
         bg={avatarColor || FALLBACK_BG}
