@@ -101,7 +101,7 @@ export default function SetupOrganizationPage() {
           <span>Organisation</span>
         </h1>
         {!hasSavedOrg ? <p className="text-muted">Étape 1 — créez votre organisation principale.</p> : null}
-        <form className="card card-body shadow-sm" onSubmit={onSubmit} noValidate>
+        <form className="card card-body shadow-sm" onSubmit={onSubmit} noValidate autoComplete="off">
           {showTopAlert ? (
             <div className="alert alert-danger" role="alert">
               {summaryMessage ? <p className="mb-1 font-weight-bold">{summaryMessage}</p> : null}
@@ -115,8 +115,11 @@ export default function SetupOrganizationPage() {
             </div>
           ) : null}
           <div className="form-group">
-            <label>Nom de l’organisation *</label>
+            <label htmlFor="setup-org-name">Nom de l’organisation *</label>
             <input
+              id="setup-org-name"
+              name="alertjet-setup-org-name"
+              autoComplete="organization"
               className={`form-control${errName ? ' is-invalid' : ''}`}
               value={name}
               onChange={(ev) => setName(ev.target.value)}
@@ -133,8 +136,13 @@ export default function SetupOrganizationPage() {
           </div>
           <div className="setup-org-address-block">
             <div className="form-group mb-2">
-              <label className="mb-1 small text-secondary">Adresse (ligne 1)</label>
+              <label className="mb-1 small text-secondary" htmlFor="setup-org-billing-line1">
+                Adresse (ligne 1)
+              </label>
               <input
+                id="setup-org-billing-line1"
+                name="alertjet-org-billing-line1"
+                autoComplete="billing address-line1"
                 className={`form-control form-control-sm${errL1 ? ' is-invalid' : ''}`}
                 value={l1}
                 onChange={(ev) => setL1(ev.target.value)}
@@ -143,8 +151,13 @@ export default function SetupOrganizationPage() {
               {errL1 ? <div className="invalid-feedback d-block small">{errL1}</div> : null}
             </div>
             <div className="form-group mb-2">
-              <label className="mb-1 small text-secondary">Adresse (ligne 2)</label>
+              <label className="mb-1 small text-secondary" htmlFor="setup-org-billing-line2">
+                Adresse (ligne 2)
+              </label>
               <input
+                id="setup-org-billing-line2"
+                name="alertjet-org-billing-line2"
+                autoComplete="billing address-line2"
                 className={`form-control form-control-sm${errL2 ? ' is-invalid' : ''}`}
                 value={l2}
                 onChange={(ev) => setL2(ev.target.value)}
@@ -154,8 +167,13 @@ export default function SetupOrganizationPage() {
             </div>
             <div className="form-row">
               <div className="form-group col-md-4 mb-2">
-                <label className="mb-1 small text-secondary">Code postal</label>
+                <label className="mb-1 small text-secondary" htmlFor="setup-org-billing-postal">
+                  Code postal
+                </label>
                 <input
+                  id="setup-org-billing-postal"
+                  name="alertjet-org-billing-postal"
+                  autoComplete="billing postal-code"
                   className={`form-control form-control-sm${errPostal ? ' is-invalid' : ''}`}
                   value={postal}
                   onChange={(ev) => setPostal(ev.target.value)}
@@ -164,8 +182,13 @@ export default function SetupOrganizationPage() {
                 {errPostal ? <div className="invalid-feedback d-block small">{errPostal}</div> : null}
               </div>
               <div className="form-group col-md-8 mb-2">
-                <label className="mb-1 small text-secondary">Ville</label>
+                <label className="mb-1 small text-secondary" htmlFor="setup-org-billing-city">
+                  Ville
+                </label>
                 <input
+                  id="setup-org-billing-city"
+                  name="alertjet-org-billing-city"
+                  autoComplete="billing address-level2"
                   className={`form-control form-control-sm${errCity ? ' is-invalid' : ''}`}
                   value={city}
                   onChange={(ev) => setCity(ev.target.value)}
@@ -175,8 +198,13 @@ export default function SetupOrganizationPage() {
               </div>
             </div>
             <div className="form-group mb-2">
-              <label className="mb-1 small text-secondary">Pays</label>
+              <label className="mb-1 small text-secondary" htmlFor="setup-org-billing-country">
+                Pays
+              </label>
               <select
+                id="setup-org-billing-country"
+                name="alertjet-org-billing-country"
+                autoComplete="billing country"
                 className={`custom-select custom-select-sm${errCountry ? ' is-invalid' : ''}`}
                 value={country}
                 onChange={(ev) => setCountry(ev.target.value)}
