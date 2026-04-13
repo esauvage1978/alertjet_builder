@@ -8,6 +8,7 @@ use App\Entity\Project;
 use App\Repository\ProjectRepository;
 use App\Service\ApplicationErrorLogger;
 use App\Service\TicketIngestionService;
+use App\Service\WebhookCorsHelper;
 use App\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,7 @@ final class WebhookController extends AbstractController
         private readonly ProjectRepository $projectRepository,
         private readonly TicketIngestionService $ingestionService,
         private readonly ApplicationErrorLogger $applicationErrorLogger,
+        private readonly WebhookCorsHelper $webhookCorsHelper,
     ) {
     }
 
@@ -58,7 +60,33 @@ final class WebhookController extends AbstractController
             return $this->json(['error' => 'unknown_webhook_token'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->processReceiveBody($project, $request, $webhookToken);
+        if (!$this->webhookCorsHelper->isOriginRequestAllowed($request, $project)) {
+            return $this->json(['error' => 'cors_forbidden'], Response::HTTP_FORBIDDEN);
+        }
+
+        $response = $this->processReceiveBody($project, $request, $webhookToken);
+        $this->webhookCorsHelper->attachResponseCorsHeaders($response, $request, $project);
+
+        return $response;
+    }
+
+    #[Route(
+        '/api/webhook/{orgToken}/{projectToken}/{webhookToken}',
+        name: 'api_webhook_receive_options',
+        requirements: [
+            'orgToken' => '[a-f0-9]{12}',
+            'projectToken' => '[a-f0-9]{12}',
+            'webhookToken' => self::TOKEN_REQUIREMENT,
+        ],
+        methods: ['OPTIONS'],
+    )]
+    public function receiveOptions(
+        string $orgToken,
+        string $projectToken,
+        string $webhookToken,
+        Request $request,
+    ): Response {
+        return $this->preflightScoped($orgToken, $projectToken, $webhookToken, $request);
     }
 
     /** @deprecated URL à un seul segment — préférer /api/webhook/{org}/{projet}/{secret} */
@@ -88,7 +116,50 @@ final class WebhookController extends AbstractController
             return $this->json(['error' => 'unknown_webhook_token'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->processReceiveBody($project, $request, $token);
+        if (!$this->webhookCorsHelper->isOriginRequestAllowed($request, $project)) {
+            return $this->json(['error' => 'cors_forbidden'], Response::HTTP_FORBIDDEN);
+        }
+
+        $response = $this->processReceiveBody($project, $request, $token);
+        $this->webhookCorsHelper->attachResponseCorsHeaders($response, $request, $project);
+
+        return $response;
+    }
+
+    #[Route(
+        '/api/webhook/{token}',
+        name: 'api_webhook_receive_legacy_options',
+        requirements: ['token' => self::TOKEN_REQUIREMENT],
+        methods: ['OPTIONS'],
+    )]
+    public function receiveLegacyOptions(string $token, Request $request): Response
+    {
+        $project = $this->projectRepository->findByWebhookToken($token);
+        if ($project === null) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+        if (!$this->webhookCorsHelper->isOriginRequestAllowed($request, $project)) {
+            return new Response('', Response::HTTP_FORBIDDEN);
+        }
+        $response = new Response('', Response::HTTP_NO_CONTENT);
+        $this->webhookCorsHelper->attachPreflightHeaders($response, $request, $project);
+
+        return $response;
+    }
+
+    private function preflightScoped(string $orgToken, string $projectToken, string $webhookToken, Request $request): Response
+    {
+        $project = $this->projectRepository->findByWebhookScoped($orgToken, $projectToken, $webhookToken);
+        if ($project === null) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+        if (!$this->webhookCorsHelper->isOriginRequestAllowed($request, $project)) {
+            return new Response('', Response::HTTP_FORBIDDEN);
+        }
+        $response = new Response('', Response::HTTP_NO_CONTENT);
+        $this->webhookCorsHelper->attachPreflightHeaders($response, $request, $project);
+
+        return $response;
     }
 
     private function processReceiveBody(Project $project, Request $request, string $webhookTokenForLog): Response
