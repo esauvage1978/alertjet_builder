@@ -498,6 +498,18 @@ final class OrganizationProjectController extends AbstractController
         ];
     }
 
+    /**
+     * @return array{orgToken: string, projectToken: string, webhookToken: string}
+     */
+    private function webhookRouteParams(Organization $organization, Project $project): array
+    {
+        return [
+            'orgToken' => $organization->getPublicToken(),
+            'projectToken' => $project->getPublicToken(),
+            'webhookToken' => $project->getWebhookToken(),
+        ];
+    }
+
     /** @return array<string, list<string>> */
     private function collectFormFieldErrors(FormInterface $form): array
     {

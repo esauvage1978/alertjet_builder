@@ -79,11 +79,7 @@ final class ProjectApiController extends AbstractController
             'publicToken' => $p->getPublicToken(),
             'name' => $p->getName(),
             'webhookToken' => $p->getWebhookToken(),
-            'webhookUrl' => $this->generateUrl(
-                'api_webhook_receive',
-                ['token' => $p->getWebhookToken()],
-                UrlGeneratorInterface::ABSOLUTE_URL,
-            ),
+            'webhookUrl' => $this->buildWebhookUrlForProject($p),
             'createdAt' => $p->getCreatedAt()->format(\DateTimeInterface::ATOM),
         ];
     }
