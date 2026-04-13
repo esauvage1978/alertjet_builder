@@ -2076,8 +2076,17 @@ body.app-profile-onboarding .main-header {
 
 /* Liste projets : pas de marque dans le content-header (titre injecté par la page). */
 .app-spa .content-header.content-header--projects {
-  padding-top: 1.5rem;
+  padding-top: var(--spa-page-title-padding-top);
   padding-bottom: 0.85rem;
+}
+
+/* Pages sans bandeau titre : même retrait qu’au-dessus de « Projets » (évite décalage entre routes). */
+body.app-spa section.content > .container-fluid.app-spa-content-main {
+  padding-top: var(--spa-page-title-padding-top);
+}
+
+body.app-spa section.content > .container-fluid.app-spa-content-main--flush {
+  padding-top: 0;
 }
 
 .app-spa .content-header.content-header--projects h1.content-header__title.op-projects-page__title {
@@ -3928,13 +3937,14 @@ body.app-spa .btn-primary:focus {
 .op-project-edit {
   max-width: none;
   margin: 0;
-  padding: 0.5rem 0.75rem 1.75rem;
+  /* Le haut est assuré par .app-spa-content-main sur le container (cohérence avec la liste projets). */
+  padding: 0 0.75rem 1.75rem;
   color: var(--text);
 }
 
 @media (min-width: 768px) {
   .op-project-edit {
-    padding: 0.75rem 1rem 2rem;
+    padding: 0 1rem 2rem;
   }
 }
 
