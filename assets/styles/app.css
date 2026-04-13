@@ -4497,7 +4497,7 @@ a.op-project-name--link:hover {
 .fw-url-box {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   flex-wrap: wrap;
