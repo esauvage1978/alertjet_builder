@@ -22,6 +22,8 @@ export default function SetupOrganizationPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [formErrors, setFormErrors] = useState([]);
   const [summaryMessage, setSummaryMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -58,47 +60,99 @@ export default function SetupOrganizationPage() {
 
   async function onSubmit(e) {
     e.preventDefault();
+    const log = (...args) => console.info('[AlertJet SetupOrganization]', ...args);
+    log('Continuer : clic — début soumission');
+
     setFieldErrors({});
     setFormErrors([]);
     setSummaryMessage('');
+    setSubmitError('');
+    setSubmitting(true);
 
-    const form = e.currentTarget;
-    const val = (id) => {
-      const el = form.querySelector(`#${id}`);
-      return el && 'value' in el ? String(el.value ?? '') : '';
-    };
+    try {
+      const form = e.currentTarget;
+      const val = (id) => {
+        const el = form.querySelector(`#${id}`);
+        return el && 'value' in el ? String(el.value ?? '') : '';
+      };
 
-    const nameV = val('setup-org-name');
-    const l1V = val('setup-org-billing-line1');
-    const l2V = val('setup-org-billing-line2');
-    const postalV = val('setup-org-billing-postal');
-    const cityV = val('setup-org-billing-city');
-    const countryV = val('setup-org-billing-country');
+      const nameV = val('setup-org-name');
+      const l1V = val('setup-org-billing-line1');
+      const l2V = val('setup-org-billing-line2');
+      const postalV = val('setup-org-billing-postal');
+      const cityV = val('setup-org-billing-city');
+      const countryV = val('setup-org-billing-country');
 
-    setName(nameV);
-    setL1(l1V);
-    setL2(l2V);
-    setPostal(postalV);
-    setCity(cityV);
-    setCountry(countryV);
+      setName(nameV);
+      setL1(l1V);
+      setL2(l2V);
+      setPostal(postalV);
+      setCity(cityV);
+      setCountry(countryV);
 
-    const fields = {
-      'organization[name]': nameV,
-      'organization[billingLine1]': l1V,
-      'organization[billingLine2]': l2V,
-      'organization[billingPostalCode]': postalV,
-      'organization[billingCity]': cityV,
-      'organization[billingCountry]': countryV,
-      'organization[_token]': meta.csrf,
-    };
-    const raw = await postFormRedirect(meta.action, fields, { preferJsonErrors: true, sendEmpty: true });
-    if (raw && raw.error === 'validation_failed') {
-      setFieldErrors(raw.fieldErrors || {});
-      setFormErrors(Array.isArray(raw.formErrors) ? raw.formErrors : []);
-      setSummaryMessage(typeof raw.message === 'string' ? raw.message : '');
-      if (typeof raw.csrf === 'string') {
-        setMeta((m) => (m ? { ...m, csrf: raw.csrf } : m));
+      log('champs lus depuis le DOM', {
+        nameLen: nameV.length,
+        action: meta?.action,
+        hasCsrf: Boolean(meta?.csrf),
+      });
+
+      if (!meta?.action || !meta?.csrf) {
+        const msg = 'Données de formulaire incomplètes (action ou jeton CSRF manquant). Rechargez la page.';
+        console.error('[AlertJet SetupOrganization]', msg, meta);
+        setSubmitError(msg);
+        return;
       }
+
+      const fields = {
+        'organization[name]': nameV,
+        'organization[billingLine1]': l1V,
+        'organization[billingLine2]': l2V,
+        'organization[billingPostalCode]': postalV,
+        'organization[billingCity]': cityV,
+        'organization[billingCountry]': countryV,
+        'organization[_token]': meta.csrf,
+      };
+
+      const raw = await postFormRedirect(meta.action, fields, { preferJsonErrors: true, sendEmpty: true });
+
+      log('réponse postFormRedirect', raw);
+
+      if (!raw || typeof raw !== 'object') {
+        log('fin (redirection navigateur ou réponse vide)');
+        return;
+      }
+
+      if (raw.error === 'validation_failed') {
+        setFieldErrors(raw.fieldErrors || {});
+        setFormErrors(Array.isArray(raw.formErrors) ? raw.formErrors : []);
+        setSummaryMessage(typeof raw.message === 'string' ? raw.message : '');
+        if (typeof raw.csrf === 'string') {
+          setMeta((m) => (m ? { ...m, csrf: raw.csrf } : m));
+        }
+        return;
+      }
+
+      if (raw.ok === true && raw.redirectedTo) {
+        log('redirection appliquée vers', raw.redirectedTo);
+        return;
+      }
+
+      if (raw.error) {
+        const detail =
+          raw.message ||
+          raw.details ||
+          [raw.error, raw.status, raw.statusText].filter(Boolean).join(' — ');
+        setSubmitError(
+          typeof detail === 'string'
+            ? detail
+            : 'Erreur d’envoi du formulaire. Ouvrez la console (F12) pour les détails [AlertJet].',
+        );
+      }
+    } catch (err) {
+      console.error('[AlertJet SetupOrganization] exception submit', err);
+      setSubmitError(err?.message || String(err));
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -109,7 +163,7 @@ export default function SetupOrganizationPage() {
   const errCity = firstMessages(fieldErrors, 'billingCity');
   const errCountry = firstMessages(fieldErrors, 'billingCountry');
 
-  const showTopAlert = summaryMessage || (formErrors && formErrors.length > 0);
+  const showTopAlert = summaryMessage || (formErrors && formErrors.length > 0) || Boolean(submitError);
 
   const hasSavedOrg = Boolean(meta.organization);
 
@@ -124,6 +178,7 @@ export default function SetupOrganizationPage() {
         <form className="card card-body shadow-sm setup-wizard-form" onSubmit={onSubmit} noValidate autoComplete="off">
           {showTopAlert ? (
             <div className="alert alert-danger" role="alert">
+              {submitError ? <p className="mb-1 font-weight-bold">{submitError}</p> : null}
               {summaryMessage ? <p className="mb-1 font-weight-bold">{summaryMessage}</p> : null}
               {formErrors && formErrors.length > 0 ? (
                 <ul className="mb-0 pl-3">
@@ -240,8 +295,8 @@ export default function SetupOrganizationPage() {
             </div>
           </div>
           <div className="setup-wizard-form-actions">
-            <button type="submit" className="btn btn-primary">
-              Continuer
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
+              {submitting ? 'Envoi…' : 'Continuer'}
             </button>
           </div>
         </form>
