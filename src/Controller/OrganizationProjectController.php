@@ -495,6 +495,7 @@ final class OrganizationProjectController extends AbstractController
                 'imapMailbox' => $project->getImapMailbox(),
                 'hasImapPasswordConfigured' => $project->hasStoredImapPassword(),
                 'webhookIntegrationEnabled' => $project->isWebhookIntegrationEnabled(),
+                'webhookCorsAllowedOrigins' => $project->getWebhookCorsAllowedOrigins() ?? '',
             ]),
         ];
     }

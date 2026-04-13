@@ -31,6 +31,7 @@ final class ProjectAuditHelper
             'slaAckTargetMinutes' => $project->getSlaAckTargetMinutes(),
             'slaResolveTargetMinutes' => $project->getSlaResolveTargetMinutes(),
             'webhookIntegrationEnabled' => $project->isWebhookIntegrationEnabled(),
+            'webhookCorsAllowedOrigins' => $project->getWebhookCorsAllowedOrigins(),
             'ticketHandlerIds' => $handlerIds,
         ];
     }
