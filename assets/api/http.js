@@ -177,11 +177,20 @@ export async function postFormRedirect(url, fields, options = {}) {
     bodyPreview: textPreview,
   });
 
-  return {
+  const fallback = {
     error: 'unexpected_response',
     status: res.status,
     statusText: res.statusText,
-    message: `Réponse HTTP ${res.status}. Voir la console (${debugTag}).`,
+    message: `Réponse HTTP ${res.status}. Ouvrez la console (${debugTag}) pour le détail.`,
     bodyPreview: textPreview,
   };
+
+  // Parcours JSON (préférer afficher l’erreur à l’écran). Les pages auth sans preferJsonErrors
+  // conservent un reload pour ne pas rester bloquées sans retour serveur explicite.
+  if (preferJsonErrors) {
+    return fallback;
+  }
+  console.warn(debugTag, 'reload (fallback legacy, preferJsonErrors désactivé)');
+  window.location.reload();
+  return fallback;
 }
