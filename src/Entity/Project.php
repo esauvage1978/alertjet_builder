@@ -96,7 +96,7 @@ class Project
     private ?int $slaResolveTargetMinutes = null;
 
     /**
-     * Afficher l’intégration webhook dans l’UI (l’URL API reste valide si désactivé).
+     * Afficher l’intégration webhook dans l’UI (l’URL API /api/webhook/{org}/{projet}/{secret} reste valide si désactivé).
      */
     #[ORM\Column(options: ['default' => true])]
     private bool $webhookIntegrationEnabled = true;
