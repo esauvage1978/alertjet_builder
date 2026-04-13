@@ -1389,14 +1389,41 @@ body.app-spa .main-footer .text-muted {
 .app-spa .main-header-breadcrumb {
   min-width: 0;
   max-width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .app-spa .main-header-breadcrumb .breadcrumb {
   flex-wrap: nowrap;
   align-items: center;
+  line-height: 1.25;
+}
+
+/* Chaque entrée + séparateur ::before alignés sur une même ligne (évite décalage vertical) */
+.app-spa .main-header-breadcrumb .breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+}
+
+.app-spa .main-header-breadcrumb .breadcrumb-item.text-truncate {
+  min-width: 0;
+}
+
+.app-spa .main-header-breadcrumb .main-header-breadcrumb__link {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.25;
 }
 
 .app-spa .main-header-breadcrumb .main-header-breadcrumb__current {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.25;
+}
+
+.app-spa .main-header-breadcrumb .main-header-breadcrumb__current.text-truncate {
   min-width: 0;
 }
 
@@ -2131,6 +2158,16 @@ body.app-spa .breadcrumb-item > a:hover {
 .app-spa .main-header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
   color: #475569;
   font-weight: 700;
+}
+
+.app-spa .main-header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  float: none;
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  line-height: 1;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 /* Titres de page contenu */
