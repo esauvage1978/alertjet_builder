@@ -4250,6 +4250,19 @@ a.op-project-name--link:hover {
   font-size: 0.8125rem;
 }
 
+/* Les interrupteurs (.pe-mail-switch) sont des <label> : ne pas les forcer en block (sinon le rail s’empile au-dessus du texte). */
+.op-project-edit .form-group > label.pe-mail-switch {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.85rem;
+  margin-bottom: 0;
+  width: 100%;
+  max-width: 32rem;
+  cursor: pointer;
+}
+
 .op-project-edit .form-control {
   display: block;
   width: 100%;
@@ -4317,6 +4330,7 @@ a.op-project-name--link:hover {
 
 .pe-mail-switch {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 0.85rem;
   margin: 0;
