@@ -83,4 +83,26 @@ final class ProjectApiController extends AbstractController
             'createdAt' => $p->getCreatedAt()->format(\DateTimeInterface::ATOM),
         ];
     }
+
+    private function buildWebhookUrlForProject(Project $p): string
+    {
+        $org = $p->getOrganization();
+        if ($org !== null) {
+            return $this->generateUrl(
+                'api_webhook_receive',
+                [
+                    'orgToken' => $org->getPublicToken(),
+                    'projectToken' => $p->getPublicToken(),
+                    'webhookToken' => $p->getWebhookToken(),
+                ],
+                UrlGeneratorInterface::ABSOLUTE_URL,
+            );
+        }
+
+        return $this->generateUrl(
+            'api_webhook_receive_legacy',
+            ['token' => $p->getWebhookToken()],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+    }
 }
