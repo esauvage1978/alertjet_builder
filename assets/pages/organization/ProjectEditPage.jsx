@@ -149,6 +149,7 @@ export default function ProjectEditPage() {
       [`${prefix}[imapPort]`]: imapPort,
       [`${prefix}[imapUsername]`]: imapUsername,
       [`${prefix}[imapMailbox]`]: imapMailbox,
+      [`${prefix}[webhookIntegrationEnabled]`]: webhookIntegrationEnabled ? '1' : '0',
     };
     if (imapPassword.trim()) {
       fields[`${prefix}[imapPassword]`] = imapPassword;
