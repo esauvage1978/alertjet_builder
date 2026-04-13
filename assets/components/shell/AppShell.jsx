@@ -39,13 +39,29 @@ export default function AppShell() {
   const path = location.pathname;
   const orgProjectsListMatch = path.match(/^\/organization\/([^/]+)\/projects\/?$/);
   const orgProjectsEditMatch = path.match(/^\/organization\/([^/]+)\/projects\/([^/]+)\/edit\/?$/);
+  const orgProjectsViewMatch = path.match(/^\/organization\/([^/]+)\/projects\/([^/]+)\/?$/);
   const shortProjectsEditMatch = path.match(/^\/projects\/([^/]+)\/edit\/?$/);
+  const shortProjectsViewMatch = path.match(/^\/projects\/([^/]+)\/?$/);
   const isShortProjectsList = path === '/projects' || path === '/projects/';
   const isOrgProjectsList = orgProjectsListMatch !== null || isShortProjectsList;
   const isProjectEditPage = orgProjectsEditMatch !== null || shortProjectsEditMatch !== null;
-  const projectEditToken = shortProjectsEditMatch?.[1] ?? orgProjectsEditMatch?.[2] ?? null;
+  const isProjectViewPage =
+    (shortProjectsViewMatch !== null && shortProjectsEditMatch === null) ||
+    (orgProjectsViewMatch !== null && orgProjectsEditMatch === null);
+  /** Jeton public du projet (fiche ou édition), pour fil d’Ariane. */
+  const projectContextToken =
+    shortProjectsEditMatch?.[1] ??
+    orgProjectsEditMatch?.[2] ??
+    shortProjectsViewMatch?.[1] ??
+    orgProjectsViewMatch?.[2] ??
+    null;
   /** Org. courante (URL courte) ou segment URL longue pour le lien « Projets ». */
-  const projectsListOrgToken = org?.publicToken ?? orgProjectsListMatch?.[1] ?? orgProjectsEditMatch?.[1] ?? null;
+  const projectsListOrgToken =
+    org?.publicToken ??
+    orgProjectsListMatch?.[1] ??
+    orgProjectsEditMatch?.[1] ??
+    orgProjectsViewMatch?.[1] ??
+    null;
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
