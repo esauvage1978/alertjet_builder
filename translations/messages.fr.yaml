@@ -453,6 +453,7 @@ form.manager_project.ticket_handlers_help: 'Parmi les membres de l’organisatio
 form.manager_project.sla_ack: 'Objectif prise en charge (minutes)'
 form.manager_project.sla_resolve: 'Objectif résolution (minutes)'
 form.manager_project.imap_enabled: 'Activer la récupération des e-mails en tickets'
+form.manager_project.webhook_integration_enabled: 'Activer l’intégration webhook HTTP (POST)'
 form.manager_project.imap_host: 'Serveur IMAP'
 form.manager_project.imap_port: 'Port'
 form.manager_project.imap_tls: 'Connexion TLS/SSL (recommandé)'

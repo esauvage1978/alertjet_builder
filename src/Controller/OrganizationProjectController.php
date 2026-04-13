@@ -461,6 +461,7 @@ final class OrganizationProjectController extends AbstractController
                 'imapUsername' => $project->getImapUsername(),
                 'imapMailbox' => $project->getImapMailbox(),
                 'hasImapPassword' => $project->hasStoredImapPassword(),
+                'webhookIntegrationEnabled' => $project->isWebhookIntegrationEnabled(),
                 'ticketHandlerIds' => $project->getTicketHandlers()->map(static fn (User $u) => $u->getId())->getValues(),
             ],
         ];
@@ -492,6 +493,7 @@ final class OrganizationProjectController extends AbstractController
                 'imapUsername' => $project->getImapUsername(),
                 'imapMailbox' => $project->getImapMailbox(),
                 'hasImapPasswordConfigured' => $project->hasStoredImapPassword(),
+                'webhookIntegrationEnabled' => $project->isWebhookIntegrationEnabled(),
             ]),
         ];
     }

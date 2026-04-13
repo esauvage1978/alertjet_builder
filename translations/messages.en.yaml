@@ -453,6 +453,7 @@ form.manager_project.ticket_handlers_help: 'Organization members only. Hold Ctrl
 form.manager_project.sla_ack: 'Target time to first response (minutes)'
 form.manager_project.sla_resolve: 'Target resolution time (minutes)'
 form.manager_project.imap_enabled: 'Enable fetching e-mail as tickets'
+form.manager_project.webhook_integration_enabled: 'Enable HTTP webhook integration (POST)'
 form.manager_project.imap_host: 'IMAP server'
 form.manager_project.imap_port: 'Port'
 form.manager_project.imap_tls: 'TLS/SSL (recommended)'

@@ -30,6 +30,7 @@ final class ProjectAuditHelper
             'imapPasswordStored' => $project->hasStoredImapPassword(),
             'slaAckTargetMinutes' => $project->getSlaAckTargetMinutes(),
             'slaResolveTargetMinutes' => $project->getSlaResolveTargetMinutes(),
+            'webhookIntegrationEnabled' => $project->isWebhookIntegrationEnabled(),
             'ticketHandlerIds' => $handlerIds,
         ];
     }

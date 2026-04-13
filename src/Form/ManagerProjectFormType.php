@@ -71,6 +71,11 @@ final class ManagerProjectFormType extends AbstractType
                 /** POST JSON / SPA : on peut envoyer « 0 » pour décocher explicitement */
                 'false_values' => [null, false, '', '0'],
             ])
+            ->add('webhookIntegrationEnabled', CheckboxType::class, [
+                'label' => 'form.manager_project.webhook_integration_enabled',
+                'required' => false,
+                'false_values' => [null, false, '', '0'],
+            ])
             ->add('imapHost', TextType::class, [
                 'label' => 'form.manager_project.imap_host',
                 'required' => false,
