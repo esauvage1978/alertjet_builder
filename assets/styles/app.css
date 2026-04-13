@@ -4100,6 +4100,7 @@ body.app-spa .btn-primary:focus {
 }
 
 .ticket-handler-mini-card--selected {
+  padding-right: 2.35rem;
   border-color: var(--coral) !important;
   background: rgba(255, 90, 54, 0.08);
   box-shadow:
