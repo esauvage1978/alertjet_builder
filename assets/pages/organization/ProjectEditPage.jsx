@@ -447,27 +447,91 @@ export default function ProjectEditPage() {
             </div>
           ) : null}
 
-          {activeTab === 'pe-pane-mail' ? (
-            <div className="pe-pane" id="pe-pane-mail">
-              <h2 className="op-project-edit__pane-title h6">Messagerie IMAP</h2>
-              <div className="form-group pe-mail-switch-row">
-                <label className="pe-mail-switch" htmlFor="pe-imap-enabled">
-                  <input
-                    id="pe-imap-enabled"
-                    type="checkbox"
-                    role="switch"
-                    className="pe-mail-switch__input"
-                    checked={imapEnabled}
-                    aria-checked={imapEnabled}
-                    onChange={(e) => setImapEnabled(e.target.checked)}
-                    disabled={busy}
-                  />
-                  <span className="pe-mail-switch__track" aria-hidden="true">
-                    <span className="pe-mail-switch__thumb" />
-                  </span>
-                  <span className="pe-mail-switch__label">Activer la récupération des e-mails en tickets</span>
-                </label>
-              </div>
+          {activeTab === 'pe-pane-integrations' ? (
+            <div className="pe-pane pe-pane-integrations" id="pe-pane-integrations">
+              <h2 className="op-project-edit__pane-title h6">Intégrations</h2>
+              <div className="pe-int-layout">
+                <nav className="pe-int-nav" aria-label="Sous-sections intégrations">
+                  <button
+                    type="button"
+                    className={`pe-int-nav__btn ${integrationSub === 'general' ? 'pe-int-nav__btn--active' : ''}`}
+                    onClick={() => setIntegrationSub('general')}
+                  >
+                    Général
+                  </button>
+                  {imapEnabled ? (
+                    <button
+                      type="button"
+                      className={`pe-int-nav__btn ${integrationSub === 'mail' ? 'pe-int-nav__btn--active' : ''}`}
+                      onClick={() => setIntegrationSub('mail')}
+                    >
+                      <i className="fas fa-envelope mr-1" aria-hidden="true" />
+                      Messagerie
+                    </button>
+                  ) : null}
+                  {webhookIntegrationEnabled ? (
+                    <button
+                      type="button"
+                      className={`pe-int-nav__btn ${integrationSub === 'webhook' ? 'pe-int-nav__btn--active' : ''}`}
+                      onClick={() => setIntegrationSub('webhook')}
+                    >
+                      <i className="fas fa-plug mr-1" aria-hidden="true" />
+                      Webhook
+                    </button>
+                  ) : null}
+                </nav>
+                <div className="pe-int-body">
+                  {integrationSub === 'general' ? (
+                    <div className="pe-int-panel" id="pe-int-panel-general">
+                      <h3 className="pe-int-panel__title h6">Options d’intégration</h3>
+                      <p className="op-project-edit__hint small mb-3">
+                        Activez une intégration pour afficher le menu correspondant et configurer les paramètres.
+                      </p>
+                      <div className="form-group pe-mail-switch-row mb-3">
+                        <label className="pe-mail-switch" htmlFor="pe-int-switch-imap">
+                          <input
+                            id="pe-int-switch-imap"
+                            type="checkbox"
+                            role="switch"
+                            className="pe-mail-switch__input"
+                            checked={imapEnabled}
+                            aria-checked={imapEnabled}
+                            onChange={(e) => setImapEnabled(e.target.checked)}
+                            disabled={busy}
+                          />
+                          <span className="pe-mail-switch__track" aria-hidden="true">
+                            <span className="pe-mail-switch__thumb" />
+                          </span>
+                          <span className="pe-mail-switch__label">Messagerie (IMAP)</span>
+                        </label>
+                      </div>
+                      <div className="form-group pe-mail-switch-row">
+                        <label className="pe-mail-switch" htmlFor="pe-int-switch-webhook">
+                          <input
+                            id="pe-int-switch-webhook"
+                            type="checkbox"
+                            role="switch"
+                            className="pe-mail-switch__input"
+                            checked={webhookIntegrationEnabled}
+                            aria-checked={webhookIntegrationEnabled}
+                            onChange={(e) => setWebhookIntegrationEnabled(e.target.checked)}
+                            disabled={busy}
+                          />
+                          <span className="pe-mail-switch__track" aria-hidden="true">
+                            <span className="pe-mail-switch__thumb" />
+                          </span>
+                          <span className="pe-mail-switch__label">Webhook HTTP (POST)</span>
+                        </label>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {integrationSub === 'mail' && imapEnabled ? (
+                    <div className="pe-int-panel" id="pe-int-panel-mail">
+                      <h3 className="pe-int-panel__title h6">Messagerie IMAP</h3>
+                      <p className="op-project-edit__hint small mb-3">
+                        Paramètres de connexion et dossier lu par la commande d’import.
+                      </p>
               <div className="form-row">
                 <div className="form-group col-md-8">
                   <label htmlFor="pe-imap-host">Serveur IMAP</label>
@@ -572,12 +636,12 @@ export default function ProjectEditPage() {
                   {imapTestFeedback.message}
                 </div>
               ) : null}
-            </div>
-          ) : null}
+                    </div>
+                  ) : null}
 
-          {activeTab === 'pe-pane-webhook' ? (
-            <div className="pe-pane" id="pe-pane-webhook">
-              <h2 className="op-project-edit__pane-title h6">URL du webhook (POST)</h2>
+                  {integrationSub === 'webhook' && webhookIntegrationEnabled ? (
+                    <div className="pe-int-panel" id="pe-int-panel-webhook">
+                      <h3 className="pe-int-panel__title h6">Webhook HTTP (POST)</h3>
               <p className="op-project-edit__hint small mb-3">
                 Envoyez du JSON ou du texte brut. Un GET sur l’URL vérifie que le jeton est valide (sans créer de ticket).
               </p>
@@ -675,6 +739,10 @@ export default function ProjectEditPage() {
                   </a>
                 </p>
               ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             </div>
           ) : null}
 
