@@ -2065,7 +2065,7 @@ body.app-profile-onboarding .main-header {
 }
 
 .app-spa .wrapper.app-shell--parcours .content > .container-fluid {
-  padding-top: 1.25rem;
+  padding-top: var(--spa-page-title-padding-top);
 }
 
 .app-spa .content-header h1 {
