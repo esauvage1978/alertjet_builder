@@ -143,6 +143,13 @@ export async function postFormRedirect(url, fields, options = {}) {
     }
     const fallbackText = await res.text().catch(() => '');
     console.warn(debugTag, '422 sans JSON', fallbackText.slice(0, 500));
+    return {
+      error: 'validation_failed',
+      message: 'Réponse 422 non JSON (voir console).',
+      formErrors: [],
+      fieldErrors: {},
+      rawPreview: fallbackText.slice(0, 300),
+    };
   }
 
   const redirectStatuses = new Set([301, 302, 303, 307, 308]);
