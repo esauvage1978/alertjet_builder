@@ -150,9 +150,9 @@ function buildNavSections({ flags, spaPaths, i18n, organizations, org }) {
         isActive: (pathname) =>
           pathname === '/projects' ||
           pathname === '/projects/' ||
-          /^\/projects\/[^/]+\/edit\/?$/.test(pathname) ||
+          /^\/projects\/[^/]+(\/edit)?\/?$/.test(pathname) ||
           /^\/organization\/[^/]+\/projects\/?$/.test(pathname) ||
-          /^\/organization\/[^/]+\/projects\/[^/]+\/edit\/?$/.test(pathname),
+          /^\/organization\/[^/]+\/projects\/[^/]+(\/edit)?\/?$/.test(pathname),
       });
     }
     if (spaPaths.organizationTickets) {

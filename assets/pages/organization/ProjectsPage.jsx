@@ -444,7 +444,12 @@ export default function ProjectsPage() {
                               <i className="fas fa-folder" />
                             </span>
                             <div>
-                              <div className="op-project-name">{p.name}</div>
+                              <Link
+                                to={`/projects/${projectToken}`}
+                                className="op-project-name op-project-name--link d-inline-block"
+                              >
+                                {p.name}
+                              </Link>
                               <div className="small op-project-token">{p.webhookTokenPrefix}…</div>
                             </div>
                           </div>
