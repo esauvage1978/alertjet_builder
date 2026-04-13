@@ -3922,9 +3922,10 @@ body.app-spa .btn-primary:focus {
 /* =============================================================================
    Édition projet (SPA) — charte nuit × corail, pas de bleu Bootstrap, champs lisibles
    ============================================================================= */
+/* Pleine largeur du container-fluid : pas de colonne centrée (~52rem) sur grands écrans. */
 .op-project-edit {
-  max-width: 52rem;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   padding: 0.5rem 0.75rem 1.75rem;
   color: var(--text);
 }
