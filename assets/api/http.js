@@ -109,12 +109,16 @@ export async function postFormRedirect(url, fields, options = {}) {
 
   console.info(debugTag, 'POST', targetUrl, { keys: Object.keys(fields), sendEmpty });
 
+  /*
+   * redirect: 'manual' provoque souvent status 0 / type opaqueredirect après POST→302 (réponse illisible).
+   * 'follow' suit la chaîne jusqu’au GET final (PRG Symfony) ; on navigue vers res.url.
+   */
   let res;
   try {
     res = await fetch(targetUrl, {
       method: 'POST',
       credentials: 'include',
-      redirect: 'manual',
+      redirect: 'follow',
       headers,
       body: body.toString(),
     });
@@ -127,7 +131,13 @@ export async function postFormRedirect(url, fields, options = {}) {
     };
   }
 
-  console.info(debugTag, 'réponse HTTP', res.status, res.statusText, 'Location:', res.headers.get('Location'));
+  console.info(debugTag, 'réponse', {
+    status: res.status,
+    ok: res.ok,
+    type: res.type,
+    redirected: res.redirected,
+    finalUrl: res.url,
+  });
 
   if (preferJsonErrors && res.status === 422) {
     const ct = res.headers.get('Content-Type') || '';
@@ -152,33 +162,51 @@ export async function postFormRedirect(url, fields, options = {}) {
     };
   }
 
-  const redirectStatuses = new Set([301, 302, 303, 307, 308]);
-  if (redirectStatuses.has(res.status)) {
-    const loc = res.headers.get('Location');
-    if (loc) {
-      const keys = options.clearSessionKeysOnRedirect;
-      if (Array.isArray(keys) && keys.length > 0) {
-        try {
-          keys.forEach((k) => sessionStorage.removeItem(k));
-        } catch (_) {
-          /* ignore */
-        }
+  if (res.status === 0 || res.type === 'opaque' || res.type === 'opaqueredirect') {
+    console.error(debugTag, 'réponse encore opaque — anomalie réseau ou politique du navigateur', res.type);
+    return {
+      error: 'opaque_response',
+      message:
+        'Réponse HTTP illisible (status 0). Réessayez ou désactivez les extensions qui bloquent les requêtes.',
+    };
+  }
+
+  if (res.ok) {
+    const keys = options.clearSessionKeysOnRedirect;
+    if (Array.isArray(keys) && keys.length > 0) {
+      try {
+        keys.forEach((k) => sessionStorage.removeItem(k));
+      } catch (_) {
+        /* ignore */
       }
-      const nextHref = new URL(loc, window.location.origin).href;
-      console.info(debugTag, 'redirection →', nextHref);
-      window.location.href = nextHref;
-      return { ok: true, redirectedTo: nextHref };
     }
-    console.warn(debugTag, 'redirection sans en-tête Location', res.status);
+
+    let startPath = '';
+    let endPath = '';
+    try {
+      startPath = new URL(targetUrl).pathname;
+      endPath = new URL(res.url).pathname;
+    } catch (_) {
+      /* ignore */
+    }
+
+    if (res.redirected || startPath !== endPath) {
+      console.info(debugTag, 'PRG / redirection suivie →', res.url);
+      window.location.href = res.url;
+      return { ok: true, redirectedTo: res.url };
+    }
+
+    console.warn(debugTag, '200 sur même chemin que le POST — reload');
+    window.location.reload();
+    return { ok: true, reloaded: true };
   }
 
   const textPreview = await res
-    .clone()
     .text()
     .then((t) => t.slice(0, 600))
     .catch(() => '');
 
-  console.error(debugTag, 'Réponse non gérée — pas de redirect utilisable', {
+  console.error(debugTag, 'Réponse non gérée', {
     status: res.status,
     contentType: res.headers.get('Content-Type'),
     bodyPreview: textPreview,
@@ -188,12 +216,10 @@ export async function postFormRedirect(url, fields, options = {}) {
     error: 'unexpected_response',
     status: res.status,
     statusText: res.statusText,
-    message: `Réponse HTTP ${res.status}. Ouvrez la console (${debugTag}) pour le détail.`,
+    message: `Réponse HTTP ${res.status}. Voir la console (${debugTag}).`,
     bodyPreview: textPreview,
   };
 
-  // Parcours JSON (préférer afficher l’erreur à l’écran). Les pages auth sans preferJsonErrors
-  // conservent un reload pour ne pas rester bloquées sans retour serveur explicite.
   if (preferJsonErrors) {
     return fallback;
   }
