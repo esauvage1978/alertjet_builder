@@ -28,8 +28,7 @@ const PANES = [
   { id: 'pe-pane-general', label: 'Général', icon: 'fa-sliders-h' },
   { id: 'pe-pane-members', label: 'Membres', icon: 'fa-users' },
   { id: 'pe-pane-indicators', label: 'Indicateurs', icon: 'fa-chart-line' },
-  { id: 'pe-pane-mail', label: 'Messagerie', icon: 'fa-envelope' },
-  { id: 'pe-pane-webhook', label: 'Webhook', icon: 'fa-plug' },
+  { id: 'pe-pane-integrations', label: 'Intégrations', icon: 'fa-puzzle-piece' },
 ];
 
 export default function ProjectEditPage() {
