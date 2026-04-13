@@ -23,7 +23,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('IS_AUTHENTICATED_FULLY')]
 final class OrganizationMemberController extends AbstractController
 {
-    #[Route('/organisation/contexte/{orgToken}', name: 'app_organization_context_switch', requirements: ['orgToken' => '[a-f0-9]{32}'], methods: ['GET'])]
+    #[Route('/organisation/contexte/{orgToken}', name: 'app_organization_context_switch', requirements: ['orgToken' => '[a-f0-9]{12}'], methods: ['GET'])]
     public function switchContext(
         #[MapEntity(mapping: ['orgToken' => 'publicToken'])] Organization $organization,
         CurrentOrganizationService $currentOrganizationService,
@@ -57,7 +57,7 @@ final class OrganizationMemberController extends AbstractController
     /**
      * Ancienne URL d’édition : bascule sur l’organisation cible puis fiche unique « Mon organisation ».
      */
-    #[Route('/organisation/{orgToken}/edit', name: 'app_organization_edit', requirements: ['orgToken' => '[a-f0-9]{32}'])]
+    #[Route('/organisation/{orgToken}/edit', name: 'app_organization_edit', requirements: ['orgToken' => '[a-f0-9]{12}'])]
     public function editRedirect(
         #[MapEntity(mapping: ['orgToken' => 'publicToken'])] Organization $organization,
         CurrentOrganizationService $currentOrganizationService,

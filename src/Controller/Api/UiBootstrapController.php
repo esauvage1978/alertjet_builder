@@ -22,7 +22,7 @@ final class UiBootstrapController extends AbstractController
     private const LOCALE_URL_DUMMY = 'fr';
 
     /** 32 caractères hex (exigence route) ; remplacée par « __token__ » côté client. */
-    private const ORG_CONTEXT_TOKEN_DUMMY = '00000000000000000000000000000000';
+    private const ORG_CONTEXT_TOKEN_DUMMY = '000000000000';
 
     #[Route('/api/ui/bootstrap', name: 'api_ui_bootstrap', methods: ['GET'])]
     public function __invoke(

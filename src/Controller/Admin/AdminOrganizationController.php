@@ -58,7 +58,7 @@ final class AdminOrganizationController extends AbstractController
         ]);
     }
 
-    #[Route('/{orgToken}/modifier', name: 'admin_organization_edit', requirements: ['orgToken' => '[a-f0-9]{32}'], methods: ['GET', 'POST'])]
+    #[Route('/{orgToken}/modifier', name: 'admin_organization_edit', requirements: ['orgToken' => '[a-f0-9]{12}'], methods: ['GET', 'POST'])]
     public function edit(
         #[MapEntity(mapping: ['orgToken' => 'publicToken'])] Organization $organization,
         Request $request,
@@ -88,7 +88,7 @@ final class AdminOrganizationController extends AbstractController
         ]);
     }
 
-    #[Route('/{orgToken}/supprimer', name: 'admin_organization_delete', requirements: ['orgToken' => '[a-f0-9]{32}'], methods: ['POST'])]
+    #[Route('/{orgToken}/supprimer', name: 'admin_organization_delete', requirements: ['orgToken' => '[a-f0-9]{12}'], methods: ['POST'])]
     public function delete(
         #[MapEntity(mapping: ['orgToken' => 'publicToken'])] Organization $organization,
         Request $request,

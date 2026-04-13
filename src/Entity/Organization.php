@@ -23,10 +23,12 @@ class Organization
     #[ORM\Column]
     private ?int $id = null;
 
+    public const PUBLIC_TOKEN_LENGTH = 12;
+
     /**
-     * Identifiant opaque dans les URLs (pas l’ID numérique interne).
+     * Identifiant opaque dans les URLs (pas l’ID numérique interne), hexadécimal sur 12 caractères.
      */
-    #[ORM\Column(name: 'public_token', length: 32, unique: true)]
+    #[ORM\Column(name: 'public_token', length: 12, unique: true)]
     private string $publicToken = '';
 
     #[ORM\Column(length: 180, unique: true)]
@@ -74,15 +76,6 @@ class Organization
         $this->projects = new ArrayCollection();
     }
 
-    #[ORM\PrePersist]
-    public function ensurePublicToken(): void
-    {
-        if ($this->publicToken !== '' && $this->publicToken !== null) {
-            return;
-        }
-        $this->publicToken = bin2hex(random_bytes(16));
-    }
-
     public function getId(): ?int
     {
         return $this->id;
@@ -91,6 +84,20 @@ class Organization
     public function getPublicToken(): string
     {
         return $this->publicToken;
+    }
+
+    public function setPublicToken(string $publicToken): self
+    {
+        $publicToken = strtolower($publicToken);
+        if (\strlen($publicToken) !== self::PUBLIC_TOKEN_LENGTH) {
+            throw new \InvalidArgumentException(\sprintf('Le jeton public doit comporter exactement %d caractères.', self::PUBLIC_TOKEN_LENGTH));
+        }
+        if (!preg_match('/^[a-f0-9]{12}$/', $publicToken)) {
+            throw new \InvalidArgumentException('Le jeton public doit être hexadécimal en minuscules.');
+        }
+        $this->publicToken = $publicToken;
+
+        return $this;
     }
 
     public function getName(): string

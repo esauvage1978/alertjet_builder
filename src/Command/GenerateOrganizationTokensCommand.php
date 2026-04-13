@@ -34,7 +34,7 @@ final class GenerateOrganizationTokensCommand extends Command
 
         foreach ($orgs as $org) {
             if ($org->getPublicToken() === '') {
-                $org->ensurePublicToken();
+                $this->orgRepository->assignUniquePublicToken($org);
                 $count++;
                 $io->text(sprintf('  #%d %-30s → %s', $org->getId(), $org->getName(), $org->getPublicToken()));
             }

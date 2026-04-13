@@ -30,7 +30,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('IS_AUTHENTICATED_FULLY')]
 final class OrganizationProjectController extends AbstractController
 {
-    #[Route('/organisation/{orgToken}/projets', name: 'app_organization_projects', requirements: ['orgToken' => '[a-f0-9]{32}'], methods: ['GET'])]
+    #[Route('/organisation/{orgToken}/projets', name: 'app_organization_projects', requirements: ['orgToken' => '[a-f0-9]{12}'], methods: ['GET'])]
     public function index(
         #[MapEntity(mapping: ['orgToken' => 'publicToken'])] Organization $organization,
         ProjectRepository $projectRepository,
@@ -84,7 +84,7 @@ final class OrganizationProjectController extends AbstractController
         ];
     }
 
-    #[Route('/organisation/{orgToken}/projets/nouveau', name: 'app_organization_project_new', requirements: ['orgToken' => '[a-f0-9]{32}'], methods: ['POST'])]
+    #[Route('/organisation/{orgToken}/projets/nouveau', name: 'app_organization_project_new', requirements: ['orgToken' => '[a-f0-9]{12}'], methods: ['POST'])]
     public function new(
         #[MapEntity(mapping: ['orgToken' => 'publicToken'])] Organization $organization,
         Request $request,
@@ -136,7 +136,7 @@ final class OrganizationProjectController extends AbstractController
         return $this->redirect('/app/organization/'.$organization->getPublicToken().'/projects');
     }
 
-    #[Route('/organisation/{orgToken}/projets/{projectId}/edit', name: 'app_organization_project_edit', requirements: ['orgToken' => '[a-f0-9]{32}', 'projectId' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/organisation/{orgToken}/projets/{projectId}/edit', name: 'app_organization_project_edit', requirements: ['orgToken' => '[a-f0-9]{12}', 'projectId' => '\d+'], methods: ['GET', 'POST'])]
     public function edit(
         #[MapEntity(mapping: ['orgToken' => 'publicToken'])] Organization $organization,
         #[MapEntity(id: 'projectId')] Project $project,
@@ -207,7 +207,7 @@ final class OrganizationProjectController extends AbstractController
         return $this->redirect('/app/organization/'.$organization->getPublicToken().'/projects/'.$project->getId().'/edit');
     }
 
-    #[Route('/organisation/{orgToken}/projets/{projectId}/test-imap', name: 'app_organization_project_test_imap', requirements: ['orgToken' => '[a-f0-9]{32}', 'projectId' => '\d+'], methods: ['POST'])]
+    #[Route('/organisation/{orgToken}/projets/{projectId}/test-imap', name: 'app_organization_project_test_imap', requirements: ['orgToken' => '[a-f0-9]{12}', 'projectId' => '\d+'], methods: ['POST'])]
     public function testImap(
         #[MapEntity(mapping: ['orgToken' => 'publicToken'])] Organization $organization,
         #[MapEntity(id: 'projectId')] Project $project,
