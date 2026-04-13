@@ -46,7 +46,7 @@ export default function AppShell() {
   const projectEditToken = shortProjectsEditMatch?.[1] ?? orgProjectsEditMatch?.[2] ?? null;
   /** Org. courante (URL courte) ou segment URL longue pour le lien « Projets ». */
   const projectsListOrgToken = org?.publicToken ?? orgProjectsListMatch?.[1] ?? orgProjectsEditMatch?.[1] ?? null;
-  /** Liste projets URL courte : le titre de page est rendu dans la page (portail), pas la marque ici. */
+  /** Liste projets (URL courte ou `/organization/:token/projects`) : titre injecté par portail dans le content-header. */
   const isProjectsListPage = path === '/projects' || path === '/projects/';
 
   useEffect(() => {
