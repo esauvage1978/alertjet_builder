@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Schema;
@@ -46,10 +47,8 @@ final class Version20260413120000 extends AbstractMigration
 
     /**
      * Remplace les jetons invalides ou en doublon par des hex sur 12 caractères uniques.
-     *
-     * @param \Doctrine\DBAL\Connection $conn
      */
-    private function reassignOrganizationTokensIfNeeded(object $conn): void
+    private function reassignOrganizationTokensIfNeeded(Connection $conn): void
     {
         $rows = $conn->fetchAllAssociative('SELECT id, public_token FROM organizations ORDER BY id ASC');
         if ($rows === []) {
