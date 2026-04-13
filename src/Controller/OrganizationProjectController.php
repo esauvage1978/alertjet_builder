@@ -419,6 +419,10 @@ final class OrganizationProjectController extends AbstractController
             'members' => array_map(static fn (User $u) => [
                 'id' => $u->getId(),
                 'email' => $u->getEmail(),
+                'displayName' => $u->getDisplayNameForGreeting(),
+                'initials' => $u->getAvatarInitials(),
+                'avatarColor' => $u->getAvatarColor(),
+                'avatarForegroundColor' => $u->getAvatarForegroundColor(),
                 'label' => $u->getDisplayNameForGreeting().' ('.$u->getEmail().')',
             ], $members),
             'project' => [
