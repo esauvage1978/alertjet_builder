@@ -90,18 +90,18 @@ final class UiBootstrapController extends AbstractController
             'csrf' => [
                 'logout' => $csrfTokenManager->getToken('logout')->getValue(),
             ],
+            // Chemins relatifs au basename React Router (/app) — pas de préfixe /app (sinon double segment /app/app/…).
             'spaPaths' => [
-                'dashboard' => '/app',
-                'organizationUsers' => '/app/organization/users',
-                'organizationBilling' => '/app/organization/billing',
-                'organizationTickets' => '/app/organization/tickets',
-                'organizationProjects' => $org ? '/app/organization/'.$org->getPublicToken().'/projects' : null,
-                'accountProfile' => '/app/account/profile',
-                'accountActivity' => '/app/account/activity',
-                'adminOrganizations' => '/app/admin/organisations',
-                'adminUsers' => '/app/admin/utilisateurs',
-                'adminAuditActions' => '/app/admin/audit/actions',
-                'adminAuditErrors' => '/app/admin/audit/erreurs',
+                'organizationUsers' => '/organization/users',
+                'organizationBilling' => '/organization/billing',
+                'organizationTickets' => '/organization/tickets',
+                'organizationProjects' => $org ? '/organization/'.$org->getPublicToken().'/projects' : null,
+                'accountProfile' => '/account/profile',
+                'accountActivity' => '/account/activity',
+                'adminOrganizations' => '/admin/organisations',
+                'adminUsers' => '/admin/utilisateurs',
+                'adminAuditActions' => '/admin/audit/actions',
+                'adminAuditErrors' => '/admin/audit/erreurs',
             ],
         ]);
     }
@@ -125,13 +125,13 @@ final class UiBootstrapController extends AbstractController
                 'forgotPost' => $urlGenerator->generate('app_forgot_password'),
             ],
             'spaPaths' => [
-                'login' => '/app/login',
-                'inscription' => '/app/inscription',
-                'forgotPassword' => '/app/mot-de-passe-oublie',
-                'adminOrganizations' => '/app/admin/organisations',
-                'adminUsers' => '/app/admin/utilisateurs',
-                'adminAuditActions' => '/app/admin/audit/actions',
-                'adminAuditErrors' => '/app/admin/audit/erreurs',
+                'login' => '/login',
+                'inscription' => '/inscription',
+                'forgotPassword' => '/mot-de-passe-oublie',
+                'adminOrganizations' => '/admin/organisations',
+                'adminUsers' => '/admin/utilisateurs',
+                'adminAuditActions' => '/admin/audit/actions',
+                'adminAuditErrors' => '/admin/audit/erreurs',
             ],
         ];
     }

@@ -118,7 +118,7 @@ export default function AppShell() {
 
       {!hideSidebar ? (
         <aside className="main-sidebar sidebar-dark-primary elevation-4">
-          <a href={spaPaths.dashboard} className="brand-link">
+          <a href={routes.spa} className="brand-link">
             <span className="brand-text font-weight-light app-brand-html" dangerouslySetInnerHTML={{ __html: i18n.brand_html }} />
           </a>
           <div className="sidebar sidebar--stack">
