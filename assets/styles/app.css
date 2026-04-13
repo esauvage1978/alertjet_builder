@@ -3948,32 +3948,6 @@ body.app-spa .btn-primary:focus {
   gap: 1rem 1.25rem;
 }
 
-.op-project-edit__breadcrumb {
-  color: var(--text-muted);
-}
-
-.op-project-edit__crumb {
-  color: var(--coral);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.op-project-edit__crumb:hover {
-  color: var(--action-hover);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.op-project-edit__crumb-sep {
-  margin: 0 0.35rem;
-  color: rgba(15, 23, 42, 0.35);
-}
-
-.op-project-edit__crumb-current {
-  color: var(--ink);
-  font-weight: 600;
-}
-
 .op-project-edit__title {
   gap: 0.55rem;
   color: var(--ink);

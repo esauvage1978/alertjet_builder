@@ -167,15 +167,6 @@ export default function ProjectEditPage() {
       <header className="op-project-edit__header">
         <div className="op-project-edit__header-row">
           <div>
-            <nav aria-label="Fil d’Ariane" className="op-project-edit__breadcrumb small mb-2">
-              <Link to="/projects" className="op-project-edit__crumb">
-                Projets
-              </Link>
-              <span className="op-project-edit__crumb-sep" aria-hidden="true">
-                /
-              </span>
-              <span className="op-project-edit__crumb-current">{p.name}</span>
-            </nav>
             <h1 className="op-project-edit__title h4 m-0 d-flex align-items-center">
               <i className="fas fa-pen op-project-edit__title-icon" aria-hidden="true" />
               Modifier le projet
