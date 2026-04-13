@@ -91,7 +91,14 @@ final class ManagerProjectFormType extends AbstractType
                 ],
                 'help' => 'form.manager_project.webhook_cors_allowed_origins_help',
                 'constraints' => [
-                    new Callback([$this, 'validateWebhookCorsAllowedOrigins']),
+                    new Callback(static function (?string $value, ExecutionContextInterface $context): void {
+                        $bad = WebhookCorsHelper::invalidOriginLines($value);
+                        foreach ($bad as $line) {
+                            $context->buildViolation('validation.webhook_cors.invalid_line')
+                                ->setParameter('%line%', $line)
+                                ->addViolation();
+                        }
+                    }),
                 ],
             ])
             ->add('imapHost', TextType::class, [
@@ -168,15 +175,5 @@ final class ManagerProjectFormType extends AbstractType
         ]);
         $resolver->setRequired('organization');
         $resolver->setAllowedTypes('organization', Organization::class);
-    }
-
-    public function validateWebhookCorsAllowedOrigins(?string $value, ExecutionContextInterface $context): void
-    {
-        $bad = WebhookCorsHelper::invalidOriginLines($value);
-        foreach ($bad as $line) {
-            $context->buildViolation('validation.webhook_cors.invalid_line')
-                ->setParameter('%line%', $line)
-                ->addViolation();
-        }
     }
 }
