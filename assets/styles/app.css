@@ -3594,6 +3594,18 @@ body.app-spa .btn-primary:focus {
   letter-spacing: -0.01em;
 }
 
+a.op-project-name--link,
+a.op-project-name--link:visited {
+  color: var(--coral);
+  text-decoration: none;
+}
+
+a.op-project-name--link:hover {
+  color: var(--action-hover);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .op-project-token {
   color: var(--text-muted);
   font-size: 0.72rem;
@@ -3933,6 +3945,25 @@ body.app-spa .btn-primary:focus {
 /* =============================================================================
    Édition projet (SPA) — charte nuit × corail, pas de bleu Bootstrap, champs lisibles
    ============================================================================= */
+.op-project-view__dl dt {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.15rem;
+}
+
+.op-project-view__dl dd {
+  margin-left: 0;
+  margin-bottom: 0.75rem;
+  color: var(--ink);
+}
+
+.op-project-view__dl dd:last-child {
+  margin-bottom: 0;
+}
+
 /* Pleine largeur du container-fluid : pas de colonne centrée (~52rem) sur grands écrans. */
 .op-project-edit {
   max-width: none;
