@@ -469,8 +469,10 @@ export default function ProjectEditPage() {
                   <input
                     id="pe-imap-tls"
                     type="checkbox"
+                    role="switch"
                     className="pe-mail-switch__input"
                     checked={imapTls}
+                    aria-checked={imapTls}
                     onChange={(e) => setImapTls(e.target.checked)}
                     disabled={busy}
                   />
