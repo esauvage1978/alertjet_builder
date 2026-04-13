@@ -141,7 +141,7 @@ final class EnvironmentSetupController extends AbstractController
                     'fieldErrors' => $payload['fieldErrors'],
                     'formErrors' => $payload['formErrors'],
                     'message' => FormErrorPayload::summaryMessage($payload, $this->trans('flash.form_invalid')),
-                    'csrf' => $csrfTokenManager->getToken('organization')->getValue(),
+                    'csrf' => $csrfTokenManager->getToken('submit')->getValue(),
                 ], 422);
             }
 
@@ -292,7 +292,7 @@ final class EnvironmentSetupController extends AbstractController
                     'fieldErrors' => $payload['fieldErrors'],
                     'formErrors' => $payload['formErrors'],
                     'message' => FormErrorPayload::summaryMessage($payload, $this->trans('flash.form_invalid')),
-                    'csrf' => $csrfTokenManager->getToken('user_profile_form')->getValue(),
+                    'csrf' => $csrfTokenManager->getToken('submit')->getValue(),
                 ], 422);
             }
 
@@ -369,7 +369,7 @@ final class EnvironmentSetupController extends AbstractController
                     'fieldErrors' => $payload['fieldErrors'],
                     'formErrors' => $payload['formErrors'],
                     'message' => FormErrorPayload::summaryMessage($payload, $this->trans('flash.form_invalid')),
-                    'csrf' => $csrfTokenManager->getToken('first_project_form')->getValue(),
+                    'csrf' => $csrfTokenManager->getToken('submit')->getValue(),
                 ], 422);
             }
 

@@ -41,7 +41,8 @@ final class SetupWizardApiController extends AbstractController
         }
 
         return $this->json([
-            'csrf' => $csrfTokenManager->getToken('organization')->getValue(),
+            // Même id que framework.form.csrf_protection.token_id (submit), pas le nom du FormType.
+            'csrf' => $csrfTokenManager->getToken('submit')->getValue(),
             'action' => $this->generateUrl('app_environment_setup_organization'),
             'organization' => $organizationPayload,
         ]);
@@ -77,7 +78,7 @@ final class SetupWizardApiController extends AbstractController
         }
 
         return $this->json([
-            'csrf' => $csrfTokenManager->getToken('user_profile_form')->getValue(),
+            'csrf' => $csrfTokenManager->getToken('submit')->getValue(),
             'action' => $this->generateUrl('app_environment_setup_profile'),
             'displayName' => $user->getDisplayName(),
             'avatarInitialsCustom' => $user->getAvatarInitialsCustom(),
@@ -92,7 +93,7 @@ final class SetupWizardApiController extends AbstractController
     public function project(CsrfTokenManagerInterface $csrfTokenManager): JsonResponse
     {
         return $this->json([
-            'csrf' => $csrfTokenManager->getToken('first_project_form')->getValue(),
+            'csrf' => $csrfTokenManager->getToken('submit')->getValue(),
             'action' => $this->generateUrl('app_environment_setup_project'),
         ]);
     }

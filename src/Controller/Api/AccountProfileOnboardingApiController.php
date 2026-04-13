@@ -26,7 +26,7 @@ final class AccountProfileOnboardingApiController extends AbstractController
         }
 
         return $this->json([
-            'csrf' => $csrfTokenManager->getToken('user_profile_form')->getValue(),
+            'csrf' => $csrfTokenManager->getToken('submit')->getValue(),
             'action' => $this->generateUrl('app_account_profile_onboarding'),
             'displayName' => $user->getDisplayName(),
             'avatarInitialsCustom' => $user->getAvatarInitialsCustom(),
