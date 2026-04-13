@@ -8,6 +8,14 @@ import { LoadingState } from '../../components/ui/LoadingState.jsx';
 import { useAsyncResource } from '../../hooks/useAsyncResource.js';
 import { useBootstrap } from '../../context/BootstrapContext.jsx';
 
+/** URL longue affichée avec ellipse au milieu (cartes type workflow). */
+function formatWebhookUrlForDisplay(url) {
+  if (!url || typeof url !== 'string') return '';
+  const u = url.trim();
+  if (u.length <= 72) return u;
+  return `${u.slice(0, 34)}…${u.slice(-34)}`;
+}
+
 const PANES = [
   { id: 'pe-pane-general', label: 'Général', icon: 'fa-sliders-h' },
   { id: 'pe-pane-members', label: 'Membres', icon: 'fa-users' },
@@ -35,6 +43,8 @@ export default function ProjectEditPage() {
   const [imapPassword, setImapPassword] = useState('');
   const [imapTestBusy, setImapTestBusy] = useState(false);
   const [imapTestFeedback, setImapTestFeedback] = useState(null);
+  const [webhookTestBusy, setWebhookTestBusy] = useState(false);
+  const [webhookTestFeedback, setWebhookTestFeedback] = useState(null);
 
   const [name, setName] = useState('');
   const [ticketHandlerIds, setTicketHandlerIds] = useState([]);
