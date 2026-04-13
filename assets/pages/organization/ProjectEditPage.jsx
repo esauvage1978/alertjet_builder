@@ -64,6 +64,7 @@ export default function ProjectEditPage() {
   const [imapUsername, setImapUsername] = useState('');
   const [imapMailbox, setImapMailbox] = useState('INBOX');
   const [webhookIntegrationEnabled, setWebhookIntegrationEnabled] = useState(true);
+  const [webhookCorsAllowedOrigins, setWebhookCorsAllowedOrigins] = useState('');
   /** Sous-vue dans l’onglet Intégrations : général | messagerie | webhook */
   const [integrationSub, setIntegrationSub] = useState('general');
 
@@ -83,6 +84,9 @@ export default function ProjectEditPage() {
     setImapPassword('');
     setWebhookIntegrationEnabled(
       typeof p.webhookIntegrationEnabled === 'boolean' ? p.webhookIntegrationEnabled : true,
+    );
+    setWebhookCorsAllowedOrigins(
+      typeof p.webhookCorsAllowedOrigins === 'string' ? p.webhookCorsAllowedOrigins : '',
     );
   }, [data]);
 
@@ -150,6 +154,7 @@ export default function ProjectEditPage() {
       [`${prefix}[imapUsername]`]: imapUsername,
       [`${prefix}[imapMailbox]`]: imapMailbox,
       [`${prefix}[webhookIntegrationEnabled]`]: webhookIntegrationEnabled ? '1' : '0',
+      [`${prefix}[webhookCorsAllowedOrigins]`]: webhookCorsAllowedOrigins,
     };
     if (imapPassword.trim()) {
       fields[`${prefix}[imapPassword]`] = imapPassword;
