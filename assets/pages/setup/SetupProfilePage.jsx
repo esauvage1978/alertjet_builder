@@ -106,7 +106,7 @@ export default function SetupProfilePage() {
             Profil déjà enregistré : valeurs rechargées depuis le serveur (vous pouvez les ajuster).
           </div>
         ) : null}
-        <form className="card card-body shadow-sm" onSubmit={onSubmit} noValidate>
+        <form className="card card-body shadow-sm setup-wizard-form" onSubmit={onSubmit} noValidate>
           {showTopAlert ? (
             <div className="alert alert-danger" role="alert">
               {summaryMessage ? <p className="mb-1 font-weight-bold">{summaryMessage}</p> : null}

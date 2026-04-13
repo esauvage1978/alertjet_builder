@@ -1661,13 +1661,50 @@ body.app-profile-onboarding .main-header {
   align-self: flex-start;
 }
 
+/* Parcours d’initialisation — lisibilité : cartes et champs ne doivent pas être « blanc sur blanc » */
+.app-adminlte .setup-wizard-form {
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+.app-adminlte .setup-wizard-form .form-group > label {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.app-adminlte .setup-wizard-form .form-control,
+.app-adminlte .setup-wizard-form .custom-select {
+  background-color: #fff;
+  border-color: #64748b;
+  color: #0f172a;
+}
+
+.app-adminlte .setup-wizard-form .form-control::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+.app-adminlte .setup-wizard-form .form-control:focus,
+.app-adminlte .setup-wizard-form .custom-select:focus {
+  background-color: #fff;
+  border-color: var(--coral);
+  color: #0f172a;
+  box-shadow: 0 0 0 0.2rem rgba(255, 90, 54, 0.2);
+}
+
+.app-adminlte .setup-wizard-form .form-control.is-invalid,
+.app-adminlte .setup-wizard-form .custom-select.is-invalid {
+  border-color: #dc3545;
+}
+
 /* Bloc adresse — parcours initialisation organisation : champs plus compacts */
 .app-adminlte .setup-org-address-block {
   padding-top: 0.35rem;
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
   padding-left: 0.65rem;
-  border-left: 2px solid #e2e8f0;
+  border-left: 3px solid #94a3b8;
 }
 
 .app-adminlte .setup-org-address-block .form-control-sm,
@@ -1682,6 +1719,7 @@ body.app-profile-onboarding .main-header {
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.01em;
+  color: #334155;
 }
 
 .app-adminlte .wrapper.app-shell--parcours .content > .container-fluid {

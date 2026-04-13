@@ -121,7 +121,7 @@ export default function SetupOrganizationPage() {
           <span>Organisation</span>
         </h1>
         {!hasSavedOrg ? <p className="text-muted">Étape 1 — créez votre organisation principale.</p> : null}
-        <form className="card card-body shadow-sm" onSubmit={onSubmit} noValidate autoComplete="off">
+        <form className="card card-body shadow-sm setup-wizard-form" onSubmit={onSubmit} noValidate autoComplete="off">
           {showTopAlert ? (
             <div className="alert alert-danger" role="alert">
               {summaryMessage ? <p className="mb-1 font-weight-bold">{summaryMessage}</p> : null}

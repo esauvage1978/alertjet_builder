@@ -74,7 +74,7 @@ export default function SetupPlanPage() {
             Votre formule enregistrée est présélectionnée ; vous pouvez en changer avant de continuer.
           </div>
         ) : null}
-        <form className="card card-body shadow-sm" onSubmit={onSubmit}>
+        <form className="card card-body shadow-sm setup-wizard-form" onSubmit={onSubmit}>
           {summaryMessage || planErr ? (
             <div className="alert alert-danger" role="alert">
               {summaryMessage ? <p className="mb-0 font-weight-bold">{summaryMessage}</p> : null}
