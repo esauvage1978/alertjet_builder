@@ -283,6 +283,27 @@ final class OrganizationProjectController extends AbstractController
         return $this->redirect('/app/projects');
     }
 
+    #[Route('/organisation/{orgToken}/projets/{projectToken}', name: 'app_organization_project_show', requirements: ['orgToken' => '[a-f0-9]{12}', 'projectToken' => '[a-f0-9]{12}'], methods: ['GET'])]
+    public function show(
+        #[MapEntity(mapping: ['orgToken' => 'publicToken'])] Organization $organization,
+        #[MapEntity(mapping: ['projectToken' => 'publicToken'])] Project $project,
+        Request $request,
+    ): Response {
+        $this->denyAccessUnlessOrganizationScope($organization);
+
+        if ($project->getOrganization()?->getId() !== $organization->getId()) {
+            throw new NotFoundHttpException();
+        }
+
+        $this->denyAccessUnlessGranted(ProjectVoter::MANAGE, $project);
+
+        if (AcceptJson::wants($request) || $request->isXmlHttpRequest()) {
+            return $this->json($this->buildProjectShowPayload($organization, $project));
+        }
+
+        return $this->redirect('/app/projects/'.$project->getPublicToken());
+    }
+
     #[Route('/organisation/{orgToken}/projets/{projectToken}/edit', name: 'app_organization_project_edit', requirements: ['orgToken' => '[a-f0-9]{12}', 'projectToken' => '[a-f0-9]{12}'], methods: ['GET', 'POST'])]
     public function edit(
         #[MapEntity(mapping: ['orgToken' => 'publicToken'])] Organization $organization,
@@ -442,6 +463,36 @@ final class OrganizationProjectController extends AbstractController
                 'hasImapPassword' => $project->hasStoredImapPassword(),
                 'ticketHandlerIds' => $project->getTicketHandlers()->map(static fn (User $u) => $u->getId())->getValues(),
             ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildProjectShowPayload(Organization $organization, Project $project): array
+    {
+        $row = $this->serializeProjectRow($project);
+
+        return [
+            'migrated' => true,
+            'organization' => [
+                'id' => $organization->getId(),
+                'name' => $organization->getName(),
+                'publicToken' => $organization->getPublicToken(),
+            ],
+            'project' => array_merge($row, [
+                'webhookUrl' => $this->generateUrl('api_webhook_receive', ['token' => $project->getWebhookToken()], UrlGeneratorInterface::ABSOLUTE_URL),
+                'webhookPingUrl' => $this->generateUrl('api_webhook_ping', ['token' => $project->getWebhookToken()], UrlGeneratorInterface::ABSOLUTE_URL),
+                'slaAckTargetMinutes' => $project->getSlaAckTargetMinutes(),
+                'slaResolveTargetMinutes' => $project->getSlaResolveTargetMinutes(),
+                'imapEnabled' => $project->isImapEnabled(),
+                'imapHost' => $project->getImapHost(),
+                'imapPort' => $project->getImapPort(),
+                'imapTls' => $project->isImapTls(),
+                'imapUsername' => $project->getImapUsername(),
+                'imapMailbox' => $project->getImapMailbox(),
+                'hasImapPasswordConfigured' => $project->hasStoredImapPassword(),
+            ]),
         ];
     }
 
