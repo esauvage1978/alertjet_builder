@@ -1379,11 +1379,15 @@ body.app-spa .main-footer .text-muted {
 /* Fil d’Ariane — barre supérieure (gauche) */
 .app-spa .main-header > ul.navbar-nav:first-child {
   min-width: 0;
+  flex-direction: row !important;
+  flex-wrap: nowrap;
+  align-items: center !important;
 }
 
 .app-spa .main-header__breadcrumb-slot {
   border-left: 1px solid #e9ecef;
   min-width: 0;
+  align-self: center;
 }
 
 .app-spa .main-header-breadcrumb {
@@ -1391,40 +1395,62 @@ body.app-spa .main-footer .text-muted {
   max-width: 100%;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
+/*
+ * Liste du fil d’Ariane : forcer une seule ligne horizontale (Bootstrap / classes incomplètes
+ * peuvent laisser flex-direction column ou wrap agressif → segments empilés).
+ */
 .app-spa .main-header-breadcrumb .breadcrumb {
-  flex-wrap: nowrap;
-  align-items: center;
-  line-height: 1.25;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  align-content: center;
+  line-height: 1.3;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-/* Chaque entrée + séparateur ::before alignés sur une même ligne (évite décalage vertical) */
 .app-spa .main-header-breadcrumb .breadcrumb-item {
-  display: inline-flex;
-  align-items: center;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-shrink: 0;
   max-width: 100%;
+  white-space: nowrap;
 }
 
 .app-spa .main-header-breadcrumb .breadcrumb-item.text-truncate {
   min-width: 0;
+  flex-shrink: 1 !important;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .app-spa .main-header-breadcrumb .main-header-breadcrumb__link {
   display: inline-flex;
   align-items: center;
-  line-height: 1.25;
+  line-height: 1.3;
+  white-space: nowrap;
 }
 
 .app-spa .main-header-breadcrumb .main-header-breadcrumb__current {
   min-width: 0;
   display: inline-flex;
   align-items: center;
-  line-height: 1.25;
+  line-height: 1.3;
+  white-space: nowrap;
 }
 
 .app-spa .main-header-breadcrumb .main-header-breadcrumb__current.text-truncate {
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Sidebar : dégradé encre (charte officielle) */
