@@ -16,6 +16,14 @@ function formatWebhookUrlForDisplay(url) {
   return `${u.slice(0, 34)}…${u.slice(-34)}`;
 }
 
+/** Exemple de JSON documenté (aligné sur TicketIngestionService::ingestFromWebhook). */
+const WEBHOOK_JSON_EXAMPLE = `{
+  "title": "Incident paiement — timeout",
+  "message": "Description détaillée, logs ou corps d'erreur…",
+  "priority": "high",
+  "dedupe_key": "mon-service:erreur-xyz-2025-04-13"
+}`;
+
 const PANES = [
   { id: 'pe-pane-general', label: 'Général', icon: 'fa-sliders-h' },
   { id: 'pe-pane-members', label: 'Membres', icon: 'fa-users' },
