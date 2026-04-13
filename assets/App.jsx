@@ -24,6 +24,7 @@ const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage.jsx'));
 const OrganizationUsersPage = lazy(() => import('./pages/organization/OrganizationUsersPage.jsx'));
 const ProjectsPage = lazy(() => import('./pages/organization/ProjectsPage.jsx'));
 const ProjectEditPage = lazy(() => import('./pages/organization/ProjectEditPage.jsx'));
+const ProjectViewPage = lazy(() => import('./pages/organization/ProjectViewPage.jsx'));
 const TicketsPage = lazy(() => import('./pages/organization/TicketsPage.jsx'));
 const ActivityPage = lazy(() => import('./pages/account/ActivityPage.jsx'));
 const StubPage = lazy(() => import('./pages/account/StubPage.jsx'));
@@ -116,6 +117,14 @@ export default function App() {
                 }
               />
               <Route
+                path="projects/:projectId"
+                element={
+                  <Suspense fallback={<LoadingState message="Chargement de la page…" />}>
+                    <ProjectViewPage />
+                  </Suspense>
+                }
+              />
+              <Route
                 path="projects"
                 element={
                   <Suspense fallback={<LoadingState message="Chargement de la page…" />}>
@@ -128,6 +137,14 @@ export default function App() {
                 element={
                   <Suspense fallback={<LoadingState message="Chargement de la page…" />}>
                     <ProjectEditPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="organization/:orgToken/projects/:projectId"
+                element={
+                  <Suspense fallback={<LoadingState message="Chargement de la page…" />}>
+                    <ProjectViewPage />
                   </Suspense>
                 }
               />
