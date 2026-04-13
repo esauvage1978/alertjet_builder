@@ -4122,6 +4122,11 @@ body.app-spa .btn-primary:focus {
   cursor: not-allowed;
 }
 
+.op-project-edit .form-control.form-control-sm {
+  min-height: 2.35rem;
+  padding: 0.45rem 0.65rem;
+}
+
 .op-project-edit .form-check {
   padding-left: 1.35rem;
   margin-bottom: 0.85rem;
