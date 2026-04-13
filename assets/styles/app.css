@@ -2187,10 +2187,11 @@ body.app-spa .breadcrumb-item > a:hover {
 }
 
 .app-spa .main-header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
-  float: none;
-  display: inline-flex;
+  float: none !important;
+  display: flex !important;
   align-items: center;
   align-self: center;
+  flex-shrink: 0;
   line-height: 1;
   padding-top: 0;
   padding-bottom: 0;
