@@ -63,6 +63,9 @@ export default function ProjectEditPage() {
   const [imapTls, setImapTls] = useState(true);
   const [imapUsername, setImapUsername] = useState('');
   const [imapMailbox, setImapMailbox] = useState('INBOX');
+  const [webhookIntegrationEnabled, setWebhookIntegrationEnabled] = useState(true);
+  /** Sous-vue dans l’onglet Intégrations : général | messagerie | webhook */
+  const [integrationSub, setIntegrationSub] = useState('general');
 
   useEffect(() => {
     if (!data?.project) return;
@@ -78,17 +81,45 @@ export default function ProjectEditPage() {
     setImapUsername(p.imapUsername ?? '');
     setImapMailbox(p.imapMailbox ?? 'INBOX');
     setImapPassword('');
+    setWebhookIntegrationEnabled(
+      typeof p.webhookIntegrationEnabled === 'boolean' ? p.webhookIntegrationEnabled : true,
+    );
   }, [data]);
 
   useEffect(() => {
     const hash = window.location.hash.slice(1);
+    if (hash === 'pe-pane-mail') {
+      setActiveTab('pe-pane-integrations');
+      setIntegrationSub('mail');
+      return;
+    }
+    if (hash === 'pe-pane-webhook') {
+      setActiveTab('pe-pane-integrations');
+      setIntegrationSub('webhook');
+      return;
+    }
     if (hash && /^pe-pane-[a-z0-9-]+$/.test(hash)) {
       setActiveTab(hash);
     }
   }, []);
 
+  useEffect(() => {
+    if (!imapEnabled && integrationSub === 'mail') {
+      setIntegrationSub('general');
+    }
+  }, [imapEnabled, integrationSub]);
+
+  useEffect(() => {
+    if (!webhookIntegrationEnabled && integrationSub === 'webhook') {
+      setIntegrationSub('general');
+    }
+  }, [webhookIntegrationEnabled, integrationSub]);
+
   function setTab(id) {
     setActiveTab(id);
+    if (id === 'pe-pane-integrations') {
+      setIntegrationSub('general');
+    }
     const base = `${window.location.pathname}${window.location.search}`;
     window.history.replaceState(null, '', `${base}#${id}`);
   }
