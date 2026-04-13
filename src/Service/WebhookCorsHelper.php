@@ -113,27 +113,24 @@ final class WebhookCorsHelper
     }
 
     /**
-     * @return list<string> messages d’erreur (vide si valide)
-     *
-     * @param callable(string): void $onInvalidLine reçoit la ligne brute invalide
+     * @return list<string> lignes non vides invalides
      */
-    public static function validateOriginsText(?string $text, callable $onInvalidLine): array
+    public static function invalidOriginLines(?string $text): array
     {
         if ($text === null || trim($text) === '') {
             return [];
         }
-        $errors = [];
+        $bad = [];
         foreach (preg_split("/\r\n|\n|\r/", $text) as $line) {
             $trim = trim($line);
             if ($trim === '') {
                 continue;
             }
             if (self::lineToNormalizedOrigin($trim) === null) {
-                $onInvalidLine($trim);
-                $errors[] = $trim;
+                $bad[] = $trim;
             }
         }
 
-        return $errors;
+        return $bad;
     }
 }
