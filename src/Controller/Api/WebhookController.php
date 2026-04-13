@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
+use App\Entity\Project;
 use App\Repository\ProjectRepository;
 use App\Service\ApplicationErrorLogger;
 use App\Service\TicketIngestionService;
@@ -16,6 +17,8 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class WebhookController extends AbstractController
 {
+    private const TOKEN_REQUIREMENT = '[a-f0-9]{32}';
+
     public function __construct(
         private readonly ProjectRepository $projectRepository,
         private readonly TicketIngestionService $ingestionService,
@@ -23,8 +26,49 @@ final class WebhookController extends AbstractController
     ) {
     }
 
-    #[Route('/api/webhook/{token}', name: 'api_webhook_receive', methods: ['POST'])]
+    #[Route(
+        '/api/webhook/{orgToken}/{projectToken}/{webhookToken}',
+        name: 'api_webhook_receive',
+        requirements: [
+            'orgToken' => '[a-f0-9]{12}',
+            'projectToken' => '[a-f0-9]{12}',
+            'webhookToken' => self::TOKEN_REQUIREMENT,
+        ],
+        methods: ['POST'],
+    )]
     public function receive(
+        string $orgToken,
+        string $projectToken,
+        string $webhookToken,
+        Request $request,
+        #[Autowire(service: 'limiter.webhook_ingest')]
+        RateLimiterFactory $webhookIngestLimiter,
+    ): Response {
+        $rateLimit = $webhookIngestLimiter->create($request->getClientIp() ?? 'unknown')->consume();
+        if (!$rateLimit->isAccepted()) {
+            $retry = max(1, $rateLimit->getRetryAfter()->getTimestamp() - time());
+            $response = $this->json(['error' => 'rate_limited'], Response::HTTP_TOO_MANY_REQUESTS);
+            $response->headers->set('Retry-After', (string) $retry);
+
+            return $response;
+        }
+
+        $project = $this->projectRepository->findByWebhookScoped($orgToken, $projectToken, $webhookToken);
+        if ($project === null) {
+            return $this->json(['error' => 'unknown_webhook_token'], Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->processReceiveBody($project, $request, $webhookToken);
+    }
+
+    /** @deprecated URL à un seul segment — préférer /api/webhook/{org}/{projet}/{secret} */
+    #[Route(
+        '/api/webhook/{token}',
+        name: 'api_webhook_receive_legacy',
+        requirements: ['token' => self::TOKEN_REQUIREMENT],
+        methods: ['POST'],
+    )]
+    public function receiveLegacy(
         string $token,
         Request $request,
         #[Autowire(service: 'limiter.webhook_ingest')]
@@ -44,6 +88,11 @@ final class WebhookController extends AbstractController
             return $this->json(['error' => 'unknown_webhook_token'], Response::HTTP_NOT_FOUND);
         }
 
+        return $this->processReceiveBody($project, $request, $token);
+    }
+
+    private function processReceiveBody(Project $project, Request $request, string $webhookTokenForLog): Response
+    {
         $rawBody = $request->getContent();
         $json = null;
         $ct = (string) $request->headers->get('Content-Type', '');
@@ -62,7 +111,7 @@ final class WebhookController extends AbstractController
             $this->applicationErrorLogger->logThrowable($e, $request, null, [
                 'layer' => 'webhook_ingest',
                 'projectId' => $project->getId(),
-                'webhookTokenSuffix' => substr($token, -6),
+                'webhookTokenSuffix' => substr($webhookTokenForLog, -6),
             ], 'caught');
 
             return $this->json(['error' => 'ingest_failed'], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -79,8 +128,52 @@ final class WebhookController extends AbstractController
         ], Response::HTTP_OK);
     }
 
-    #[Route('/api/webhook/{token}', name: 'api_webhook_ping', methods: ['GET', 'HEAD'])]
+    #[Route(
+        '/api/webhook/{orgToken}/{projectToken}/{webhookToken}',
+        name: 'api_webhook_ping',
+        requirements: [
+            'orgToken' => '[a-f0-9]{12}',
+            'projectToken' => '[a-f0-9]{12}',
+            'webhookToken' => self::TOKEN_REQUIREMENT,
+        ],
+        methods: ['GET', 'HEAD'],
+    )]
     public function ping(
+        string $orgToken,
+        string $projectToken,
+        string $webhookToken,
+        Request $request,
+        #[Autowire(service: 'limiter.webhook_ingest')]
+        RateLimiterFactory $webhookIngestLimiter,
+    ): Response {
+        $rateLimit = $webhookIngestLimiter->create($request->getClientIp() ?? 'unknown')->consume();
+        if (!$rateLimit->isAccepted()) {
+            $retry = max(1, $rateLimit->getRetryAfter()->getTimestamp() - time());
+            $response = $this->json(['ok' => false, 'error' => 'rate_limited'], Response::HTTP_TOO_MANY_REQUESTS);
+            $response->headers->set('Retry-After', (string) $retry);
+
+            return $response;
+        }
+
+        $project = $this->projectRepository->findByWebhookScoped($orgToken, $projectToken, $webhookToken);
+        if ($project === null) {
+            return $this->json(['ok' => false], Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json([
+            'ok' => true,
+            'project' => $project->getName(),
+            'message' => 'POST un JSON ou du texte pour créer / fusionner un ticket.',
+        ]);
+    }
+
+    #[Route(
+        '/api/webhook/{token}',
+        name: 'api_webhook_ping_legacy',
+        requirements: ['token' => self::TOKEN_REQUIREMENT],
+        methods: ['GET', 'HEAD'],
+    )]
+    public function pingLegacy(
         string $token,
         Request $request,
         #[Autowire(service: 'limiter.webhook_ingest')]
