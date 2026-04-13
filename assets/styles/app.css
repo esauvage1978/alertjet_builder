@@ -4521,6 +4521,8 @@ a.op-project-name--link:hover {
 .fw-url-box__text {
   flex: 1 1 12rem;
   min-width: 0;
+  display: flex;
+  align-items: center;
 }
 
 .fw-url-code {
@@ -4538,6 +4540,7 @@ a.op-project-name--link:hover {
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
+  align-self: center;
   gap: 0.35rem;
   flex-shrink: 0;
 }
@@ -4574,8 +4577,13 @@ a.op-project-name--link:hover {
     align-items: stretch;
   }
 
+  .fw-url-box__text {
+    align-items: flex-start;
+  }
+
   .fw-url-box__actions {
     justify-content: flex-end;
+    align-self: stretch;
   }
 }
 
