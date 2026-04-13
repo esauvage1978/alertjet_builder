@@ -591,8 +591,42 @@ export default function ProjectEditPage() {
               ) : (
                 <p className="op-project-edit__hint small mb-0">URL indisponible.</p>
               )}
-              {p.webhookPingUrl ? (
+
+              <div className="fw-json-example mt-3">
+                <h3 className="fw-json-example__title">Exemple de corps JSON (POST)</h3>
+                <p className="op-project-edit__hint small mb-2">
+                  En-tête <code className="fw-json-example__inline">Content-Type: application/json</code>. Champs
+                  reconnus — tous optionnels sauf besoin d’un titre ou d’un message explicite :
+                </p>
+                <ul className="fw-json-example__fields small text-muted mb-2 pl-3">
+                  <li>
+                    <strong>title</strong>, <strong>subject</strong> ou <strong>summary</strong> — titre du ticket
+                    (sinon « Incident »).
+                  </li>
+                  <li>
+                    <strong>message</strong>, <strong>description</strong>, <strong>body</strong> ou <strong>detail</strong>{' '}
+                    — description (sinon le corps brut du POST).
+                  </li>
+                  <li>
+                    <strong>priority</strong> — <code>low</code> / <code>medium</code> / <code>high</code> /{' '}
+                    <code>critical</code> (ou <code>1</code> à <code>4</code>).
+                  </li>
+                  <li>
+                    <strong>dedupe_key</strong>, <strong>fingerprint</strong>, <strong>error_id</strong> ou{' '}
+                    <strong>incident_key</strong> — même valeur pour fusionner les événements sur un ticket ouvert.
+                  </li>
+                </ul>
+                <pre className="fw-json-example__pre" tabIndex={0}>
+                  <code>{WEBHOOK_JSON_EXAMPLE}</code>
+                </pre>
                 <p className="op-project-edit__hint small mb-0">
+                  Un corps texte brut (sans JSON) utilise tout le texte comme description ; le titre par défaut est «
+                  Incident ».
+                </p>
+              </div>
+
+              {p.webhookPingUrl ? (
+                <p className="op-project-edit__hint small mt-3 mb-0">
                   <a className="op-project-edit__link" href={p.webhookPingUrl} target="_blank" rel="noreferrer">
                     Ouvrir le ping (GET)
                   </a>
