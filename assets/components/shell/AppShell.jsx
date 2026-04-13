@@ -115,7 +115,31 @@ export default function AppShell() {
                       {i18n.breadcrumb_home}
                     </Link>
                   </li>
-                  {isProjectEditPage && projectsListOrgToken && projectEditToken ? (
+                  {isProjectEditPage && projectsListOrgToken && projectContextToken ? (
+                    <>
+                      <li className="breadcrumb-item">
+                        <Link to="/projects" className="main-header-breadcrumb__link">
+                          {i18n.breadcrumb_org_projects}
+                        </Link>
+                      </li>
+                      <li className="breadcrumb-item text-truncate" style={{ maxWidth: '12rem' }}>
+                        <Link
+                          to={`/projects/${projectContextToken}`}
+                          className="main-header-breadcrumb__link text-monospace d-inline-block text-truncate"
+                          style={{ fontSize: '0.8125rem', maxWidth: '100%' }}
+                          title={projectContextToken}
+                        >
+                          {projectContextToken}
+                        </Link>
+                      </li>
+                      <li
+                        className="breadcrumb-item active text-truncate main-header-breadcrumb__current"
+                        aria-current="page"
+                      >
+                        {i18n.breadcrumb_org_projects_edit}
+                      </li>
+                    </>
+                  ) : isProjectViewPage && projectsListOrgToken && projectContextToken ? (
                     <>
                       <li className="breadcrumb-item">
                         <Link to="/projects" className="main-header-breadcrumb__link">
@@ -123,17 +147,12 @@ export default function AppShell() {
                         </Link>
                       </li>
                       <li
-                        className="breadcrumb-item text-truncate text-monospace main-header-breadcrumb__current"
-                        style={{ fontSize: '0.8125rem', maxWidth: '11rem' }}
-                        title={projectEditToken}
-                      >
-                        {projectEditToken}
-                      </li>
-                      <li
-                        className="breadcrumb-item active text-truncate main-header-breadcrumb__current"
+                        className="breadcrumb-item active text-truncate text-monospace main-header-breadcrumb__current"
+                        style={{ fontSize: '0.8125rem', maxWidth: '12rem' }}
                         aria-current="page"
+                        title={projectContextToken}
                       >
-                        {i18n.breadcrumb_org_projects_edit}
+                        {projectContextToken}
                       </li>
                     </>
                   ) : isOrgProjectsList ? (
