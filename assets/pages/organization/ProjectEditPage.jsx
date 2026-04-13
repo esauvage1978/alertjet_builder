@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { fetchJson, postForm, postFormRedirect } from '../../api/http.js';
+import { TicketHandlerMiniCard } from '../../components/project/TicketHandlerMiniCard.jsx';
 import { PageCard } from '../../components/ui/PageCard.jsx';
 import { ErrorAlert } from '../../components/ui/ErrorAlert.jsx';
 import { LoadingState } from '../../components/ui/LoadingState.jsx';
