@@ -90,6 +90,10 @@ final class ManagerProjectFormType extends AbstractType
                 'required' => false,
                 'false_values' => [null, false, '', '0'],
             ])
+            ->add('phoneSchedule', HiddenType::class, [
+                'label' => false,
+                'required' => false,
+            ])
             ->add('webhookCorsAllowedOrigins', TextareaType::class, [
                 'label' => 'form.manager_project.webhook_cors_allowed_origins',
                 'required' => false,
@@ -159,6 +163,15 @@ final class ManagerProjectFormType extends AbstractType
             $data = $event->getData();
             if (!\is_array($data)) {
                 return;
+            }
+            if (isset($data['phoneSchedule']) && \is_string($data['phoneSchedule']) && trim($data['phoneSchedule']) !== '') {
+                try {
+                    $decoded = json_decode($data['phoneSchedule'], true, 512, JSON_THROW_ON_ERROR);
+                    if (\is_array($decoded)) {
+                        $data['phoneSchedule'] = $decoded;
+                    }
+                } catch (\JsonException) {
+                }
             }
             if (!isset($data['imapPort']) || $data['imapPort'] === '' || $data['imapPort'] === null) {
                 $data['imapPort'] = 993;

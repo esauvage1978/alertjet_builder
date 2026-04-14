@@ -120,6 +120,20 @@ class Project
     #[ORM\Column(options: ['default' => false])]
     private bool $internalFormIntegrationEnabled = false;
 
+    /**
+     * Horaires d'accueil / astreinte téléphone par jour.
+     *
+     * Format:
+     * {
+     *   mon: { enabled: true, morning: { start: "08:00", end: "12:00" }, evening: { start: "14:00", end: "18:00" } },
+     *   ...
+     * }
+     *
+     * @var array<string, mixed>|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $phoneSchedule = null;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -401,6 +415,20 @@ class Project
     public function setInternalFormIntegrationEnabled(bool $internalFormIntegrationEnabled): self
     {
         $this->internalFormIntegrationEnabled = $internalFormIntegrationEnabled;
+
+        return $this;
+    }
+
+    /** @return array<string, mixed>|null */
+    public function getPhoneSchedule(): ?array
+    {
+        return $this->phoneSchedule;
+    }
+
+    /** @param array<string, mixed>|null $phoneSchedule */
+    public function setPhoneSchedule(?array $phoneSchedule): self
+    {
+        $this->phoneSchedule = $phoneSchedule;
 
         return $this;
     }

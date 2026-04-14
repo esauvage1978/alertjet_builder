@@ -465,6 +465,7 @@ final class OrganizationProjectController extends AbstractController
                 'webhookCorsAllowedOrigins' => $project->getWebhookCorsAllowedOrigins() ?? '',
                 'phoneIntegrationEnabled' => $project->isPhoneIntegrationEnabled(),
                 'internalFormIntegrationEnabled' => $project->isInternalFormIntegrationEnabled(),
+                'phoneSchedule' => $project->getPhoneSchedule(),
                 'ticketHandlerIds' => $project->getTicketHandlers()->map(static fn (User $u) => $u->getId())->getValues(),
             ],
         ];
@@ -500,6 +501,7 @@ final class OrganizationProjectController extends AbstractController
                 'webhookCorsAllowedOrigins' => $project->getWebhookCorsAllowedOrigins() ?? '',
                 'phoneIntegrationEnabled' => $project->isPhoneIntegrationEnabled(),
                 'internalFormIntegrationEnabled' => $project->isInternalFormIntegrationEnabled(),
+                'phoneSchedule' => $project->getPhoneSchedule(),
             ]),
         ];
     }

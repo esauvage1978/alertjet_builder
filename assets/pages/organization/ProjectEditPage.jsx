@@ -24,6 +24,45 @@ const WEBHOOK_JSON_EXAMPLE = `{
   "dedupe_key": "mon-service:erreur-xyz-2025-04-13"
 }`;
 
+const DEFAULT_PHONE_SCHEDULE = {
+  mon: { enabled: true, morning: { start: '08:00', end: '12:00' }, evening: { start: '14:00', end: '18:00' } },
+  tue: { enabled: true, morning: { start: '08:00', end: '12:00' }, evening: { start: '14:00', end: '18:00' } },
+  wed: { enabled: true, morning: { start: '08:00', end: '12:00' }, evening: { start: '14:00', end: '18:00' } },
+  thu: { enabled: true, morning: { start: '08:00', end: '12:00' }, evening: { start: '14:00', end: '18:00' } },
+  fri: { enabled: true, morning: { start: '08:00', end: '12:00' }, evening: { start: '14:00', end: '18:00' } },
+  sat: { enabled: false, morning: { start: '08:00', end: '12:00' }, evening: { start: '14:00', end: '18:00' } },
+  sun: { enabled: false, morning: { start: '08:00', end: '12:00' }, evening: { start: '14:00', end: '18:00' } },
+};
+
+const PHONE_DAYS = [
+  { key: 'mon', label: 'Lundi' },
+  { key: 'tue', label: 'Mardi' },
+  { key: 'wed', label: 'Mercredi' },
+  { key: 'thu', label: 'Jeudi' },
+  { key: 'fri', label: 'Vendredi' },
+  { key: 'sat', label: 'Samedi' },
+  { key: 'sun', label: 'Dimanche' },
+];
+
+function safePhoneSchedule(v) {
+  if (!v || typeof v !== 'object') return structuredClone(DEFAULT_PHONE_SCHEDULE);
+  const out = structuredClone(DEFAULT_PHONE_SCHEDULE);
+  for (const d of PHONE_DAYS) {
+    const day = v[d.key];
+    if (!day || typeof day !== 'object') continue;
+    if (typeof day.enabled === 'boolean') out[d.key].enabled = day.enabled;
+    for (const part of ['morning', 'evening']) {
+      const p = day[part];
+      if (!p || typeof p !== 'object') continue;
+      const s = typeof p.start === 'string' ? p.start : '';
+      const e = typeof p.end === 'string' ? p.end : '';
+      if (s) out[d.key][part].start = s;
+      if (e) out[d.key][part].end = e;
+    }
+  }
+  return out;
+}
+
 const PANES = [
   { id: 'pe-pane-general', label: 'Général', icon: 'fa-sliders-h' },
   { id: 'pe-pane-members', label: 'Membres', icon: 'fa-users' },
@@ -67,6 +106,7 @@ export default function ProjectEditPage() {
   const [webhookCorsAllowedOrigins, setWebhookCorsAllowedOrigins] = useState('');
   const [phoneIntegrationEnabled, setPhoneIntegrationEnabled] = useState(false);
   const [internalFormIntegrationEnabled, setInternalFormIntegrationEnabled] = useState(false);
+  const [phoneSchedule, setPhoneSchedule] = useState(() => structuredClone(DEFAULT_PHONE_SCHEDULE));
   /** Sous-vue dans l’onglet Intégrations : général | messagerie | webhook */
   const [integrationSub, setIntegrationSub] = useState('general');
 
@@ -96,6 +136,7 @@ export default function ProjectEditPage() {
     setInternalFormIntegrationEnabled(
       typeof p.internalFormIntegrationEnabled === 'boolean' ? p.internalFormIntegrationEnabled : false,
     );
+    setPhoneSchedule(safePhoneSchedule(p.phoneSchedule));
   }, [data]);
 
   useEffect(() => {
@@ -126,6 +167,12 @@ export default function ProjectEditPage() {
       setIntegrationSub('general');
     }
   }, [webhookIntegrationEnabled, integrationSub]);
+
+  useEffect(() => {
+    if (!phoneIntegrationEnabled && integrationSub === 'phone') {
+      setIntegrationSub('general');
+    }
+  }, [phoneIntegrationEnabled, integrationSub]);
 
   function setTab(id) {
     setActiveTab(id);
@@ -165,6 +212,7 @@ export default function ProjectEditPage() {
       [`${prefix}[webhookCorsAllowedOrigins]`]: webhookCorsAllowedOrigins,
       [`${prefix}[phoneIntegrationEnabled]`]: phoneIntegrationEnabled ? '1' : '0',
       [`${prefix}[internalFormIntegrationEnabled]`]: internalFormIntegrationEnabled ? '1' : '0',
+      [`${prefix}[phoneSchedule]`]: JSON.stringify(phoneSchedule),
     };
     if (imapPassword.trim()) {
       fields[`${prefix}[imapPassword]`] = imapPassword;
@@ -494,6 +542,16 @@ export default function ProjectEditPage() {
                       Webhook
                     </button>
                   ) : null}
+                  {phoneIntegrationEnabled ? (
+                    <button
+                      type="button"
+                      className={`pe-int-nav__btn ${integrationSub === 'phone' ? 'pe-int-nav__btn--active' : ''}`}
+                      onClick={() => setIntegrationSub('phone')}
+                    >
+                      <i className="fas fa-phone-alt mr-1" aria-hidden="true" />
+                      Téléphone
+                    </button>
+                  ) : null}
                 </nav>
                 <div className="pe-int-body">
                   {integrationSub === 'general' ? (
@@ -573,6 +631,139 @@ export default function ProjectEditPage() {
                           </span>
                           <span className="pe-mail-switch__label">Formulaire interne</span>
                         </label>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {integrationSub === 'phone' && phoneIntegrationEnabled ? (
+                    <div className="pe-int-panel" id="pe-int-panel-phone">
+                      <h3 className="pe-int-panel__title h6">Téléphone — horaires</h3>
+                      <p className="op-project-edit__hint small mb-3">
+                        Configurez les plages horaires par jour. Par défaut : 08:00–12:00 et 14:00–18:00.
+                      </p>
+
+                      <div className="table-responsive">
+                        <table className="table table-sm mb-0">
+                          <thead>
+                            <tr>
+                              <th scope="col">Jour</th>
+                              <th scope="col">Actif</th>
+                              <th scope="col">Matin</th>
+                              <th scope="col">Soir</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {PHONE_DAYS.map((d) => {
+                              const day = phoneSchedule[d.key];
+                              return (
+                                <tr key={d.key}>
+                                  <td className="align-middle">{d.label}</td>
+                                  <td className="align-middle">
+                                    <div className="form-group pe-mail-switch-row mb-0">
+                                      <label className="pe-mail-switch mb-0" htmlFor={`pe-phone-${d.key}-enabled`}>
+                                        <input
+                                          id={`pe-phone-${d.key}-enabled`}
+                                          type="checkbox"
+                                          role="switch"
+                                          className="pe-mail-switch__input"
+                                          checked={Boolean(day?.enabled)}
+                                          aria-checked={Boolean(day?.enabled)}
+                                          onChange={(e) =>
+                                            setPhoneSchedule((prev) => ({
+                                              ...prev,
+                                              [d.key]: { ...prev[d.key], enabled: e.target.checked },
+                                            }))
+                                          }
+                                          disabled={busy}
+                                        />
+                                        <span className="pe-mail-switch__track" aria-hidden="true">
+                                          <span className="pe-mail-switch__thumb" />
+                                        </span>
+                                        <span className="sr-only">Activer {d.label}</span>
+                                      </label>
+                                    </div>
+                                  </td>
+                                  <td className="align-middle">
+                                    <div className="form-row">
+                                      <div className="col">
+                                        <input
+                                          type="time"
+                                          className="form-control form-control-sm"
+                                          value={day.morning.start}
+                                          onChange={(e) =>
+                                            setPhoneSchedule((prev) => ({
+                                              ...prev,
+                                              [d.key]: {
+                                                ...prev[d.key],
+                                                morning: { ...prev[d.key].morning, start: e.target.value },
+                                              },
+                                            }))
+                                          }
+                                          disabled={busy || !day.enabled}
+                                        />
+                                      </div>
+                                      <div className="col">
+                                        <input
+                                          type="time"
+                                          className="form-control form-control-sm"
+                                          value={day.morning.end}
+                                          onChange={(e) =>
+                                            setPhoneSchedule((prev) => ({
+                                              ...prev,
+                                              [d.key]: {
+                                                ...prev[d.key],
+                                                morning: { ...prev[d.key].morning, end: e.target.value },
+                                              },
+                                            }))
+                                          }
+                                          disabled={busy || !day.enabled}
+                                        />
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="align-middle">
+                                    <div className="form-row">
+                                      <div className="col">
+                                        <input
+                                          type="time"
+                                          className="form-control form-control-sm"
+                                          value={day.evening.start}
+                                          onChange={(e) =>
+                                            setPhoneSchedule((prev) => ({
+                                              ...prev,
+                                              [d.key]: {
+                                                ...prev[d.key],
+                                                evening: { ...prev[d.key].evening, start: e.target.value },
+                                              },
+                                            }))
+                                          }
+                                          disabled={busy || !day.enabled}
+                                        />
+                                      </div>
+                                      <div className="col">
+                                        <input
+                                          type="time"
+                                          className="form-control form-control-sm"
+                                          value={day.evening.end}
+                                          onChange={(e) =>
+                                            setPhoneSchedule((prev) => ({
+                                              ...prev,
+                                              [d.key]: {
+                                                ...prev[d.key],
+                                                evening: { ...prev[d.key].evening, end: e.target.value },
+                                              },
+                                            }))
+                                          }
+                                          disabled={busy || !day.enabled}
+                                        />
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   ) : null}
