@@ -10,6 +10,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -26,6 +27,7 @@ use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use App\Service\WebhookCorsHelper;
+use Symfony\Component\Form\Exception\TransformationFailedException;
 
 final class ManagerProjectFormType extends AbstractType
 {
@@ -159,19 +161,51 @@ final class ManagerProjectFormType extends AbstractType
                 'attr' => ['class' => 'pe-active-tab-field'],
             ]);
 
+        $builder->get('phoneSchedule')->addModelTransformer(new CallbackTransformer(
+            // array|null -> string (JSON) for the hidden input
+            static function (mixed $value): string {
+                if ($value === null || $value === '' || $value === []) {
+                    return '';
+                }
+                if (\is_array($value)) {
+                    try {
+                        return json_encode($value, JSON_THROW_ON_ERROR);
+                    } catch (\JsonException) {
+                        return '';
+                    }
+                }
+
+                return '';
+            },
+            // string -> array|null for the entity
+            static function (mixed $value): ?array {
+                if ($value === null || $value === '') {
+                    return null;
+                }
+                if (!\is_string($value)) {
+                    throw new TransformationFailedException('phoneSchedule must be a string.');
+                }
+                $raw = trim($value);
+                if ($raw === '') {
+                    return null;
+                }
+                try {
+                    $decoded = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+                } catch (\JsonException) {
+                    throw new TransformationFailedException('Invalid phoneSchedule JSON.');
+                }
+                if (!\is_array($decoded)) {
+                    throw new TransformationFailedException('Invalid phoneSchedule payload.');
+                }
+
+                return $decoded;
+            },
+        ));
+
         $builder->addEventListener(FormEvents::PRE_SUBMIT, static function (FormEvent $event): void {
             $data = $event->getData();
             if (!\is_array($data)) {
                 return;
-            }
-            if (isset($data['phoneSchedule']) && \is_string($data['phoneSchedule']) && trim($data['phoneSchedule']) !== '') {
-                try {
-                    $decoded = json_decode($data['phoneSchedule'], true, 512, JSON_THROW_ON_ERROR);
-                    if (\is_array($decoded)) {
-                        $data['phoneSchedule'] = $decoded;
-                    }
-                } catch (\JsonException) {
-                }
             }
             if (!isset($data['imapPort']) || $data['imapPort'] === '' || $data['imapPort'] === null) {
                 $data['imapPort'] = 993;
