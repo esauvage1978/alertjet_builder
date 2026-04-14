@@ -94,7 +94,7 @@ final class UiBootstrapController extends AbstractController
             'spaPaths' => [
                 'organizationUsers' => '/organization/users',
                 'organizationBilling' => '/organization/billing',
-                'organizationTickets' => '/organization/tickets',
+                'organizationTickets' => '/tickets',
                 'organizationProjects' => $org ? '/projects' : null,
                 'accountProfile' => '/account/profile',
                 'accountActivity' => '/account/activity',

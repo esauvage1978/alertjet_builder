@@ -41,7 +41,7 @@ final class OrganizationTicketsController extends AbstractController
         $tickets = $ticketRepository->findForOrganization($organization);
 
         if (!AcceptJson::wants($request)) {
-            return $this->redirect('/app/organization/tickets');
+            return $this->redirect('/app/tickets');
         }
 
         return $this->json([

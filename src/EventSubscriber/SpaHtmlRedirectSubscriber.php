@@ -106,7 +106,7 @@ final class SpaHtmlRedirectSubscriber implements EventSubscriberInterface
             'app_organization_mine', 'app_organization_edit' => '/app/organization/billing',
             'app_organization_users' => '/app/organization/users',
             'app_organization_show' => '/app/organization/billing',
-            'app_organization_tickets' => '/app/organization/tickets',
+            'app_organization_tickets' => '/app/tickets',
             'app_organization_projects' => '/app/projects',
             'app_organization_project_edit' => '/app/projects/'.$r->attributes->get('projectToken').'/edit',
             'app_account_profile' => '/app/account/profile',

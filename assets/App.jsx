@@ -92,12 +92,16 @@ export default function App() {
                 }
               />
               <Route
-                path="organization/tickets"
+                path="tickets"
                 element={
                   <Suspense fallback={<LoadingState message="Chargement de la page…" />}>
                     <TicketsPage />
                   </Suspense>
                 }
+              />
+              <Route
+                path="organization/tickets"
+                element={<Navigate to="/tickets" replace />}
               />
               <Route
                 path="organization/:orgToken/projects"
