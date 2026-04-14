@@ -683,10 +683,6 @@ export default function ProjectEditPage() {
                           placeholder="Numéro ou consigne pour les urgences"
                         />
                       </div>
-                      <p className="op-project-edit__hint small mb-3">
-                        Horaires : par défaut 08:00–12:00 et 14:00–18:00 selon les jours.
-                      </p>
-
                       <div className="table-responsive">
                         <table className="table table-sm mb-0">
                           <thead>
