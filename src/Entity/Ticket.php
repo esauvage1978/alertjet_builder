@@ -65,11 +65,17 @@ class Ticket
     #[ORM\OrderBy(['createdAt' => 'ASC'])]
     private Collection $logs;
 
+    /** @var Collection<int, TicketAttachment> */
+    #[ORM\OneToMany(targetEntity: TicketAttachment::class, mappedBy: 'ticket', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['createdAt' => 'ASC'])]
+    private Collection $attachments;
+
     public function __construct()
     {
         $this->publicId = Uuid::v4();
         $this->createdAt = new \DateTimeImmutable();
         $this->logs = new ArrayCollection();
+        $this->attachments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -211,6 +217,29 @@ class Ticket
     public function getResolvedAt(): ?\DateTimeImmutable
     {
         return $this->resolvedAt;
+    }
+
+    /** @return Collection<int, TicketAttachment> */
+    public function getAttachments(): Collection
+    {
+        return $this->attachments;
+    }
+
+    public function addAttachment(TicketAttachment $attachment): self
+    {
+        if (!$this->attachments->contains($attachment)) {
+            $this->attachments->add($attachment);
+            $attachment->setTicket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAttachment(TicketAttachment $attachment): self
+    {
+        $this->attachments->removeElement($attachment);
+
+        return $this;
     }
 
     /** @return Collection<int, TicketLog> */

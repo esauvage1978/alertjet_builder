@@ -18,6 +18,7 @@ final class ProjectImapInboxService
         private readonly SecretBoxCrypto $secretBoxCrypto,
         private readonly LoggerInterface $logger,
         private readonly ApplicationErrorLogger $applicationErrorLogger,
+        private readonly ImapMimeParser $imapMimeParser,
     ) {
     }
 
@@ -100,10 +101,16 @@ final class ProjectImapInboxService
                     }
                 }
 
-                $body = (string) \imap_body($conn, $num);
-                if ($body !== '') {
-                    $body = quoted_printable_decode($body);
+                $parsed = $this->imapMimeParser->extractPlainAndAttachments($conn, $num);
+                $body = $parsed['plain'];
+                if ($body === '') {
+                    $raw = (string) \imap_body($conn, $num);
+                    if ($raw !== '') {
+                        $raw = quoted_printable_decode($raw);
+                    }
+                    $body = trim(strip_tags($raw));
                 }
+                $mailAttachments = $parsed['attachments'];
 
                 $messageId = null;
                 if ($header !== false && isset($header->message_id) && \is_string($header->message_id)) {
@@ -111,7 +118,7 @@ final class ProjectImapInboxService
                 }
 
                 try {
-                    $this->ticketIngestionService->ingestFromEmail($project, $subject, $body, $messageId, $fromAddr);
+                    $this->ticketIngestionService->ingestFromEmail($project, $subject, $body, $messageId, $fromAddr, $mailAttachments);
                     @\imap_setflag_full($conn, (string) $uid, '\\Seen', \ST_UID);
                     ++$count;
                 } catch (\Throwable $e) {

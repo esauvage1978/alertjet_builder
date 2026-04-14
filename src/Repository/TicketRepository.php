@@ -21,6 +21,16 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
+    public function findWithAttachments(int $id): ?Ticket
+    {
+        return $this->createQueryBuilder('t')
+            ->leftJoin('t.attachments', 'a')->addSelect('a')
+            ->where('t.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findOpenByFingerprint(Project $project, string $fingerprint): ?Ticket
     {
         return $this->createQueryBuilder('t')
@@ -46,6 +56,7 @@ class TicketRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('t')
             ->innerJoin('t.project', 'p')
             ->addSelect('p')
+            ->leftJoin('t.attachments', 'att')->addSelect('att')
             ->where('p.organization = :org')
             ->setParameter('org', $organization)
             ->orderBy('t.createdAt', 'DESC')

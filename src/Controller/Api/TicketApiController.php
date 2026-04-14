@@ -35,6 +35,7 @@ final class TicketApiController extends AbstractController
 
         $status = $request->query->get('status');
         $qb = $this->ticketRepository->createQueryBuilder('t')
+            ->leftJoin('t.attachments', 'att')->addSelect('att')
             ->andWhere('t.project = :p')
             ->setParameter('p', $project)
             ->orderBy('t.createdAt', 'DESC');
@@ -56,7 +57,7 @@ final class TicketApiController extends AbstractController
     #[Route('/api/tickets/{id}', name: 'api_ticket_one', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function one(int $id): Response
     {
-        $ticket = $this->ticketRepository->find($id);
+        $ticket = $this->ticketRepository->findWithAttachments($id);
         if ($ticket === null) {
             return $this->json(['error' => 'ticket_not_found'], Response::HTTP_NOT_FOUND);
         }

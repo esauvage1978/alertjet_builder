@@ -19,6 +19,7 @@ final class TicketIngestionService
         private readonly EntityManagerInterface $em,
         private readonly TicketRepository $ticketRepository,
         private readonly TicketNotificationService $notificationService,
+        private readonly TicketAttachmentStorageService $ticketAttachmentStorageService,
     ) {
     }
 
@@ -79,12 +80,16 @@ final class TicketIngestionService
         return new IngestResult($ticket, false);
     }
 
+    /**
+     * @param list<array{filename: string, content: string, mime: string}> $attachments
+     */
     public function ingestFromEmail(
         Project $project,
         string $subject,
         string $body,
         ?string $messageId,
         ?string $from = null,
+        array $attachments = [],
     ): IngestResult {
         $title = mb_substr(trim($subject), 0, 255);
         if ($title === '') {
@@ -105,9 +110,14 @@ final class TicketIngestionService
             $log = (new TicketLog())
                 ->setType('event')
                 ->setMessage(sprintf('Message e-mail fusionné (#%d)', $existing->getEventCount()))
-                ->setContext(['messageId' => $messageId, 'from' => $from]);
+                ->setContext(array_filter([
+                    'messageId' => $messageId,
+                    'from' => $from,
+                ]));
 
             $existing->addLog($log);
+            $this->em->flush();
+            $this->storeEmailAttachments($existing, $attachments);
             $this->em->flush();
             $this->notificationService->notifyTicketEventMerged($existing);
 
@@ -128,15 +138,43 @@ final class TicketIngestionService
             (new TicketLog())
                 ->setType('created')
                 ->setMessage('Ticket créé depuis la messagerie du projet')
-                ->setContext(['messageId' => $messageId, 'from' => $from]),
+                ->setContext(array_filter([
+                    'messageId' => $messageId,
+                    'from' => $from,
+                ])),
         );
 
         $this->em->persist($ticket);
         $this->em->flush();
 
+        $this->storeEmailAttachments($ticket, $attachments);
+        $this->em->flush();
+
         $this->notificationService->notifyNewTicket($ticket);
 
         return new IngestResult($ticket, false);
+    }
+
+    /**
+     * @param list<array{filename: string, content: string, mime: string}> $attachments
+     */
+    private function storeEmailAttachments(Ticket $ticket, array $attachments): void
+    {
+        foreach ($attachments as $att) {
+            $content = $att['content'] ?? '';
+            if ($content === '') {
+                continue;
+            }
+            $filename = isset($att['filename']) && \is_string($att['filename']) && $att['filename'] !== ''
+                ? $att['filename']
+                : 'fichier';
+            $mime = isset($att['mime']) && \is_string($att['mime']) ? $att['mime'] : null;
+            try {
+                $this->ticketAttachmentStorageService->storeForTicket($ticket, $content, $filename, $mime);
+            } catch (\Throwable) {
+                // Ne bloque pas la création du ticket si une PJ échoue (disque plein, etc.)
+            }
+        }
     }
 
     /** @param list<string> $keys */

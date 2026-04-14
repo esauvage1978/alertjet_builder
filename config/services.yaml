@@ -8,6 +8,7 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     site_vitrine_plans_json: '%kernel.project_dir%/../site_vitrine/src/data/plans.json'
+    ticket_attachments_dir: '%kernel.project_dir%/var/uploads/ticket_attachments'
     # Langues disponibles (liste unique : ajouter un code ISO + traductions + messages.{code}.yaml)
     app.enabled_locales: [fr, en]
     # Valeur si la variable d’environnement HSTS_ENABLED est absente (cf. processeur default:)
@@ -35,6 +36,10 @@ services:
     App\Service\SiteVitrinePlansCatalog:
         arguments:
             $plansJsonPath: '%site_vitrine_plans_json%'
+
+    App\Service\TicketAttachmentStorageService:
+        arguments:
+            $ticketAttachmentsDir: '%ticket_attachments_dir%'
 
     App\I18n\EnabledLocales:
         arguments:
