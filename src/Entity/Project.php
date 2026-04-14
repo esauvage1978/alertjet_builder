@@ -42,6 +42,14 @@ class Project
     #[ORM\Column(length: 180)]
     private string $name;
 
+    /** Description libre (interface manager). */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+    /** Couleur d’affichage (#RRGGBB), ex. pastille dans les listes de tickets. */
+    #[ORM\Column(name: 'accent_color', length: 7, options: ['default' => '#64748b'])]
+    private string $accentColor = '#64748b';
+
     #[ORM\Column(length: 64, unique: true)]
     private string $webhookToken;
 
@@ -183,6 +191,49 @@ class Project
         $this->name = trim($name);
 
         return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        if ($description === null) {
+            $this->description = null;
+
+            return $this;
+        }
+        $description = trim($description);
+
+        $this->description = $description === '' ? null : $description;
+
+        return $this;
+    }
+
+    public function getAccentColor(): string
+    {
+        return $this->accentColor;
+    }
+
+    public function setAccentColor(string $accentColor): self
+    {
+        $accentColor = strtolower(trim($accentColor));
+        $this->accentColor = $accentColor;
+
+        return $this;
+    }
+
+    /** Couleur prédéfinie pour les nouveaux projets (choix aléatoire dans une palette lisible). */
+    public static function randomAccentColor(): string
+    {
+        $palette = [
+            '#ff5a36', '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b',
+            '#ec4899', '#06b6d4', '#84cc16', '#ef4444', '#6366f1',
+        ];
+
+        return $palette[array_rand($palette)];
     }
 
     public function getWebhookToken(): string

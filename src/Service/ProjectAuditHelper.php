@@ -21,6 +21,8 @@ final class ProjectAuditHelper
 
         return [
             'name' => $project->getName(),
+            'description' => $project->getDescription(),
+            'accentColor' => $project->getAccentColor(),
             'imapEnabled' => $project->isImapEnabled(),
             'imapHost' => $project->getImapHost(),
             'imapPort' => $project->getImapPort(),

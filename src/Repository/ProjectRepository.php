@@ -135,4 +135,29 @@ class ProjectRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function organizationHasInternalFormIntegrationEnabled(Organization $organization): bool
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.organization = :org')
+            ->andWhere('p.internalFormIntegrationEnabled = true')
+            ->setParameter('org', $organization)
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
+    }
+
+    /**
+     * @return list<Project>
+     */
+    public function findByOrganizationWithInternalFormEnabled(Organization $organization): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.organization = :org')
+            ->andWhere('p.internalFormIntegrationEnabled = true')
+            ->setParameter('org', $organization)
+            ->orderBy('p.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

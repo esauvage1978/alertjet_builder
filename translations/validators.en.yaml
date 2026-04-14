@@ -23,3 +23,6 @@ validation.webhook_cors.invalid_line: 'Invalid origin: "%line%" (expected http(s
 validation.project_phone.not_blank: 'Enter a phone number when the Phone integration is enabled.'
 validation.project_phone.max: 'The phone number is too long (max. {{ limit }} characters).'
 validation.project_emergency_phone.max: 'The emergency field is too long (max. {{ limit }} characters).'
+validation.project_description.max: 'The description is too long (max. {{ limit }} characters).'
+validation.project_accent_color.not_blank: 'Please set a color (#RRGGBB).'
+validation.project_accent_color.invalid: 'Expected a color like #RRGGBB (e.g. #3b82f6).'

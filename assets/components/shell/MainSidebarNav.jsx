@@ -132,6 +132,14 @@ function buildNavSections({ flags, spaPaths, i18n, organizations, org }) {
         icon: 'fa-user-group',
       });
     }
+    if (flags.canEditCurrentOrganization && spaPaths.organizationClients) {
+      administrationItems.push({
+        id: 'orgClients',
+        to: spaPaths.organizationClients,
+        label: i18n.nav_org_clients,
+        icon: 'fa-id-card-alt',
+      });
+    }
   }
 
   sections.push({
@@ -141,6 +149,15 @@ function buildNavSections({ flags, spaPaths, i18n, organizations, org }) {
 
   const ticketStackItems = [];
   if (hasOrgContext) {
+    if (flags.showTicketCreateEntry && spaPaths.organizationTicketNew) {
+      ticketStackItems.push({
+        id: 'ticketNew',
+        to: spaPaths.organizationTicketNew,
+        label: i18n.nav_ticket_new,
+        icon: 'fa-plus-circle',
+        isActive: (pathname) => pathname === '/tickets/new' || pathname === '/tickets/new/',
+      });
+    }
     if (flags.canEditCurrentOrganization && spaPaths.organizationProjects) {
       ticketStackItems.push({
         id: 'projects',

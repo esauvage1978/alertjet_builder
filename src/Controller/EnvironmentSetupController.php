@@ -345,6 +345,7 @@ final class EnvironmentSetupController extends AbstractController
             $name = (string) $form->get('name')->getData();
             $proj = (new Project())
                 ->setName(trim($name))
+                ->setAccentColor(Project::randomAccentColor())
                 ->setWebhookToken(bin2hex(random_bytes(16)));
             $organization->addProject($proj);
 

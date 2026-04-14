@@ -28,6 +28,7 @@ export default function TicketsPage() {
           <table className="table ou-members-table mb-0">
             <thead className="ou-members-thead">
               <tr>
+                <th>Projet</th>
                 <th>Titre</th>
                 <th>Statut</th>
                 <th>Priorité</th>
@@ -36,6 +37,25 @@ export default function TicketsPage() {
             <tbody>
               {data.tickets?.map((t) => (
                 <tr key={t.id} className="ou-member-row">
+                  <td>
+                    {t.project ? (
+                      <span className="d-inline-flex align-items-center">
+                        <span
+                          className="rounded-circle d-inline-block mr-2 flex-shrink-0"
+                          style={{
+                            width: 10,
+                            height: 10,
+                            backgroundColor: t.project.accentColor || '#64748b',
+                          }}
+                          title={t.project.name}
+                          aria-hidden
+                        />
+                        <span>{t.project.name}</span>
+                      </span>
+                    ) : (
+                      <span className="text-muted">—</span>
+                    )}
+                  </td>
                   <td>{t.title}</td>
                   <td>{t.status}</td>
                   <td>{t.priority}</td>

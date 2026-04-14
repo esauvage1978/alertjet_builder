@@ -8,6 +8,56 @@ import { LoadingState } from '../../components/ui/LoadingState.jsx';
 import { useAsyncResource } from '../../hooks/useAsyncResource.js';
 import { useBootstrap } from '../../context/BootstrapContext.jsx';
 
+function clamp01(n) {
+  if (!Number.isFinite(n)) return 0;
+  return Math.min(1, Math.max(0, n));
+}
+
+function parseHexColor(hex) {
+  if (typeof hex !== 'string') return null;
+  const h = hex.trim();
+  if (!/^#[0-9A-Fa-f]{6}$/.test(h)) return null;
+  const r = Number.parseInt(h.slice(1, 3), 16);
+  const g = Number.parseInt(h.slice(3, 5), 16);
+  const b = Number.parseInt(h.slice(5, 7), 16);
+  return { r, g, b };
+}
+
+function srgbToLinear(u8) {
+  const x = u8 / 255;
+  return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+}
+
+function relativeLuminance({ r, g, b }) {
+  const R = srgbToLinear(r);
+  const G = srgbToLinear(g);
+  const B = srgbToLinear(b);
+  return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+}
+
+function textColorForBg(hex) {
+  const rgb = parseHexColor(hex);
+  if (!rgb) return '#111827';
+  const L = relativeLuminance(rgb);
+  // seuil empirique : au-dessus → texte sombre, sinon → texte clair
+  return L > 0.5 ? '#0f172a' : '#ffffff';
+}
+
+function mix(a, b, t) {
+  const tt = clamp01(t);
+  return Math.round(a + (b - a) * tt);
+}
+
+function borderColorForBg(hex) {
+  const rgb = parseHexColor(hex);
+  if (!rgb) return 'rgba(15, 23, 42, 0.16)';
+  // bordure légèrement plus sombre (mix vers noir)
+  const r = mix(rgb.r, 0, 0.25);
+  const g = mix(rgb.g, 0, 0.25);
+  const b = mix(rgb.b, 0, 0.25);
+  return `rgb(${r} ${g} ${b})`;
+}
+
 export default function ProjectsPage() {
   const { orgToken: orgTokenParam } = useParams();
   const { data: boot } = useBootstrap();
@@ -454,12 +504,31 @@ export default function ProjectsPage() {
                       const webhookOn = typeof ints.webhook === 'boolean' ? ints.webhook : true;
                       const phoneOn = Boolean(ints.phone);
                       const internalOn = Boolean(ints.internalForm);
+                      const accent = typeof p.accentColor === 'string' ? p.accentColor : null;
+                      const bg = accent && /^#[0-9A-Fa-f]{6}$/.test(accent.trim()) ? accent.trim().toLowerCase() : '#64748b';
+                      const fg = textColorForBg(bg);
+                      const border = borderColorForBg(bg);
                       return (
                       <tr key={p.id} className="ou-member-row op-project-row">
                         <td>
                           <div className="d-flex align-items-start op-project-row-main" style={{ gap: '0.65rem' }}>
-                            <span className="op-project-icon" aria-hidden="true">
-                              <i className="fas fa-folder" />
+                            <span
+                              className="d-inline-flex align-items-center justify-content-center flex-shrink-0"
+                              style={{
+                                width: 26,
+                                height: 26,
+                                borderRadius: 999,
+                                backgroundColor: bg,
+                                color: fg,
+                                border: `1px solid ${border}`,
+                                fontWeight: 800,
+                                fontSize: '0.75rem',
+                                letterSpacing: '0.02em',
+                              }}
+                              title={`Couleur du projet : ${bg}`}
+                              aria-hidden
+                            >
+                              {String(p.name || '?').trim().slice(0, 1).toUpperCase()}
                             </span>
                             <div>
                               <Link
@@ -468,7 +537,6 @@ export default function ProjectsPage() {
                               >
                                 {p.name}
                               </Link>
-                              <div className="small op-project-token">{p.webhookTokenPrefix}…</div>
                             </div>
                           </div>
                         </td>

@@ -7,8 +7,11 @@ namespace App\Controller\Api;
 use App\Controller\AbstractController;
 use App\Entity\Organization;
 use App\Entity\User;
+use App\Repository\OrganizationClientAccessRepository;
+use App\Repository\ProjectRepository;
 use App\Security\Voter\OrganizationVoter;
 use App\Service\CurrentOrganizationService;
+use App\Service\InternalTicketAccessPolicy;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -30,6 +33,9 @@ final class UiBootstrapController extends AbstractController
         CurrentOrganizationService $currentOrganizationService,
         UrlGeneratorInterface $urlGenerator,
         CsrfTokenManagerInterface $csrfTokenManager,
+        ProjectRepository $projectRepository,
+        OrganizationClientAccessRepository $organizationClientAccessRepository,
+        InternalTicketAccessPolicy $internalTicketAccessPolicy,
     ): JsonResponse {
         $user = $this->getUser();
         $request = $requestStack->getCurrentRequest();
@@ -48,6 +54,14 @@ final class UiBootstrapController extends AbstractController
         $showMainNavDestinations = !$setupIncomplete && !$profileOnboarding;
 
         $canEditOrg = $org !== null && $this->isGranted(OrganizationVoter::EDIT, $org);
+
+        $hasInternalForm = $org !== null && $projectRepository->organizationHasInternalFormIntegrationEnabled($org);
+        $showTicketCreateEntry = $org !== null && $internalTicketAccessPolicy->canCreateInternalTicket(
+            $user,
+            $org,
+            $hasInternalForm,
+            $organizationClientAccessRepository,
+        );
 
         return $this->json([
             'guest' => false,
@@ -69,6 +83,8 @@ final class UiBootstrapController extends AbstractController
                 'canAccessOrganizationBillingPage' => $user->canAccessOrganizationBillingPage(),
                 'canEditCurrentOrganization' => $canEditOrg,
                 'isAdmin' => $this->isGranted('ROLE_ADMIN'),
+                'hasInternalFormProject' => $hasInternalForm,
+                'showTicketCreateEntry' => $showTicketCreateEntry,
             ],
             'routes' => [
                 'spa' => $urlGenerator->generate('app_spa'),
@@ -79,6 +95,8 @@ final class UiBootstrapController extends AbstractController
                 'organizationBilling' => $urlGenerator->generate('app_organization_show'),
                 'organizationUsers' => $urlGenerator->generate('app_organization_users'),
                 'organizationTickets' => $urlGenerator->generate('app_organization_tickets'),
+                'organizationClients' => $urlGenerator->generate('app_organization_clients'),
+                'organizationTicketNew' => $urlGenerator->generate('app_organization_ticket_new'),
                 'organizationProjects' => $org ? $urlGenerator->generate('app_spa_catch', ['reactPath' => 'projects']) : null,
                 'localeSwitch' => $this->localeSwitchUrlPattern($urlGenerator),
                 'adminOrganizations' => $urlGenerator->generate('admin_organization_index'),
@@ -95,6 +113,8 @@ final class UiBootstrapController extends AbstractController
                 'organizationUsers' => '/organization/users',
                 'organizationBilling' => '/organization/billing',
                 'organizationTickets' => '/tickets',
+                'organizationClients' => '/organization/clients',
+                'organizationTicketNew' => '/tickets/new',
                 'organizationProjects' => $org ? '/projects' : null,
                 'accountProfile' => '/account/profile',
                 'accountActivity' => '/account/activity',
@@ -200,6 +220,8 @@ final class UiBootstrapController extends AbstractController
             'brand_html' => $this->trans('auth.brand_html'),
             'nav_dashboard' => $this->trans('nav.dashboard'),
             'nav_org_users' => $this->trans('nav.org_users'),
+            'nav_org_clients' => $this->trans('nav.org_clients'),
+            'nav_ticket_new' => $this->trans('nav.ticket_new'),
             'nav_section_admin' => $this->trans('nav.section_administration'),
             'nav_section_tickets' => $this->trans('nav.section_tickets'),
             'nav_tickets' => $this->trans('nav.tickets'),
@@ -217,6 +239,9 @@ final class UiBootstrapController extends AbstractController
             'nav_admin_audit_actions' => $this->trans('nav.admin_audit_actions'),
             'nav_admin_audit_errors' => $this->trans('nav.admin_audit_errors'),
             'breadcrumb_home' => $this->trans('breadcrumb.home'),
+            'breadcrumb_tickets' => $this->trans('breadcrumb.tickets'),
+            'breadcrumb_org_clients' => $this->trans('breadcrumb.org_clients'),
+            'breadcrumb_ticket_new' => $this->trans('breadcrumb.ticket_new'),
             'breadcrumb_org_projects' => $this->trans('org.projects.breadcrumb'),
             'breadcrumb_org_projects_edit' => $this->trans('org.projects.breadcrumb_edit'),
             'wizard_steps_progress_aria' => $this->trans('wizard.steps.progress_aria'),

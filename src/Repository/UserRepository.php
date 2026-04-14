@@ -172,4 +172,22 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
 
         return $qb;
     }
+
+    /**
+     * Membres de l’organisation ayant le rôle client (ROLE_CLIENT).
+     *
+     * @return list<User>
+     */
+    public function findOrganizationMembersWithRoleClient(Organization $organization): array
+    {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.organizations', 'o')
+            ->andWhere('o = :org')
+            ->andWhere('u.roles LIKE :client')
+            ->setParameter('org', $organization)
+            ->setParameter('client', '%ROLE_CLIENT%')
+            ->orderBy('u.email', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

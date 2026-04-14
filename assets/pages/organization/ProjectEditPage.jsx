@@ -34,6 +34,24 @@ const DEFAULT_PHONE_SCHEDULE = {
   sun: { enabled: false, morning: { start: '08:00', end: '12:00' }, evening: { start: '14:00', end: '18:00' } },
 };
 
+/** Même palette que `Project::randomAccentColor()` (PHP). */
+const PROJECT_ACCENT_PALETTE = [
+  '#ff5a36',
+  '#3b82f6',
+  '#10b981',
+  '#8b5cf6',
+  '#f59e0b',
+  '#ec4899',
+  '#06b6d4',
+  '#84cc16',
+  '#ef4444',
+  '#6366f1',
+];
+
+function randomProjectAccentColor() {
+  return PROJECT_ACCENT_PALETTE[Math.floor(Math.random() * PROJECT_ACCENT_PALETTE.length)];
+}
+
 const PHONE_DAYS = [
   { key: 'mon', label: 'Lundi' },
   { key: 'tue', label: 'Mardi' },
@@ -93,6 +111,8 @@ export default function ProjectEditPage() {
   const [webhookTestFeedback, setWebhookTestFeedback] = useState(null);
 
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [accentColor, setAccentColor] = useState('#64748b');
   const [ticketHandlerIds, setTicketHandlerIds] = useState([]);
   const [slaAck, setSlaAck] = useState('');
   const [slaResolve, setSlaResolve] = useState('');
@@ -116,6 +136,12 @@ export default function ProjectEditPage() {
     if (!data?.project) return;
     const p = data.project;
     setName(p.name ?? '');
+    setDescription(typeof p.description === 'string' ? p.description : '');
+    {
+      const raw = p.accentColor;
+      const ok = typeof raw === 'string' && /^#[0-9A-Fa-f]{6}$/.test(raw.trim());
+      setAccentColor(ok ? raw.trim().toLowerCase() : randomProjectAccentColor());
+    }
     setTicketHandlerIds(Array.isArray(p.ticketHandlerIds) ? [...p.ticketHandlerIds] : []);
     setSlaAck(p.slaAckTargetMinutes != null ? String(p.slaAckTargetMinutes) : '');
     setSlaResolve(p.slaResolveTargetMinutes != null ? String(p.slaResolveTargetMinutes) : '');
@@ -207,6 +233,8 @@ export default function ProjectEditPage() {
     const fields = {
       [`${prefix}[_token]`]: data.formCsrf,
       [`${prefix}[name]`]: name.trim(),
+      [`${prefix}[description]`]: description,
+      [`${prefix}[accentColor]`]: accentColor,
       [`${prefix}[_active_tab]`]: activeTab,
       [`${prefix}[ticketHandlers][]`]: ticketHandlerIds,
       [`${prefix}[slaAckTargetMinutes]`]: slaAck,
@@ -430,6 +458,42 @@ export default function ProjectEditPage() {
                   disabled={busy}
                   autoComplete="off"
                 />
+              </div>
+              <div className="form-group">
+                <label htmlFor="pe-description">Description</label>
+                <textarea
+                  id="pe-description"
+                  className="form-control form-control-sm"
+                  rows={4}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  disabled={busy}
+                  spellCheck
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="pe-accent-color">Couleur du projet</label>
+                <div className="d-flex align-items-center flex-wrap" style={{ gap: '0.5rem' }}>
+                  <input
+                    id="pe-accent-color"
+                    type="color"
+                    className="form-control form-control-sm"
+                    style={{
+                      width: '3rem',
+                      height: '2rem',
+                      padding: '0.125rem',
+                      cursor: busy ? 'not-allowed' : 'pointer',
+                    }}
+                    value={accentColor}
+                    onChange={(e) => setAccentColor(e.target.value.toLowerCase())}
+                    disabled={busy}
+                    aria-label="Couleur du projet"
+                  />
+                  <span className="small text-muted font-monospace">{accentColor}</span>
+                </div>
+                <p className="op-project-edit__hint small mb-0 mt-1">
+                  Pastille et nom du projet dans la liste des tickets.
+                </p>
               </div>
               <p className="op-project-edit__meta small mb-0">
                 Créé le <time dateTime={p.createdAt}>{created}</time>

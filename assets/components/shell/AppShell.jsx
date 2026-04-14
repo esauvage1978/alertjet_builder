@@ -43,6 +43,9 @@ export default function AppShell() {
   const shortProjectsEditMatch = path.match(/^\/projects\/([^/]+)\/edit\/?$/);
   const shortProjectsViewMatch = path.match(/^\/projects\/([^/]+)\/?$/);
   const isShortProjectsList = path === '/projects' || path === '/projects/';
+  const isTicketsNewPage = path === '/tickets/new' || path === '/tickets/new/';
+  const isOrgClientsPage = path === '/organization/clients' || path === '/organization/clients/';
+  const isTicketsPage = path === '/tickets' || path === '/tickets/';
   const isOrgProjectsList = orgProjectsListMatch !== null || isShortProjectsList;
   const isProjectEditPage = orgProjectsEditMatch !== null || shortProjectsEditMatch !== null;
   const isProjectViewPage =
@@ -157,6 +160,28 @@ export default function AppShell() {
                   ) : isOrgProjectsList ? (
                     <li className="breadcrumb-item active text-truncate main-header-breadcrumb__current" aria-current="page">
                       {i18n.breadcrumb_org_projects}
+                    </li>
+                  ) : isTicketsNewPage ? (
+                    <>
+                      <li className="breadcrumb-item">
+                        <Link to="/tickets" className="main-header-breadcrumb__link">
+                          {i18n.breadcrumb_tickets}
+                        </Link>
+                      </li>
+                      <li
+                        className="breadcrumb-item active text-truncate main-header-breadcrumb__current"
+                        aria-current="page"
+                      >
+                        {i18n.breadcrumb_ticket_new}
+                      </li>
+                    </>
+                  ) : isOrgClientsPage ? (
+                    <li className="breadcrumb-item active text-truncate main-header-breadcrumb__current" aria-current="page">
+                      {i18n.breadcrumb_org_clients}
+                    </li>
+                  ) : isTicketsPage ? (
+                    <li className="breadcrumb-item active text-truncate main-header-breadcrumb__current" aria-current="page">
+                      {i18n.breadcrumb_tickets}
                     </li>
                   ) : (
                     <li

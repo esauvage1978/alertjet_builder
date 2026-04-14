@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api;
 
+use App\Entity\Project;
 use App\Entity\Ticket;
 use App\Entity\TicketAttachment;
 use App\Entity\TicketLog;
@@ -14,11 +15,13 @@ final class TicketApiPresenter
     public static function one(Ticket $t): array
     {
         $tid = $t->getId();
+        $project = $t->getProject();
 
         return [
             'id' => $tid,
             'publicId' => (string) $t->getPublicId(),
-            'projectId' => $t->getProject()?->getId(),
+            'projectId' => $project?->getId(),
+            'project' => self::projectSummary($project),
             'title' => $t->getTitle(),
             'description' => $t->getDescription(),
             'status' => $t->getStatus()->value,
@@ -46,6 +49,20 @@ final class TicketApiPresenter
                 $t->getAttachments()->toArray(),
             ),
             'logs' => array_map(static fn (TicketLog $l) => self::log($l), $t->getLogs()->toArray()),
+        ];
+    }
+
+    /** @return array{name: string, publicToken: string, accentColor: string}|null */
+    private static function projectSummary(?Project $project): ?array
+    {
+        if ($project === null) {
+            return null;
+        }
+
+        return [
+            'name' => $project->getName(),
+            'publicToken' => $project->getPublicToken(),
+            'accentColor' => $project->getAccentColor(),
         ];
     }
 

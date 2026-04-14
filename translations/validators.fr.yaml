@@ -23,3 +23,6 @@ validation.webhook_cors.invalid_line: 'Origine non valide : « %line% » (attend
 validation.project_phone.not_blank: 'Indiquez un numéro de téléphone lorsque l’intégration Téléphone est activée.'
 validation.project_phone.max: 'Le numéro est trop long ({{ limit }} caractères max.).'
 validation.project_emergency_phone.max: 'Le champ urgence est trop long ({{ limit }} caractères max.).'
+validation.project_description.max: 'La description est trop longue ({{ limit }} caractères max.).'
+validation.project_accent_color.not_blank: 'Indiquez une couleur (format #RRGGBB).'
+validation.project_accent_color.invalid: 'Couleur attendue au format #RRGGBB (ex. #3b82f6).'

@@ -49,6 +49,7 @@ final class ProjectApiController extends AbstractController
 
         $project = (new Project())
             ->setName($name)
+            ->setAccentColor(Project::randomAccentColor())
             ->setWebhookToken(bin2hex(random_bytes(16)));
 
         $this->em->persist($project);
@@ -78,6 +79,8 @@ final class ProjectApiController extends AbstractController
             'id' => $p->getId(),
             'publicToken' => $p->getPublicToken(),
             'name' => $p->getName(),
+            'description' => $p->getDescription(),
+            'accentColor' => $p->getAccentColor(),
             'webhookToken' => $p->getWebhookToken(),
             'webhookUrl' => $this->buildWebhookUrlForProject($p),
             'createdAt' => $p->getCreatedAt()->format(\DateTimeInterface::ATOM),

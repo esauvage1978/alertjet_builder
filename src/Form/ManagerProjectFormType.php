@@ -25,6 +25,7 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\Range;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use App\Service\WebhookCorsHelper;
 use Symfony\Component\Form\Exception\TransformationFailedException;
@@ -43,6 +44,34 @@ final class ManagerProjectFormType extends AbstractType
                 'constraints' => [
                     new NotBlank(message: 'validation.project_name.not_blank'),
                     new Length(max: 180, maxMessage: 'validation.project_name.max'),
+                ],
+            ])
+            ->add('description', TextareaType::class, [
+                'label' => 'form.manager_project.description',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control form-control-sm',
+                    'rows' => 4,
+                ],
+                'constraints' => [
+                    new Length(max: 20000, maxMessage: 'validation.project_description.max'),
+                ],
+            ])
+            ->add('accentColor', TextType::class, [
+                'label' => 'form.manager_project.accent_color',
+                'required' => true,
+                'attr' => [
+                    'class' => 'form-control form-control-sm',
+                    'maxlength' => 7,
+                    'pattern' => '^#[0-9A-Fa-f]{6}$',
+                    'autocomplete' => 'off',
+                ],
+                'constraints' => [
+                    new NotBlank(message: 'validation.project_accent_color.not_blank'),
+                    new Regex([
+                        'pattern' => '/^#[0-9A-Fa-f]{6}$/',
+                        'message' => 'validation.project_accent_color.invalid',
+                    ]),
                 ],
             ])
             ->add('ticketHandlers', EntityType::class, [
@@ -259,6 +288,15 @@ final class ManagerProjectFormType extends AbstractType
             }
             if (($data['slaResolveTargetMinutes'] ?? '') === '') {
                 $data['slaResolveTargetMinutes'] = null;
+            }
+            if (isset($data['description']) && \is_string($data['description']) && trim($data['description']) === '') {
+                $data['description'] = null;
+            }
+            if (isset($data['accentColor']) && \is_string($data['accentColor'])) {
+                $ac = trim($data['accentColor']);
+                if ($ac !== '' && !str_starts_with($ac, '#')) {
+                    $data['accentColor'] = '#'.$ac;
+                }
             }
             $event->setData($data);
         });

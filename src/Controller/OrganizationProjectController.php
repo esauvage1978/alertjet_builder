@@ -102,6 +102,8 @@ final class OrganizationProjectController extends AbstractController
             'publicToken' => $p->getPublicToken(),
             'public_token' => $p->getPublicToken(),
             'name' => $p->getName(),
+            'description' => $p->getDescription(),
+            'accentColor' => $p->getAccentColor(),
             'webhookTokenPrefix' => mb_substr($p->getWebhookToken(), 0, 16),
             'createdAt' => $p->getCreatedAt()->format(\DateTimeInterface::ATOM),
             'ticketCount' => $p->getTickets()->count(),
@@ -177,6 +179,7 @@ final class OrganizationProjectController extends AbstractController
 
         $project = (new Project())
             ->setName($name)
+            ->setAccentColor(Project::randomAccentColor())
             ->setWebhookToken(bin2hex(random_bytes(16)))
             ->setOrganization($organization);
 
@@ -455,6 +458,8 @@ final class OrganizationProjectController extends AbstractController
             'project' => [
                 'publicToken' => $project->getPublicToken(),
                 'name' => $project->getName(),
+                'description' => $project->getDescription(),
+                'accentColor' => $project->getAccentColor(),
                 'createdAt' => $project->getCreatedAt()->format(\DateTimeInterface::ATOM),
                 'webhookUrl' => $this->generateUrl('api_webhook_receive', $this->webhookRouteParams($organization, $project), UrlGeneratorInterface::ABSOLUTE_URL),
                 'webhookPingUrl' => $this->generateUrl('api_webhook_ping', $this->webhookRouteParams($organization, $project), UrlGeneratorInterface::ABSOLUTE_URL),
