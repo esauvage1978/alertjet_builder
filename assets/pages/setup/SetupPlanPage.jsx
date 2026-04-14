@@ -20,6 +20,20 @@ function asFeatureList(v) {
   return v.map((x) => asString(x)).filter(Boolean);
 }
 
+/** @param {unknown} v */
+function asPackList(v) {
+  if (!Array.isArray(v)) return [];
+  return v
+    .map((x) => (x && typeof x === 'object' ? x : null))
+    .filter(Boolean)
+    .map((p) => ({
+      planId: asString(p.planId),
+      label: asString(p.label),
+      priceDisplay: asString(p.priceDisplay),
+    }))
+    .filter((p) => p.planId && p.label && p.priceDisplay);
+}
+
 export default function SetupPlanPage() {
   const location = useLocation();
   const [meta, setMeta] = useState(null);
@@ -48,6 +62,8 @@ export default function SetupPlanPage() {
   if (!meta) return <p className="text-muted">…</p>;
 
   const planErr = Array.isArray(fieldErrors.plan) && fieldErrors.plan.length ? fieldErrors.plan.join(' ') : '';
+  const packs = asPackList(meta.packs);
+  const metaInfo = meta.meta && typeof meta.meta === 'object' ? meta.meta : null;
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -69,6 +85,16 @@ export default function SetupPlanPage() {
         <SetupWizardBack to="/initialisation/organisation">Retour à l’organisation</SetupWizardBack>
         <h1 className="h3 mb-3">Formule</h1>
         <p className="text-muted">Étape 2 — comparez les offres et choisissez celle qui vous convient.</p>
+        {metaInfo && typeof metaInfo.vatNote === 'string' && metaInfo.vatNote ? (
+          <div className="alert alert-light border small mb-3 text-secondary" role="note">
+            {metaInfo.vatNote}
+          </div>
+        ) : null}
+        {metaInfo && typeof metaInfo.eventDefinition === 'string' && metaInfo.eventDefinition ? (
+          <div className="alert alert-secondary small mb-3" role="note">
+            <strong>Définition d’un événement :</strong> {metaInfo.eventDefinition}
+          </div>
+        ) : null}
         {meta.selectedPlanId != null && String(meta.selectedPlanId) !== '' ? (
           <div className="alert alert-light border small mb-3 text-secondary" role="status">
             Votre formule enregistrée est présélectionnée ; vous pouvez en changer avant de continuer.
@@ -184,6 +210,38 @@ export default function SetupPlanPage() {
             Continuer avec cette formule
           </button>
         </form>
+
+        {packs.length ? (
+          <div className="card card-body shadow-sm mt-4">
+            <h2 className="h6 mb-2">Packs d’événements supplémentaires</h2>
+            <p className="text-muted small mb-3">
+              Achats optionnels une fois l’offre Starter ou Pro souscrite (disponibilité selon l’implémentation côté application).
+            </p>
+            <div className="table-responsive">
+              <table className="table table-sm mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col">Offre</th>
+                    <th scope="col">Volume ajouté</th>
+                    <th scope="col">Prix (HT)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {packs.map((p, i) => (
+                    <tr key={`${p.planId}-${i}`}>
+                      <td>{String(p.planId).toLowerCase() === 'pro' ? 'Pro' : 'Starter'}</td>
+                      <td>{p.label}</td>
+                      <td>{p.priceDisplay}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-muted small mt-3 mb-0">
+              Les prix et libellés sont donnés à titre indicatif et reproduisent la logique métier du code applicatif (montants HT, TVA en sus selon le taux en vigueur au moment de la facturation).
+            </p>
+          </div>
+        ) : null}
       </div>
     </div>
   );

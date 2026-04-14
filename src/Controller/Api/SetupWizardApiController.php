@@ -60,9 +60,12 @@ final class SetupWizardApiController extends AbstractController
 
         $org = $user->getPrimaryOrganization();
         $selectedPlanId = $org?->getPlan()?->value;
+        $catalog = $siteVitrinePlansCatalog->getCatalog();
 
         return $this->json([
-            'plans' => $siteVitrinePlansCatalog->getPlans(),
+            'plans' => $catalog['plans'] ?? [],
+            'meta' => $catalog['meta'] ?? null,
+            'packs' => $catalog['packs'] ?? [],
             'csrf' => $csrfTokenManager->getToken('environment_plan')->getValue(),
             'action' => $this->generateUrl('app_environment_setup_plan'),
             'selectedPlanId' => $selectedPlanId,
