@@ -34,6 +34,8 @@ final class ProjectAuditHelper
             'webhookCorsAllowedOrigins' => $project->getWebhookCorsAllowedOrigins(),
             'phoneIntegrationEnabled' => $project->isPhoneIntegrationEnabled(),
             'internalFormIntegrationEnabled' => $project->isInternalFormIntegrationEnabled(),
+            'phoneNumber' => $project->getPhoneNumber(),
+            'emergencyPhone' => $project->getEmergencyPhone(),
             'phoneSchedule' => $project->getPhoneSchedule(),
             'ticketHandlerIds' => $handlerIds,
         ];

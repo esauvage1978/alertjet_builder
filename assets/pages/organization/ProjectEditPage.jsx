@@ -107,6 +107,8 @@ export default function ProjectEditPage() {
   const [phoneIntegrationEnabled, setPhoneIntegrationEnabled] = useState(false);
   const [internalFormIntegrationEnabled, setInternalFormIntegrationEnabled] = useState(false);
   const [phoneSchedule, setPhoneSchedule] = useState(() => structuredClone(DEFAULT_PHONE_SCHEDULE));
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [emergencyPhone, setEmergencyPhone] = useState('');
   /** Sous-vue dans l’onglet Intégrations : général | messagerie | webhook */
   const [integrationSub, setIntegrationSub] = useState('general');
 
@@ -137,6 +139,8 @@ export default function ProjectEditPage() {
       typeof p.internalFormIntegrationEnabled === 'boolean' ? p.internalFormIntegrationEnabled : false,
     );
     setPhoneSchedule(safePhoneSchedule(p.phoneSchedule));
+    setPhoneNumber(typeof p.phoneNumber === 'string' ? p.phoneNumber : '');
+    setEmergencyPhone(typeof p.emergencyPhone === 'string' ? p.emergencyPhone : '');
   }, [data]);
 
   useEffect(() => {
@@ -149,6 +153,11 @@ export default function ProjectEditPage() {
     if (hash === 'pe-pane-webhook') {
       setActiveTab('pe-pane-integrations');
       setIntegrationSub('webhook');
+      return;
+    }
+    if (hash === 'pe-pane-phone') {
+      setActiveTab('pe-pane-integrations');
+      setIntegrationSub('phone');
       return;
     }
     if (hash && /^pe-pane-[a-z0-9-]+$/.test(hash)) {
@@ -212,6 +221,8 @@ export default function ProjectEditPage() {
       [`${prefix}[webhookCorsAllowedOrigins]`]: webhookCorsAllowedOrigins,
       [`${prefix}[phoneIntegrationEnabled]`]: phoneIntegrationEnabled ? '1' : '0',
       [`${prefix}[internalFormIntegrationEnabled]`]: internalFormIntegrationEnabled ? '1' : '0',
+      [`${prefix}[phoneNumber]`]: phoneNumber.trim(),
+      [`${prefix}[emergencyPhone]`]: emergencyPhone.trim(),
       [`${prefix}[phoneSchedule]`]: JSON.stringify(phoneSchedule),
     };
     if (imapPassword.trim()) {
@@ -637,9 +648,43 @@ export default function ProjectEditPage() {
 
                   {integrationSub === 'phone' && phoneIntegrationEnabled ? (
                     <div className="pe-int-panel" id="pe-int-panel-phone">
-                      <h3 className="pe-int-panel__title h6">Téléphone — horaires</h3>
+                      <h3 className="pe-int-panel__title h6">Téléphone — coordonnées et horaires</h3>
+                      <div className="form-group">
+                        <label htmlFor="pe-phone-number">
+                          Numéro de téléphone <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          id="pe-phone-number"
+                          type="tel"
+                          className="form-control form-control-sm"
+                          maxLength={48}
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                          disabled={busy}
+                          autoComplete="tel"
+                          inputMode="tel"
+                          placeholder="+33 1 23 45 67 89"
+                        />
+                        <p className="op-project-edit__hint small mb-0 mt-1">
+                          Obligatoire tant que l’intégration Téléphone est activée.
+                        </p>
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="pe-phone-emergency">Urgences (optionnel)</label>
+                        <input
+                          id="pe-phone-emergency"
+                          type="text"
+                          className="form-control form-control-sm"
+                          maxLength={255}
+                          value={emergencyPhone}
+                          onChange={(e) => setEmergencyPhone(e.target.value)}
+                          disabled={busy}
+                          autoComplete="off"
+                          placeholder="Numéro ou consigne pour les urgences"
+                        />
+                      </div>
                       <p className="op-project-edit__hint small mb-3">
-                        Configurez les plages horaires par jour. Par défaut : 08:00–12:00 et 14:00–18:00.
+                        Horaires : par défaut 08:00–12:00 et 14:00–18:00 selon les jours.
                       </p>
 
                       <div className="table-responsive">

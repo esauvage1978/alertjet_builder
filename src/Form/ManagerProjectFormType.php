@@ -92,6 +92,46 @@ final class ManagerProjectFormType extends AbstractType
                 'required' => false,
                 'false_values' => [null, false, '', '0'],
             ])
+            ->add('phoneNumber', TextType::class, [
+                'label' => 'form.manager_project.phone_number',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control form-control-sm',
+                    'maxlength' => 48,
+                    'placeholder' => '+33 1 23 45 67 89',
+                    'autocomplete' => 'tel',
+                    'inputmode' => 'tel',
+                ],
+                'constraints' => [
+                    new Length(max: 48, maxMessage: 'validation.project_phone.max'),
+                    new Callback(static function (?string $value, ExecutionContextInterface $context): void {
+                        $root = $context->getRoot();
+                        $data = $root->getData();
+                        if (!$data instanceof Project) {
+                            return;
+                        }
+                        if (!$data->isPhoneIntegrationEnabled()) {
+                            return;
+                        }
+                        if ($value === null || trim($value) === '') {
+                            $context->buildViolation('validation.project_phone.not_blank')->addViolation();
+                        }
+                    }),
+                ],
+            ])
+            ->add('emergencyPhone', TextType::class, [
+                'label' => 'form.manager_project.emergency_phone',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control form-control-sm',
+                    'maxlength' => 255,
+                    'placeholder' => 'Optionnel — numéro ou consigne',
+                    'autocomplete' => 'off',
+                ],
+                'constraints' => [
+                    new Length(max: 255, maxMessage: 'validation.project_emergency_phone.max'),
+                ],
+            ])
             ->add('phoneSchedule', HiddenType::class, [
                 'label' => false,
                 'required' => false,

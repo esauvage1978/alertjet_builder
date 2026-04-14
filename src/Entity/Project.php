@@ -134,6 +134,14 @@ class Project
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $phoneSchedule = null;
 
+    /** Numéro principal affiché / utilisé pour l’intégration téléphone (obligatoire si l’intégration est activée). */
+    #[ORM\Column(length: 48, nullable: true)]
+    private ?string $phoneNumber = null;
+
+    /** Numéro ou consigne pour les urgences (optionnel). */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $emergencyPhone = null;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -429,6 +437,35 @@ class Project
     public function setPhoneSchedule(?array $phoneSchedule): self
     {
         $this->phoneSchedule = $phoneSchedule;
+
+        return $this;
+    }
+
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): self
+    {
+        if ($phoneNumber === null || trim($phoneNumber) === '') {
+            $this->phoneNumber = null;
+        } else {
+            $this->phoneNumber = trim($phoneNumber);
+        }
+
+        return $this;
+    }
+
+    public function getEmergencyPhone(): ?string
+    {
+        return $this->emergencyPhone;
+    }
+
+    public function setEmergencyPhone(?string $emergencyPhone): self
+    {
+        $t = $emergencyPhone !== null ? trim($emergencyPhone) : '';
+        $this->emergencyPhone = $t !== '' ? $t : null;
 
         return $this;
     }
