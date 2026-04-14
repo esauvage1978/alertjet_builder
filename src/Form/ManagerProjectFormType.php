@@ -80,6 +80,16 @@ final class ManagerProjectFormType extends AbstractType
                 'required' => false,
                 'false_values' => [null, false, '', '0'],
             ])
+            ->add('phoneIntegrationEnabled', CheckboxType::class, [
+                'label' => 'form.manager_project.phone_integration_enabled',
+                'required' => false,
+                'false_values' => [null, false, '', '0'],
+            ])
+            ->add('internalFormIntegrationEnabled', CheckboxType::class, [
+                'label' => 'form.manager_project.internal_form_integration_enabled',
+                'required' => false,
+                'false_values' => [null, false, '', '0'],
+            ])
             ->add('webhookCorsAllowedOrigins', TextareaType::class, [
                 'label' => 'form.manager_project.webhook_cors_allowed_origins',
                 'required' => false,

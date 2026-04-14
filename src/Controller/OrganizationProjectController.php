@@ -463,6 +463,8 @@ final class OrganizationProjectController extends AbstractController
                 'hasImapPassword' => $project->hasStoredImapPassword(),
                 'webhookIntegrationEnabled' => $project->isWebhookIntegrationEnabled(),
                 'webhookCorsAllowedOrigins' => $project->getWebhookCorsAllowedOrigins() ?? '',
+                'phoneIntegrationEnabled' => $project->isPhoneIntegrationEnabled(),
+                'internalFormIntegrationEnabled' => $project->isInternalFormIntegrationEnabled(),
                 'ticketHandlerIds' => $project->getTicketHandlers()->map(static fn (User $u) => $u->getId())->getValues(),
             ],
         ];
@@ -496,6 +498,8 @@ final class OrganizationProjectController extends AbstractController
                 'hasImapPasswordConfigured' => $project->hasStoredImapPassword(),
                 'webhookIntegrationEnabled' => $project->isWebhookIntegrationEnabled(),
                 'webhookCorsAllowedOrigins' => $project->getWebhookCorsAllowedOrigins() ?? '',
+                'phoneIntegrationEnabled' => $project->isPhoneIntegrationEnabled(),
+                'internalFormIntegrationEnabled' => $project->isInternalFormIntegrationEnabled(),
             ]),
         ];
     }

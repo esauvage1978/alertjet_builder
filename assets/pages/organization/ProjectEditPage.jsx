@@ -65,6 +65,8 @@ export default function ProjectEditPage() {
   const [imapMailbox, setImapMailbox] = useState('INBOX');
   const [webhookIntegrationEnabled, setWebhookIntegrationEnabled] = useState(true);
   const [webhookCorsAllowedOrigins, setWebhookCorsAllowedOrigins] = useState('');
+  const [phoneIntegrationEnabled, setPhoneIntegrationEnabled] = useState(false);
+  const [internalFormIntegrationEnabled, setInternalFormIntegrationEnabled] = useState(false);
   /** Sous-vue dans l’onglet Intégrations : général | messagerie | webhook */
   const [integrationSub, setIntegrationSub] = useState('general');
 
@@ -87,6 +89,12 @@ export default function ProjectEditPage() {
     );
     setWebhookCorsAllowedOrigins(
       typeof p.webhookCorsAllowedOrigins === 'string' ? p.webhookCorsAllowedOrigins : '',
+    );
+    setPhoneIntegrationEnabled(
+      typeof p.phoneIntegrationEnabled === 'boolean' ? p.phoneIntegrationEnabled : false,
+    );
+    setInternalFormIntegrationEnabled(
+      typeof p.internalFormIntegrationEnabled === 'boolean' ? p.internalFormIntegrationEnabled : false,
     );
   }, [data]);
 
@@ -155,6 +163,8 @@ export default function ProjectEditPage() {
       [`${prefix}[imapMailbox]`]: imapMailbox,
       [`${prefix}[webhookIntegrationEnabled]`]: webhookIntegrationEnabled ? '1' : '0',
       [`${prefix}[webhookCorsAllowedOrigins]`]: webhookCorsAllowedOrigins,
+      [`${prefix}[phoneIntegrationEnabled]`]: phoneIntegrationEnabled ? '1' : '0',
+      [`${prefix}[internalFormIntegrationEnabled]`]: internalFormIntegrationEnabled ? '1' : '0',
     };
     if (imapPassword.trim()) {
       fields[`${prefix}[imapPassword]`] = imapPassword;
@@ -526,6 +536,42 @@ export default function ProjectEditPage() {
                             <span className="pe-mail-switch__thumb" />
                           </span>
                           <span className="pe-mail-switch__label">Webhook HTTP (POST)</span>
+                        </label>
+                      </div>
+                      <div className="form-group pe-mail-switch-row mb-3">
+                        <label className="pe-mail-switch" htmlFor="pe-int-switch-phone">
+                          <input
+                            id="pe-int-switch-phone"
+                            type="checkbox"
+                            role="switch"
+                            className="pe-mail-switch__input"
+                            checked={phoneIntegrationEnabled}
+                            aria-checked={phoneIntegrationEnabled}
+                            onChange={(e) => setPhoneIntegrationEnabled(e.target.checked)}
+                            disabled={busy}
+                          />
+                          <span className="pe-mail-switch__track" aria-hidden="true">
+                            <span className="pe-mail-switch__thumb" />
+                          </span>
+                          <span className="pe-mail-switch__label">Téléphone</span>
+                        </label>
+                      </div>
+                      <div className="form-group pe-mail-switch-row">
+                        <label className="pe-mail-switch" htmlFor="pe-int-switch-internal-form">
+                          <input
+                            id="pe-int-switch-internal-form"
+                            type="checkbox"
+                            role="switch"
+                            className="pe-mail-switch__input"
+                            checked={internalFormIntegrationEnabled}
+                            aria-checked={internalFormIntegrationEnabled}
+                            onChange={(e) => setInternalFormIntegrationEnabled(e.target.checked)}
+                            disabled={busy}
+                          />
+                          <span className="pe-mail-switch__track" aria-hidden="true">
+                            <span className="pe-mail-switch__thumb" />
+                          </span>
+                          <span className="pe-mail-switch__label">Formulaire interne</span>
                         </label>
                       </div>
                     </div>

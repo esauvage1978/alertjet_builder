@@ -108,6 +108,18 @@ class Project
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $webhookCorsAllowedOrigins = null;
 
+    /**
+     * Intégration "téléphone" (appel entrant / opérateur) - activation UI / règles côté app.
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $phoneIntegrationEnabled = false;
+
+    /**
+     * Intégration "formulaire interne" (saisie manuelle dans l'app) - activation UI / règles côté app.
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $internalFormIntegrationEnabled = false;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -365,6 +377,30 @@ class Project
     public function setWebhookCorsAllowedOrigins(?string $webhookCorsAllowedOrigins): self
     {
         $this->webhookCorsAllowedOrigins = $webhookCorsAllowedOrigins;
+
+        return $this;
+    }
+
+    public function isPhoneIntegrationEnabled(): bool
+    {
+        return $this->phoneIntegrationEnabled;
+    }
+
+    public function setPhoneIntegrationEnabled(bool $phoneIntegrationEnabled): self
+    {
+        $this->phoneIntegrationEnabled = $phoneIntegrationEnabled;
+
+        return $this;
+    }
+
+    public function isInternalFormIntegrationEnabled(): bool
+    {
+        return $this->internalFormIntegrationEnabled;
+    }
+
+    public function setInternalFormIntegrationEnabled(bool $internalFormIntegrationEnabled): self
+    {
+        $this->internalFormIntegrationEnabled = $internalFormIntegrationEnabled;
 
         return $this;
     }
