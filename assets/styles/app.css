@@ -38,6 +38,39 @@
   --action-hover: #e04a28;
 }
 
+/* =============================================================================
+   Projets > colonne "Intégrations"
+   ============================================================================= */
+.op-int-icons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.op-int-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(2, 6, 23, 0.35);
+}
+
+.op-int-ico--on {
+  color: var(--coral);
+  border-color: rgba(255, 90, 54, 0.45);
+  background: rgba(255, 90, 54, 0.08);
+}
+
+.op-int-ico--off {
+  color: rgba(148, 163, 184, 0.6);
+  border-color: rgba(148, 163, 184, 0.18);
+  background: rgba(2, 6, 23, 0.25);
+}
+
 /*
  * Bootstrap (CDN) colore le focus des .form-control en bleu (#80bdff / rgba bleu).
  * Toute l’interface SPA back-office utilise le corail charte.

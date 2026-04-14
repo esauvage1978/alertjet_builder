@@ -105,6 +105,12 @@ final class OrganizationProjectController extends AbstractController
             'webhookTokenPrefix' => mb_substr($p->getWebhookToken(), 0, 16),
             'createdAt' => $p->getCreatedAt()->format(\DateTimeInterface::ATOM),
             'ticketCount' => $p->getTickets()->count(),
+            'integrations' => [
+                'imap' => $p->isImapEnabled(),
+                'webhook' => $p->isWebhookIntegrationEnabled(),
+                'phone' => $p->isPhoneIntegrationEnabled(),
+                'internalForm' => $p->isInternalFormIntegrationEnabled(),
+            ],
             'handlers' => $p->getTicketHandlers()->map(static fn (User $u) => [
                 'id' => $u->getId(),
                 'initials' => $u->getAvatarInitials(),

@@ -162,6 +162,15 @@ export default function ProjectsPage() {
   const countLabel =
     loading && !data ? '…' : data != null ? (data.total ?? data.projects?.length ?? 0) : '—';
 
+  function integrationIcon({ title, icon, enabled }) {
+    const cls = enabled ? 'op-int-ico op-int-ico--on' : 'op-int-ico op-int-ico--off';
+    return (
+      <span className={cls} title={title} aria-label={title}>
+        <i className={`fas ${icon}`} aria-hidden="true" />
+      </span>
+    );
+  }
+
   const projectsHeaderPortal =
     orgToken && headerSlot
       ? createPortal(
@@ -427,6 +436,10 @@ export default function ProjectsPage() {
                         <span>Projet</span>
                       </th>
                       <th className="wp-proj-th-icon wp-proj-th-center">
+                        <i className="fas fa-puzzle-piece" aria-hidden="true" />
+                        <span>Intégrations</span>
+                      </th>
+                      <th className="wp-proj-th-icon wp-proj-th-center">
                         <i className="fas fa-ticket-alt" aria-hidden="true" />
                         <span>Tickets</span>
                       </th>
@@ -436,6 +449,11 @@ export default function ProjectsPage() {
                   <tbody>
                     {projects.map((p) => {
                       const projectToken = String(p.publicToken || p.public_token || '').trim();
+                      const ints = p.integrations && typeof p.integrations === 'object' ? p.integrations : {};
+                      const imapOn = Boolean(ints.imap);
+                      const webhookOn = typeof ints.webhook === 'boolean' ? ints.webhook : true;
+                      const phoneOn = Boolean(ints.phone);
+                      const internalOn = Boolean(ints.internalForm);
                       return (
                       <tr key={p.id} className="ou-member-row op-project-row">
                         <td>
@@ -453,6 +471,14 @@ export default function ProjectsPage() {
                               <div className="small op-project-token">{p.webhookTokenPrefix}…</div>
                             </div>
                           </div>
+                        </td>
+                        <td className="wp-proj-count-cell">
+                          <span className="op-int-icons" aria-label="Intégrations">
+                            {integrationIcon({ title: 'Webhook', icon: 'fa-plug', enabled: webhookOn })}
+                            {integrationIcon({ title: 'Messagerie', icon: 'fa-envelope', enabled: imapOn })}
+                            {integrationIcon({ title: 'Téléphone', icon: 'fa-phone-alt', enabled: phoneOn })}
+                            {integrationIcon({ title: 'Formulaire interne', icon: 'fa-clipboard-list', enabled: internalOn })}
+                          </span>
                         </td>
                         <td className="wp-proj-count-cell">
                           <span className="wp-proj-count-inner">
