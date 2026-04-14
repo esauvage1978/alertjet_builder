@@ -665,9 +665,6 @@ export default function ProjectEditPage() {
                           inputMode="tel"
                           placeholder="+33 1 23 45 67 89"
                         />
-                        <p className="op-project-edit__hint small mb-0 mt-1">
-                          Obligatoire tant que l’intégration Téléphone est activée.
-                        </p>
                       </div>
                       <div className="form-group">
                         <label htmlFor="pe-phone-emergency">Urgences (optionnel)</label>
