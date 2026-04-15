@@ -123,6 +123,9 @@ final class SpaHtmlRedirectSubscriber implements EventSubscriberInterface
             'admin_audit_actions' => '/app/admin/audit/actions',
             'admin_audit_errors' => '/app/admin/audit/erreurs',
             'admin_audit_error_show' => '/app/admin/audit/erreurs/'.$r->attributes->get('id'),
+            'admin_imap_fetch_inbox_runs' => '/app/admin/imap/fetch-inbox',
+            'admin_imap_fetch_inbox_run_show' => '/app/admin/imap/fetch-inbox/'.$r->attributes->get('id'),
+            'admin_options_index' => '/app/admin/options',
             default => null,
         };
     }

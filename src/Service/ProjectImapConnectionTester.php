@@ -44,29 +44,106 @@ final class ProjectImapConnectionTester
             return new ImapTestResult(false, 'org.projects.imap_test.decrypt_failed');
         }
 
-        $mailbox = $this->buildMailboxUri($project);
+        $serverOnly = $this->buildServerOnlyMailboxUri($project);
+        $folder = trim((string) $project->getImapMailbox());
+        if ($folder === '') {
+            $folder = 'INBOX';
+        }
+        $fullMailbox = $serverOnly.$folder;
+
         \set_error_handler(static function (int $errno, string $errstr): bool {
             return true;
         });
 
         try {
-            $conn = @\imap_open($mailbox, $user, $password, \OP_HALFOPEN);
+            \imap_errors();
+
+            // 1) Connexion + authentification sans ouvrir de dossier (hôte, port, TLS, identifiants).
+            $conn = @\imap_open($serverOnly, $user, $password, \OP_HALFOPEN);
+            $firstErr = (string) (\imap_last_error() ?: '');
+            \imap_errors();
+
+            if ($conn === false) {
+                // Certains serveurs exigent un nom de boîte dans l’URI même en OP_HALFOPEN.
+                $conn = @\imap_open($serverOnly.'INBOX', $user, $password, \OP_HALFOPEN);
+                $secondErr = (string) (\imap_last_error() ?: '');
+                \imap_errors();
+
+                if ($conn === false) {
+                    $err = $firstErr !== '' ? $firstErr : $secondErr;
+                    $kind = ImapConnectionErrorClassifier::classifyConnectionFailure($err);
+
+                    return new ImapTestResult(
+                        false,
+                        self::messageKeyForConnectionKind($kind),
+                        ['%error%' => $err !== '' ? $err : '—'],
+                        $kind,
+                    );
+                }
+
+                // Connecté via {serveur}INBOX : vérifier le dossier demandé si différent.
+                if (\strcasecmp($folder, 'INBOX') !== 0) {
+                    if (!@\imap_reopen($conn, $fullMailbox)) {
+                        $mErr = (string) (\imap_last_error() ?: '');
+                        \imap_errors();
+                        \imap_close($conn);
+
+                        return new ImapTestResult(
+                            false,
+                            'org.projects.imap_test.failed_mailbox',
+                            [
+                                '%folder%' => $folder,
+                                '%error%' => $mErr !== '' ? $mErr : '—',
+                            ],
+                            'mailbox',
+                        );
+                    }
+                }
+
+                \imap_close($conn);
+
+                return new ImapTestResult(true, 'org.projects.imap_test.ok');
+            }
+
+            // 2) Dossier IMAP (présence / droits sur la boîte sélectionnée).
+            if (!@\imap_reopen($conn, $fullMailbox)) {
+                $mErr = (string) (\imap_last_error() ?: '');
+                \imap_errors();
+                \imap_close($conn);
+
+                return new ImapTestResult(
+                    false,
+                    'org.projects.imap_test.failed_mailbox',
+                    [
+                        '%folder%' => $folder,
+                        '%error%' => $mErr !== '' ? $mErr : '—',
+                    ],
+                    'mailbox',
+                );
+            }
+
+            \imap_close($conn);
         } finally {
             \restore_error_handler();
         }
 
-        if ($conn === false) {
-            $err = \imap_last_error() ?: '';
-
-            return new ImapTestResult(false, 'org.projects.imap_test.failed', ['%error%' => $err]);
-        }
-
-        \imap_close($conn);
-
         return new ImapTestResult(true, 'org.projects.imap_test.ok');
     }
 
-    private function buildMailboxUri(Project $project): string
+    /**
+     * @return 'credentials'|'tls'|'host_port'|'unknown'
+     */
+    private static function messageKeyForConnectionKind(string $kind): string
+    {
+        return match ($kind) {
+            'credentials' => 'org.projects.imap_test.failed_credentials',
+            'tls' => 'org.projects.imap_test.failed_tls',
+            'host_port' => 'org.projects.imap_test.failed_host_port',
+            default => 'org.projects.imap_test.failed_unknown',
+        };
+    }
+
+    private function buildServerOnlyMailboxUri(Project $project): string
     {
         $host = trim((string) $project->getImapHost());
         $port = $project->getImapPort();
@@ -74,11 +151,7 @@ final class ProjectImapConnectionTester
         if ($project->isImapTls()) {
             $flags .= '/ssl';
         }
-        $folder = trim($project->getImapMailbox());
-        if ($folder === '') {
-            $folder = 'INBOX';
-        }
 
-        return sprintf('{%s:%d%s}%s', $host, $port, $flags, $folder);
+        return sprintf('{%s:%d%s}', $host, $port, $flags);
     }
 }

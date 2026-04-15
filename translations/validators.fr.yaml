@@ -26,3 +26,7 @@ validation.project_emergency_phone.max: 'Le champ urgence est trop long ({{ limi
 validation.project_description.max: 'La description est trop longue ({{ limit }} caractères max.).'
 validation.project_accent_color.not_blank: 'Indiquez une couleur (format #RRGGBB).'
 validation.project_accent_color.invalid: 'Couleur attendue au format #RRGGBB (ex. #3b82f6).'
+validation.project_accent_text_color.not_blank: 'Indiquez une couleur de texte (#RRGGBB).'
+validation.project_accent_text_color.invalid: 'Couleur de texte attendue au format #RRGGBB.'
+validation.project_accent_border_color.not_blank: 'Indiquez une couleur de bordure (#RRGGBB).'
+validation.project_accent_border_color.invalid: 'Couleur de bordure attendue au format #RRGGBB.'

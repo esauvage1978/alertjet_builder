@@ -6,6 +6,11 @@ import { ErrorAlert } from '../../components/ui/ErrorAlert.jsx';
 import { LoadingState } from '../../components/ui/LoadingState.jsx';
 import { useAsyncResource } from '../../hooks/useAsyncResource.js';
 import { useBootstrap } from '../../context/BootstrapContext.jsx';
+import {
+  contrastTextForBackground,
+  darkenBorderHex,
+  normalizeHex,
+} from '../../js/projectAccentColors.js';
 
 function formatMinutes(n) {
   if (n == null || n === '') return '—';
@@ -81,10 +86,9 @@ export default function ProjectViewPage() {
   const p = data.project;
   const created = p.createdAt ? new Date(p.createdAt).toLocaleString('fr-FR') : '—';
   const handlers = Array.isArray(p.handlers) ? p.handlers : [];
-  const accentColor =
-    typeof p.accentColor === 'string' && /^#[0-9A-Fa-f]{6}$/.test(p.accentColor.trim())
-      ? p.accentColor.trim()
-      : '#64748b';
+  const accentBg = normalizeHex(p.accentColor) || '#64748b';
+  const accentFg = normalizeHex(p.accentTextColor) || contrastTextForBackground(accentBg);
+  const accentBd = normalizeHex(p.accentBorderColor) || darkenBorderHex(accentBg);
 
   const phoneOn = Boolean(p.phoneIntegrationEnabled);
   const internalFormOn = Boolean(p.internalFormIntegrationEnabled);
@@ -162,14 +166,14 @@ export default function ProjectViewPage() {
                       width: 26,
                       height: 26,
                       borderRadius: 999,
-                      backgroundColor: accentColor,
-                      color: '#fff',
+                      backgroundColor: accentBg,
+                      color: accentFg,
                       fontWeight: 700,
                       letterSpacing: '0.02em',
                       fontSize: '0.75rem',
-                      border: '1px solid rgba(0,0,0,0.08)',
+                      border: `1px solid ${accentBd}`,
                     }}
-                    title={`Couleur du projet : ${accentColor}`}
+                    title={`Couleurs du projet : ${accentBg} / ${accentFg} / ${accentBd}`}
                     aria-label={`Initiales ${h.initials}`}
                   >
                     {h.initials}

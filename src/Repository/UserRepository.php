@@ -76,6 +76,12 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
             ->setParameter('orgId', $organization->getId())
             ->orderBy('u.email', 'ASC');
 
+        // Par défaut, on n'affiche pas les comptes "client" dans la liste des membres internes.
+        // Ils sont gérés dans /organisation/clients (accès portail).
+        if ($roleKey !== 'client') {
+            $qb->andWhere('u.roles NOT LIKE :rClientDefault')->setParameter('rClientDefault', '%ROLE_CLIENT%');
+        }
+
         if ($search !== null && trim($search) !== '') {
             $needle = '%'.mb_strtolower(trim($search)).'%';
             $qb->andWhere(
@@ -94,6 +100,7 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
                     $qb->andWhere('u.roles LIKE :rolePattern')->setParameter('rolePattern', '%ROLE_GESTIONNAIRE%');
                     break;
                 case 'client':
+                    // Si on filtre explicitement "client", on annule l'exclusion par défaut.
                     $qb->andWhere('u.roles LIKE :rolePattern')->setParameter('rolePattern', '%ROLE_CLIENT%');
                     break;
                 case 'user':

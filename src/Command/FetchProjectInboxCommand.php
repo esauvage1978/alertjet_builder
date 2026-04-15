@@ -7,6 +7,7 @@ namespace App\Command;
 use App\Entity\Project;
 use App\Repository\ProjectRepository;
 use App\Service\ProjectImapInboxService;
+use App\Service\ImapFetchReportWriter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,6 +21,7 @@ final class FetchProjectInboxCommand extends Command
     public function __construct(
         private readonly ProjectRepository $projectRepository,
         private readonly ProjectImapInboxService $projectImapInboxService,
+        private readonly ImapFetchReportWriter $imapFetchReportWriter,
     ) {
         parent::__construct();
     }
@@ -54,16 +56,26 @@ final class FetchProjectInboxCommand extends Command
         }
 
         $total = 0;
+        $run = $this->imapFetchReportWriter->startRun($projectId !== null && $projectId !== '' ? (int) $projectId : null);
         foreach ($projects as $project) {
             if (!$project->isImapEnabled()) {
                 continue;
             }
-            $n = $this->projectImapInboxService->fetchAndIngestUnread($project);
-            $total += $n;
-            if ($n > 0) {
-                $io->writeln(sprintf('Projet #%d (%s) : %d message(s) importé(s).', $project->getId(), $project->getName(), $n));
+            $stats = $this->projectImapInboxService->fetchAndIngestUnread($project);
+            $this->imapFetchReportWriter->addProjectResult($run, $project, $stats);
+            $total += $stats->ticketsCreated;
+            if ($stats->unseenCount > 0 || $stats->failureCount > 0) {
+                $io->writeln(sprintf(
+                    'Projet #%d (%s) : %d mail(s) non lu(s), %d ticket(s) créé(s), %d échec(s).',
+                    $project->getId(),
+                    $project->getName(),
+                    $stats->unseenCount,
+                    $stats->ticketsCreated,
+                    $stats->failureCount,
+                ));
             }
         }
+        $this->imapFetchReportWriter->finishRun($run);
 
         $io->success(sprintf('Terminé. %d ticket(s) / fusion(s) au total.', $total));
 

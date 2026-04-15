@@ -46,9 +46,17 @@ class Project
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    /** Couleur d’affichage (#RRGGBB), ex. pastille dans les listes de tickets. */
+    /** Couleur de fond de la pastille (#RRGGBB). */
     #[ORM\Column(name: 'accent_color', length: 7, options: ['default' => '#64748b'])]
     private string $accentColor = '#64748b';
+
+    /** Couleur du texte sur la pastille (#RRGGBB). */
+    #[ORM\Column(name: 'accent_text_color', length: 7, options: ['default' => '#ffffff'])]
+    private string $accentTextColor = '#ffffff';
+
+    /** Couleur de bordure de la pastille (#RRGGBB). */
+    #[ORM\Column(name: 'accent_border_color', length: 7, options: ['default' => '#475569'])]
+    private string $accentBorderColor = '#475569';
 
     #[ORM\Column(length: 64, unique: true)]
     private string $webhookToken;
@@ -102,6 +110,30 @@ class Project
     /** Objectif résolution (minutes). */
     #[ORM\Column(nullable: true)]
     private ?int $slaResolveTargetMinutes = null;
+
+    /** Objectifs SLA par type (minutes) — prise en charge (Incident/Problème/Demande). */
+    #[ORM\Column(nullable: true)]
+    private ?int $slaIncidentAckTargetMinutes = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $slaProblemAckTargetMinutes = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $slaRequestAckTargetMinutes = null;
+
+    /** Objectifs SLA par type (minutes) — résolution (Incident/Problème/Demande). */
+    #[ORM\Column(nullable: true)]
+    private ?int $slaIncidentResolveTargetMinutes = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $slaProblemResolveTargetMinutes = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $slaRequestResolveTargetMinutes = null;
+
+    /** Clôture automatique : délai après résolution (heures). */
+    #[ORM\Column(options: ['default' => 48])]
+    private int $autoCloseResolvedAfterHours = 48;
 
     /**
      * Afficher l’intégration webhook dans l’UI (l’URL API /api/webhook/{org}/{projet}/{secret} reste valide si désactivé).
@@ -225,6 +257,32 @@ class Project
         return $this;
     }
 
+    public function getAccentTextColor(): string
+    {
+        return $this->accentTextColor;
+    }
+
+    public function setAccentTextColor(string $accentTextColor): self
+    {
+        $accentTextColor = strtolower(trim($accentTextColor));
+        $this->accentTextColor = $accentTextColor;
+
+        return $this;
+    }
+
+    public function getAccentBorderColor(): string
+    {
+        return $this->accentBorderColor;
+    }
+
+    public function setAccentBorderColor(string $accentBorderColor): self
+    {
+        $accentBorderColor = strtolower(trim($accentBorderColor));
+        $this->accentBorderColor = $accentBorderColor;
+
+        return $this;
+    }
+
     /** Couleur prédéfinie pour les nouveaux projets (choix aléatoire dans une palette lisible). */
     public static function randomAccentColor(): string
     {
@@ -234,6 +292,54 @@ class Project
         ];
 
         return $palette[array_rand($palette)];
+    }
+
+    /** Texte lisible (#RRGGBB) sur un fond hex. */
+    public static function suggestedTextColorForBackground(string $hex): string
+    {
+        $hex = strtolower(trim($hex));
+        if (!preg_match('/^#[0-9a-f]{6}$/', $hex)) {
+            return '#ffffff';
+        }
+        $r = hexdec(substr($hex, 1, 2));
+        $g = hexdec(substr($hex, 3, 2));
+        $b = hexdec(substr($hex, 5, 2));
+        $lr = self::srgbChannelToLinear($r / 255);
+        $lg = self::srgbChannelToLinear($g / 255);
+        $lb = self::srgbChannelToLinear($b / 255);
+        $l = 0.2126 * $lr + 0.7152 * $lg + 0.0722 * $lb;
+
+        return $l > 0.55 ? '#0f172a' : '#ffffff';
+    }
+
+    /** Bordure légèrement plus foncée que le fond. */
+    public static function suggestedBorderColorForBackground(string $hex): string
+    {
+        $hex = strtolower(trim($hex));
+        if (!preg_match('/^#[0-9a-f]{6}$/', $hex)) {
+            return '#475569';
+        }
+        $r = (int) round(hexdec(substr($hex, 1, 2)) * 0.75);
+        $g = (int) round(hexdec(substr($hex, 3, 2)) * 0.75);
+        $b = (int) round(hexdec(substr($hex, 5, 2)) * 0.75);
+
+        return sprintf('#%02x%02x%02x', $r, $g, $b);
+    }
+
+    private static function srgbChannelToLinear(float $c): float
+    {
+        return $c <= 0.04045 ? $c / 12.92 : (($c + 0.055) / 1.055) ** 2.4;
+    }
+
+    /** Applique fond + texte + bordure cohérents à partir d’un fond aléatoire. */
+    public function applyRandomAccentPalette(): self
+    {
+        $bg = self::randomAccentColor();
+        $this->setAccentColor($bg);
+        $this->setAccentTextColor(self::suggestedTextColorForBackground($bg));
+        $this->setAccentBorderColor(self::suggestedBorderColorForBackground($bg));
+
+        return $this;
     }
 
     public function getWebhookToken(): string
@@ -426,6 +532,90 @@ class Project
     public function setSlaResolveTargetMinutes(?int $slaResolveTargetMinutes): self
     {
         $this->slaResolveTargetMinutes = $slaResolveTargetMinutes;
+
+        return $this;
+    }
+
+    public function getSlaIncidentAckTargetMinutes(): ?int
+    {
+        return $this->slaIncidentAckTargetMinutes;
+    }
+
+    public function setSlaIncidentAckTargetMinutes(?int $minutes): self
+    {
+        $this->slaIncidentAckTargetMinutes = $minutes;
+
+        return $this;
+    }
+
+    public function getSlaProblemAckTargetMinutes(): ?int
+    {
+        return $this->slaProblemAckTargetMinutes;
+    }
+
+    public function setSlaProblemAckTargetMinutes(?int $minutes): self
+    {
+        $this->slaProblemAckTargetMinutes = $minutes;
+
+        return $this;
+    }
+
+    public function getSlaRequestAckTargetMinutes(): ?int
+    {
+        return $this->slaRequestAckTargetMinutes;
+    }
+
+    public function setSlaRequestAckTargetMinutes(?int $minutes): self
+    {
+        $this->slaRequestAckTargetMinutes = $minutes;
+
+        return $this;
+    }
+
+    public function getSlaIncidentResolveTargetMinutes(): ?int
+    {
+        return $this->slaIncidentResolveTargetMinutes;
+    }
+
+    public function setSlaIncidentResolveTargetMinutes(?int $minutes): self
+    {
+        $this->slaIncidentResolveTargetMinutes = $minutes;
+
+        return $this;
+    }
+
+    public function getSlaProblemResolveTargetMinutes(): ?int
+    {
+        return $this->slaProblemResolveTargetMinutes;
+    }
+
+    public function setSlaProblemResolveTargetMinutes(?int $minutes): self
+    {
+        $this->slaProblemResolveTargetMinutes = $minutes;
+
+        return $this;
+    }
+
+    public function getSlaRequestResolveTargetMinutes(): ?int
+    {
+        return $this->slaRequestResolveTargetMinutes;
+    }
+
+    public function setSlaRequestResolveTargetMinutes(?int $minutes): self
+    {
+        $this->slaRequestResolveTargetMinutes = $minutes;
+
+        return $this;
+    }
+
+    public function getAutoCloseResolvedAfterHours(): int
+    {
+        return $this->autoCloseResolvedAfterHours;
+    }
+
+    public function setAutoCloseResolvedAfterHours(int $hours): self
+    {
+        $this->autoCloseResolvedAfterHours = max(0, $hours);
 
         return $this;
     }

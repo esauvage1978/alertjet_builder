@@ -160,4 +160,19 @@ class ProjectRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Liste légère des projets (filtres liste tickets), sans jointure gestionnaires.
+     *
+     * @return list<Project>
+     */
+    public function findOrderedForOrganization(Organization $organization): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.organization = :org')
+            ->setParameter('org', $organization)
+            ->orderBy('p.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Dto\ImapFetchProjectStats;
 use App\Entity\Project;
 use App\Service\ApplicationErrorLogger;
 use Psr\Log\LoggerInterface;
@@ -23,26 +24,32 @@ final class ProjectImapInboxService
     }
 
     /**
-     * @return int Nombre de messages traités
+     * @return ImapFetchProjectStats Statistiques d’import
      */
-    public function fetchAndIngestUnread(Project $project): int
+    public function fetchAndIngestUnread(Project $project): ImapFetchProjectStats
     {
         if (!$project->isImapEnabled() || !\function_exists('imap_open')) {
-            return 0;
+            return new ImapFetchProjectStats(0, 0, 0);
         }
 
         $host = trim((string) $project->getImapHost());
         $user = trim((string) $project->getImapUsername());
         $cipher = $project->getImapPasswordCipher();
         if ($host === '' || $user === '' || $cipher === null || $cipher === '') {
-            return 0;
+            return new ImapFetchProjectStats(0, 0, 0);
         }
 
         $password = $this->secretBoxCrypto->decrypt($cipher);
         if ($password === null || $password === '') {
             $this->logger->warning('IMAP: impossible de déchiffrer le mot de passe du projet.', ['projectId' => $project->getId()]);
 
-            return 0;
+            return new ImapFetchProjectStats(0, 0, 1, [
+                [
+                    'type' => 'decrypt_failed',
+                    'message' => 'Impossible de déchiffrer le mot de passe IMAP.',
+                    'context' => ['projectId' => $project->getId()],
+                ],
+            ]);
         }
 
         $mailbox = $this->buildMailboxUri($project);
@@ -58,29 +65,43 @@ final class ProjectImapInboxService
         }
 
         if ($conn === false) {
+            $err = (string) (\imap_last_error() ?: '');
             $this->logger->warning('IMAP: échec de connexion.', [
                 'projectId' => $project->getId(),
-                'error' => \imap_last_error(),
+                'error' => $err,
             ]);
 
-            return 0;
+            return new ImapFetchProjectStats(0, 0, 1, [
+                [
+                    'type' => 'connection_failed',
+                    'message' => $err !== '' ? $err : 'Connexion IMAP échouée.',
+                    'context' => ['projectId' => $project->getId()],
+                ],
+            ], connectionError: $err !== '' ? $err : null);
         }
 
         try {
             $uids = \imap_search($conn, 'UNSEEN', \SE_UID) ?: [];
-            $count = 0;
+            $unseenCount = \is_array($uids) ? \count($uids) : 0;
+            $created = 0;
+            $failures = [];
             foreach ($uids as $uid) {
                 if (!\is_int($uid) && !\is_string($uid)) {
                     continue;
                 }
-                $num = \imap_msgno($conn, (string) $uid);
+                $uidInt = \is_int($uid) ? $uid : (ctype_digit($uid) ? (int) $uid : 0);
+                if ($uidInt <= 0) {
+                    continue;
+                }
+                $num = \imap_msgno($conn, $uidInt);
                 if ($num === 0) {
                     continue;
                 }
 
                 $header = \imap_headerinfo($conn, $num);
                 $subject = '';
-                $fromAddr = null;
+                $fromEmail = null;
+                $fromDisplayName = null;
                 if ($header !== false) {
                     $rawSub = $header->subject ?? '';
                     if (\is_string($rawSub)) {
@@ -90,14 +111,14 @@ final class ProjectImapInboxService
                     if (isset($header->from[0])) {
                         $mbUser = $header->from[0]->mailbox ?? '';
                         $hostPart = $header->from[0]->host ?? '';
+                        if (\is_string($mbUser) && \is_string($hostPart) && $mbUser !== '' && $hostPart !== '') {
+                            $fromEmail = mb_strtolower($mbUser.'@'.$hostPart);
+                        }
                         $personal = $header->from[0]->personal ?? '';
-                        $persDecoded = '';
                         if (\is_string($personal) && $personal !== '') {
                             $dec = \iconv_mime_decode($personal, \ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'UTF-8');
-                            $persDecoded = \is_string($dec) ? $dec : '';
+                            $fromDisplayName = \is_string($dec) && $dec !== '' ? $dec : $personal;
                         }
-                        $fromAddr = ($persDecoded !== '' ? $persDecoded.' ' : '')
-                            .$mbUser.'@'.$hostPart;
                     }
                 }
 
@@ -118,9 +139,17 @@ final class ProjectImapInboxService
                 }
 
                 try {
-                    $this->ticketIngestionService->ingestFromEmail($project, $subject, $body, $messageId, $fromAddr, $mailAttachments);
+                    $this->ticketIngestionService->ingestFromEmail(
+                        $project,
+                        $subject,
+                        $body,
+                        $messageId,
+                        $fromEmail,
+                        $fromDisplayName,
+                        $mailAttachments,
+                    );
                     @\imap_setflag_full($conn, (string) $uid, '\\Seen', \ST_UID);
-                    ++$count;
+                    ++$created;
                 } catch (\Throwable $e) {
                     $this->logger->error('IMAP: erreur lors de la création du ticket.', [
                         'projectId' => $project->getId(),
@@ -131,10 +160,24 @@ final class ProjectImapInboxService
                         'projectId' => $project->getId(),
                         'imapUid' => $uid,
                     ], 'caught');
+                    $failures[] = [
+                        'type' => 'ingest_failed',
+                        'message' => $e->getMessage(),
+                        'context' => [
+                            'projectId' => $project->getId(),
+                            'imapUid' => $uid,
+                            'exceptionClass' => $e::class,
+                        ],
+                    ];
                 }
             }
 
-            return $count;
+            return new ImapFetchProjectStats(
+                unseenCount: $unseenCount,
+                ticketsCreated: $created,
+                failureCount: \count($failures),
+                failures: $failures,
+            );
         } finally {
             \imap_close($conn);
         }

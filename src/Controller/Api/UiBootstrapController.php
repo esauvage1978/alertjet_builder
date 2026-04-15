@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
+use App\AppVersion;
 use App\Controller\AbstractController;
 use App\Entity\Organization;
 use App\Entity\User;
@@ -65,6 +66,8 @@ final class UiBootstrapController extends AbstractController
 
         return $this->json([
             'guest' => false,
+            'appVersion' => AppVersion::semver(),
+            'appVersionLabel' => AppVersion::label(),
             'flashes' => $this->pullFlashes($request),
             'locale' => $locale,
             'i18n' => $this->minimalUiLabels(),
@@ -103,6 +106,8 @@ final class UiBootstrapController extends AbstractController
                 'adminUsers' => $urlGenerator->generate('admin_user_index'),
                 'adminAuditActions' => $urlGenerator->generate('admin_audit_actions'),
                 'adminAuditErrors' => $urlGenerator->generate('admin_audit_errors'),
+                'adminImapFetchInbox' => $urlGenerator->generate('admin_imap_fetch_inbox_runs'),
+                'adminOptions' => $urlGenerator->generate('admin_options_index'),
                 'orgContextSwitch' => $this->organizationContextSwitchUrlPattern($urlGenerator),
             ],
             'csrf' => [
@@ -122,6 +127,8 @@ final class UiBootstrapController extends AbstractController
                 'adminUsers' => '/admin/utilisateurs',
                 'adminAuditActions' => '/admin/audit/actions',
                 'adminAuditErrors' => '/admin/audit/erreurs',
+                'adminImapFetchInbox' => '/admin/imap/fetch-inbox',
+                'adminOptions' => '/admin/options',
             ],
         ]);
     }
@@ -135,6 +142,8 @@ final class UiBootstrapController extends AbstractController
 
         return [
             'guest' => true,
+            'appVersion' => AppVersion::semver(),
+            'appVersionLabel' => AppVersion::label(),
             'flashes' => $this->pullFlashes($request),
             'locale' => $locale,
             'i18n' => array_merge($this->minimalUiLabels(), $this->guestAuthLabels()),
@@ -184,7 +193,7 @@ final class UiBootstrapController extends AbstractController
             'auth_login_tagline' => $this->trans('auth.login.tagline'),
             'auth_login_submit' => $this->trans('auth.login.submit'),
             'auth_login_register' => $this->trans('auth.login.register'),
-            'auth_login_forgot_short' => $this->trans('auth.login.forgot_short'),
+            'auth_login_forgot' => $this->trans('auth.login.forgot'),
             'auth_login_no_account' => $this->trans('auth.login.no_account'),
             'auth_register_heading' => $this->trans('auth.register.heading'),
             'auth_register_tagline' => $this->trans('auth.register.tagline'),
@@ -238,10 +247,13 @@ final class UiBootstrapController extends AbstractController
             'nav_admin_users' => $this->trans('nav.users_admin'),
             'nav_admin_audit_actions' => $this->trans('nav.admin_audit_actions'),
             'nav_admin_audit_errors' => $this->trans('nav.admin_audit_errors'),
+            'nav_admin_imap_fetch_inbox' => $this->trans('nav.admin_imap_fetch_inbox'),
+            'nav_admin_options' => $this->trans('nav.admin_options'),
             'breadcrumb_home' => $this->trans('breadcrumb.home'),
             'breadcrumb_tickets' => $this->trans('breadcrumb.tickets'),
             'breadcrumb_org_clients' => $this->trans('breadcrumb.org_clients'),
             'breadcrumb_ticket_new' => $this->trans('breadcrumb.ticket_new'),
+            'breadcrumb_ticket_detail' => $this->trans('breadcrumb.ticket_detail'),
             'breadcrumb_org_projects' => $this->trans('org.projects.breadcrumb'),
             'breadcrumb_org_projects_edit' => $this->trans('org.projects.breadcrumb_edit'),
             'wizard_steps_progress_aria' => $this->trans('wizard.steps.progress_aria'),

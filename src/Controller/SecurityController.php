@@ -23,6 +23,13 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 final class SecurityController extends AbstractController
 {
+    #[Route('/login', name: 'app_login_short_redirect', methods: ['GET'])]
+    public function loginShortRedirect(): Response
+    {
+        // URL courte publique (liens externes) → URL SPA réelle.
+        return $this->redirectToRoute('app_login', [], Response::HTTP_MOVED_PERMANENTLY);
+    }
+
     #[Route('/connexion', name: 'app_login_check', methods: ['POST'])]
     public function loginCheck(): void
     {

@@ -19,6 +19,9 @@ import AdminUsersPage from './pages/admin/AdminUsersPage.jsx';
 import AdminAuditActionsPage from './pages/admin/AdminAuditActionsPage.jsx';
 import AdminAuditErrorsPage from './pages/admin/AdminAuditErrorsPage.jsx';
 import AdminAuditErrorDetailPage from './pages/admin/AdminAuditErrorDetailPage.jsx';
+import AdminImapFetchInboxRunsPage from './pages/admin/AdminImapFetchInboxRunsPage.jsx';
+import AdminImapFetchInboxRunDetailPage from './pages/admin/AdminImapFetchInboxRunDetailPage.jsx';
+import AdminOptionsPage from './pages/admin/AdminOptionsPage.jsx';
 
 const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage.jsx'));
 const OrganizationUsersPage = lazy(() => import('./pages/organization/OrganizationUsersPage.jsx'));
@@ -27,6 +30,7 @@ const ProjectEditPage = lazy(() => import('./pages/organization/ProjectEditPage.
 const ProjectViewPage = lazy(() => import('./pages/organization/ProjectViewPage.jsx'));
 const TicketsPage = lazy(() => import('./pages/organization/TicketsPage.jsx'));
 const TicketCreatePage = lazy(() => import('./pages/organization/TicketCreatePage.jsx'));
+const TicketEditPage = lazy(() => import('./pages/organization/TicketEditPage.jsx'));
 const OrganizationClientsPage = lazy(() => import('./pages/organization/OrganizationClientsPage.jsx'));
 const ActivityPage = lazy(() => import('./pages/account/ActivityPage.jsx'));
 const StubPage = lazy(() => import('./pages/account/StubPage.jsx'));
@@ -98,6 +102,14 @@ export default function App() {
                 element={
                   <Suspense fallback={<LoadingState message="Chargement de la page…" />}>
                     <TicketCreatePage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="tickets/:ticketId"
+                element={
+                  <Suspense fallback={<LoadingState message="Chargement de la page…" />}>
+                    <TicketEditPage />
                   </Suspense>
                 }
               />
@@ -196,6 +208,9 @@ export default function App() {
               <Route path="admin/audit/actions" element={<AdminAuditActionsPage />} />
               <Route path="admin/audit/erreurs" element={<AdminAuditErrorsPage />} />
               <Route path="admin/audit/erreurs/:id" element={<AdminAuditErrorDetailPage />} />
+              <Route path="admin/imap/fetch-inbox" element={<AdminImapFetchInboxRunsPage />} />
+              <Route path="admin/imap/fetch-inbox/:id" element={<AdminImapFetchInboxRunDetailPage />} />
+              <Route path="admin/options" element={<AdminOptionsPage />} />
             </Route>
           </Route>
 

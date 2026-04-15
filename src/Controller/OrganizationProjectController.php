@@ -104,6 +104,8 @@ final class OrganizationProjectController extends AbstractController
             'name' => $p->getName(),
             'description' => $p->getDescription(),
             'accentColor' => $p->getAccentColor(),
+            'accentTextColor' => $p->getAccentTextColor(),
+            'accentBorderColor' => $p->getAccentBorderColor(),
             'webhookTokenPrefix' => mb_substr($p->getWebhookToken(), 0, 16),
             'createdAt' => $p->getCreatedAt()->format(\DateTimeInterface::ATOM),
             'ticketCount' => $p->getTickets()->count(),
@@ -179,7 +181,7 @@ final class OrganizationProjectController extends AbstractController
 
         $project = (new Project())
             ->setName($name)
-            ->setAccentColor(Project::randomAccentColor())
+            ->applyRandomAccentPalette()
             ->setWebhookToken(bin2hex(random_bytes(16)))
             ->setOrganization($organization);
 
@@ -434,7 +436,12 @@ final class OrganizationProjectController extends AbstractController
         CsrfTokenManagerInterface $csrfTokenManager,
         UserRepository $userRepository,
     ): array {
-        $members = $userRepository->createQueryBuilderMembersOfOrganization($organization)->getQuery()->getResult();
+        // Les clients (ROLE_CLIENT) ne peuvent pas être des membres/gestionnaires de projet.
+        $members = $userRepository->createQueryBuilderMembersOfOrganization($organization)
+            ->andWhere('u.roles NOT LIKE :rClient')
+            ->setParameter('rClient', '%ROLE_CLIENT%')
+            ->getQuery()
+            ->getResult();
 
         return [
             'migrated' => true,
@@ -460,11 +467,20 @@ final class OrganizationProjectController extends AbstractController
                 'name' => $project->getName(),
                 'description' => $project->getDescription(),
                 'accentColor' => $project->getAccentColor(),
+                'accentTextColor' => $project->getAccentTextColor(),
+                'accentBorderColor' => $project->getAccentBorderColor(),
                 'createdAt' => $project->getCreatedAt()->format(\DateTimeInterface::ATOM),
                 'webhookUrl' => $this->generateUrl('api_webhook_receive', $this->webhookRouteParams($organization, $project), UrlGeneratorInterface::ABSOLUTE_URL),
                 'webhookPingUrl' => $this->generateUrl('api_webhook_ping', $this->webhookRouteParams($organization, $project), UrlGeneratorInterface::ABSOLUTE_URL),
                 'slaAckTargetMinutes' => $project->getSlaAckTargetMinutes(),
                 'slaResolveTargetMinutes' => $project->getSlaResolveTargetMinutes(),
+                'slaIncidentAckTargetMinutes' => $project->getSlaIncidentAckTargetMinutes(),
+                'slaProblemAckTargetMinutes' => $project->getSlaProblemAckTargetMinutes(),
+                'slaRequestAckTargetMinutes' => $project->getSlaRequestAckTargetMinutes(),
+                'slaIncidentResolveTargetMinutes' => $project->getSlaIncidentResolveTargetMinutes(),
+                'slaProblemResolveTargetMinutes' => $project->getSlaProblemResolveTargetMinutes(),
+                'slaRequestResolveTargetMinutes' => $project->getSlaRequestResolveTargetMinutes(),
+                'autoCloseResolvedAfterHours' => $project->getAutoCloseResolvedAfterHours(),
                 'imapEnabled' => $project->isImapEnabled(),
                 'imapHost' => $project->getImapHost(),
                 'imapPort' => $project->getImapPort(),
@@ -503,6 +519,13 @@ final class OrganizationProjectController extends AbstractController
                 'webhookPingUrl' => $this->generateUrl('api_webhook_ping', $this->webhookRouteParams($organization, $project), UrlGeneratorInterface::ABSOLUTE_URL),
                 'slaAckTargetMinutes' => $project->getSlaAckTargetMinutes(),
                 'slaResolveTargetMinutes' => $project->getSlaResolveTargetMinutes(),
+                'slaIncidentAckTargetMinutes' => $project->getSlaIncidentAckTargetMinutes(),
+                'slaProblemAckTargetMinutes' => $project->getSlaProblemAckTargetMinutes(),
+                'slaRequestAckTargetMinutes' => $project->getSlaRequestAckTargetMinutes(),
+                'slaIncidentResolveTargetMinutes' => $project->getSlaIncidentResolveTargetMinutes(),
+                'slaProblemResolveTargetMinutes' => $project->getSlaProblemResolveTargetMinutes(),
+                'slaRequestResolveTargetMinutes' => $project->getSlaRequestResolveTargetMinutes(),
+                'autoCloseResolvedAfterHours' => $project->getAutoCloseResolvedAfterHours(),
                 'imapEnabled' => $project->isImapEnabled(),
                 'imapHost' => $project->getImapHost(),
                 'imapPort' => $project->getImapPort(),
@@ -625,6 +648,12 @@ final class OrganizationProjectController extends AbstractController
                 $params['%error%'] = '—';
             }
         }
+        if (!$result->success && isset($params['%folder%'])) {
+            $params['%folder%'] = trim((string) $params['%folder%']);
+            if ($params['%folder%'] === '') {
+                $params['%folder%'] = '—';
+            }
+        }
 
         $message = $this->trans($result->messageKey, $params);
 
@@ -638,6 +667,7 @@ final class OrganizationProjectController extends AbstractController
                 'event' => 'imap_test',
                 'success' => $result->success,
                 'messageKey' => $result->messageKey,
+                'reason' => $result->reason,
             ]),
             $request,
         );
@@ -646,6 +676,7 @@ final class OrganizationProjectController extends AbstractController
             return $this->json([
                 'ok' => $result->success,
                 'message' => $message,
+                'reason' => $result->reason,
             ]);
         }
 

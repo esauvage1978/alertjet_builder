@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Enum\TicketPriority;
+use App\Enum\TicketSource;
 use App\Enum\TicketStatus;
+use App\Enum\TicketType;
 use App\Repository\TicketRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -30,6 +32,26 @@ class Ticket
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Project $project = null;
 
+    /**
+     * Contact externe (émetteur e-mail) rattaché à l’organisation — créé ou réutilisé à l’import IMAP.
+     */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'organization_contact_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?OrganizationContact $organizationContact = null;
+
+    /**
+     * Identifiant Message-ID du message e-mail ayant créé le ticket (référence RFC 5322).
+     */
+    #[ORM\Column(name: 'incoming_email_message_id', length: 255, nullable: true)]
+    private ?string $incomingEmailMessageId = null;
+
+    /**
+     * Membre du projet (gestionnaire de tickets) responsable du traitement.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'assignee_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?User $assignee = null;
+
     #[ORM\Column(length: 255)]
     private string $title;
 
@@ -37,13 +59,16 @@ class Ticket
     private ?string $description = null;
 
     #[ORM\Column(length: 20, enumType: TicketStatus::class)]
-    private TicketStatus $status = TicketStatus::Open;
+    private TicketStatus $status = TicketStatus::New;
 
     #[ORM\Column(length: 20, enumType: TicketPriority::class)]
     private TicketPriority $priority = TicketPriority::Medium;
 
-    #[ORM\Column(length: 32)]
-    private string $source = 'webhook';
+    #[ORM\Column(length: 20, enumType: TicketType::class)]
+    private TicketType $type = TicketType::Incident;
+
+    #[ORM\Column(length: 32, enumType: TicketSource::class)]
+    private TicketSource $source = TicketSource::Webhook;
 
     #[ORM\Column(length: 64)]
     private string $fingerprint = '';
@@ -58,7 +83,22 @@ class Ticket
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $acknowledgedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $closedAt = null;
+
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $resolvedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $cancelledAt = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $onHoldReason = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $cancelReason = null;
 
     /** @var Collection<int, TicketLog> */
     #[ORM\OneToMany(targetEntity: TicketLog::class, mappedBy: 'ticket', cascade: ['persist'], orphanRemoval: true)]
@@ -70,12 +110,18 @@ class Ticket
     #[ORM\OrderBy(['createdAt' => 'ASC'])]
     private Collection $attachments;
 
+    /** @var Collection<int, TicketMessage> */
+    #[ORM\OneToMany(targetEntity: TicketMessage::class, mappedBy: 'ticket', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['createdAt' => 'ASC'])]
+    private Collection $messages;
+
     public function __construct()
     {
         $this->publicId = Uuid::v4();
         $this->createdAt = new \DateTimeImmutable();
         $this->logs = new ArrayCollection();
         $this->attachments = new ArrayCollection();
+        $this->messages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -96,6 +142,42 @@ class Ticket
     public function setProject(?Project $project): self
     {
         $this->project = $project;
+
+        return $this;
+    }
+
+    public function getOrganizationContact(): ?OrganizationContact
+    {
+        return $this->organizationContact;
+    }
+
+    public function setOrganizationContact(?OrganizationContact $organizationContact): self
+    {
+        $this->organizationContact = $organizationContact;
+
+        return $this;
+    }
+
+    public function getIncomingEmailMessageId(): ?string
+    {
+        return $this->incomingEmailMessageId;
+    }
+
+    public function setIncomingEmailMessageId(?string $incomingEmailMessageId): self
+    {
+        $this->incomingEmailMessageId = $incomingEmailMessageId;
+
+        return $this;
+    }
+
+    public function getAssignee(): ?User
+    {
+        return $this->assignee;
+    }
+
+    public function setAssignee(?User $assignee): self
+    {
+        $this->assignee = $assignee;
 
         return $this;
     }
@@ -132,11 +214,31 @@ class Ticket
     public function setStatus(TicketStatus $status): self
     {
         $this->status = $status;
+        $now = new \DateTimeImmutable();
+
+        if ($status === TicketStatus::Acknowledged && $this->acknowledgedAt === null) {
+            $this->acknowledgedAt = $now;
+        }
+
         if ($status === TicketStatus::Resolved && $this->resolvedAt === null) {
-            $this->resolvedAt = new \DateTimeImmutable();
+            $this->resolvedAt = $now;
         }
         if ($status !== TicketStatus::Resolved) {
             $this->resolvedAt = null;
+        }
+
+        if ($status === TicketStatus::Closed && $this->closedAt === null) {
+            $this->closedAt = $now;
+        }
+        if ($status !== TicketStatus::Closed) {
+            $this->closedAt = null;
+        }
+
+        if ($status === TicketStatus::Cancelled && $this->cancelledAt === null) {
+            $this->cancelledAt = $now;
+        }
+        if ($status !== TicketStatus::Cancelled) {
+            $this->cancelledAt = null;
         }
 
         return $this;
@@ -154,12 +256,24 @@ class Ticket
         return $this;
     }
 
-    public function getSource(): string
+    public function getType(): TicketType
+    {
+        return $this->type;
+    }
+
+    public function setType(TicketType $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getSource(): TicketSource
     {
         return $this->source;
     }
 
-    public function setSource(string $source): self
+    public function setSource(TicketSource $source): self
     {
         $this->source = $source;
 
@@ -214,9 +328,48 @@ class Ticket
         return $this->createdAt;
     }
 
+    public function getAcknowledgedAt(): ?\DateTimeImmutable
+    {
+        return $this->acknowledgedAt;
+    }
+
     public function getResolvedAt(): ?\DateTimeImmutable
     {
         return $this->resolvedAt;
+    }
+
+    public function getClosedAt(): ?\DateTimeImmutable
+    {
+        return $this->closedAt;
+    }
+
+    public function getCancelledAt(): ?\DateTimeImmutable
+    {
+        return $this->cancelledAt;
+    }
+
+    public function getOnHoldReason(): ?string
+    {
+        return $this->onHoldReason;
+    }
+
+    public function setOnHoldReason(?string $onHoldReason): self
+    {
+        $this->onHoldReason = $onHoldReason;
+
+        return $this;
+    }
+
+    public function getCancelReason(): ?string
+    {
+        return $this->cancelReason;
+    }
+
+    public function setCancelReason(?string $cancelReason): self
+    {
+        $this->cancelReason = $cancelReason;
+
+        return $this;
     }
 
     /** @return Collection<int, TicketAttachment> */
@@ -253,6 +406,22 @@ class Ticket
         if (!$this->logs->contains($log)) {
             $this->logs->add($log);
             $log->setTicket($this);
+        }
+
+        return $this;
+    }
+
+    /** @return Collection<int, TicketMessage> */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(TicketMessage $message): self
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setTicket($this);
         }
 
         return $this;

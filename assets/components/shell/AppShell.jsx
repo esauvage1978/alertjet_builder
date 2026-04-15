@@ -30,7 +30,7 @@ export default function AppShell() {
   const { data } = useBootstrap();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, flags, routes, spaPaths, i18n, organizations, currentOrganization } = data;
+  const { user, flags, routes, spaPaths, i18n, organizations, currentOrganization, appVersionLabel } = data;
   const hideSidebar = flags.hideAppSidebar;
   /** Parcours initialisation / finalisation profil : pas de barre supérieure ni fil d’Ariane global. */
   const hideMainHeader = flags.hideAppSidebar;
@@ -44,6 +44,9 @@ export default function AppShell() {
   const shortProjectsViewMatch = path.match(/^\/projects\/([^/]+)\/?$/);
   const isShortProjectsList = path === '/projects' || path === '/projects/';
   const isTicketsNewPage = path === '/tickets/new' || path === '/tickets/new/';
+  const ticketDetailMatch = path.match(/^\/tickets\/(\d+)\/?$/);
+  const isTicketDetailPage = ticketDetailMatch !== null;
+  const ticketDetailId = ticketDetailMatch?.[1] ?? null;
   const isOrgClientsPage = path === '/organization/clients' || path === '/organization/clients/';
   const isTicketsPage = path === '/tickets' || path === '/tickets/';
   const isOrgProjectsList = orgProjectsListMatch !== null || isShortProjectsList;
@@ -175,6 +178,21 @@ export default function AppShell() {
                         {i18n.breadcrumb_ticket_new}
                       </li>
                     </>
+                  ) : isTicketDetailPage && ticketDetailId ? (
+                    <>
+                      <li className="breadcrumb-item">
+                        <Link to="/tickets" className="main-header-breadcrumb__link">
+                          {i18n.breadcrumb_tickets}
+                        </Link>
+                      </li>
+                      <li
+                        className="breadcrumb-item active text-truncate main-header-breadcrumb__current"
+                        aria-current="page"
+                        title={ticketDetailId}
+                      >
+                        {(i18n.breadcrumb_ticket_detail || 'Ticket #{id}').replace(/\{id\}/g, ticketDetailId)}
+                      </li>
+                    </>
                   ) : isOrgClientsPage ? (
                     <li className="breadcrumb-item active text-truncate main-header-breadcrumb__current" aria-current="page">
                       {i18n.breadcrumb_org_clients}
@@ -282,6 +300,11 @@ export default function AppShell() {
       {!hideMainHeader ? (
         <footer className="main-footer text-sm">
           <strong className="app-brand-html" dangerouslySetInnerHTML={{ __html: i18n.brand_html }} /> — {i18n.footer_tagline}
+          {typeof appVersionLabel === 'string' && appVersionLabel !== '' ? (
+            <span className="text-muted ml-2" title="Version de l’application">
+              {appVersionLabel}
+            </span>
+          ) : null}
         </footer>
       ) : null}
     </div>

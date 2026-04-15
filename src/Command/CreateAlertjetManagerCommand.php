@@ -118,7 +118,7 @@ final class CreateAlertjetManagerCommand extends Command
         if ($organization->getProjects()->isEmpty()) {
             $defaultProjectCreated = (new Project())
                 ->setName(self::DEFAULT_PROJECT_NAME)
-                ->setAccentColor(Project::randomAccentColor())
+                ->applyRandomAccentPalette()
                 ->setWebhookToken(bin2hex(random_bytes(16)));
             $organization->addProject($defaultProjectCreated);
             $this->entityManager->persist($defaultProjectCreated);

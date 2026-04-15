@@ -6,9 +6,11 @@ namespace App\Controller\Api;
 
 use App\Controller\AbstractController;
 use App\Entity\ApplicationErrorLog;
+use App\Entity\ImapFetchRun;
 use App\Entity\Option;
 use App\Entity\User;
 use App\Repository\ApplicationErrorLogRepository;
+use App\Repository\ImapFetchRunRepository;
 use App\Repository\OptionRepository;
 use App\Repository\OrganizationRepository;
 use App\Repository\UserActionLogRepository;
@@ -28,6 +30,8 @@ final class AdminJsonApiController extends AbstractController
     private const USERS_PER_PAGE = 20;
 
     private const AUDIT_PER_PAGE = 40;
+
+    private const IMAP_RUNS_PER_PAGE = 50;
 
     #[Route('/organisations', name: 'api_admin_organisations', methods: ['GET'])]
     public function organizations(OrganizationRepository $organizationRepository): JsonResponse
@@ -327,6 +331,98 @@ final class AdminJsonApiController extends AbstractController
         $em->flush();
 
         return $this->json(['ok' => true]);
+    }
+
+    #[Route('/imap/fetch-inbox/runs', name: 'api_admin_imap_fetch_inbox_runs', methods: ['GET'])]
+    public function imapFetchInboxRuns(Request $request, ImapFetchRunRepository $imapFetchRunRepository): JsonResponse
+    {
+        $page = max(1, (int) $request->query->get('page', 1));
+        $perPage = self::IMAP_RUNS_PER_PAGE;
+        $p = $imapFetchRunRepository->createAdminPaginator($page, $perPage);
+
+        $total = $p->count();
+        $pageCount = (int) ceil($total / $perPage);
+
+        $rows = [];
+        /** @var ImapFetchRun $r */
+        foreach ($p as $r) {
+            $rows[] = [
+                'id' => $r->getId(),
+                'startedAt' => $r->getStartedAt()->format(\DateTimeInterface::ATOM),
+                'finishedAt' => $r->getFinishedAt()?->format(\DateTimeInterface::ATOM),
+                'durationMs' => $r->getDurationMs(),
+                'projectFilterId' => $r->getProjectFilterId(),
+                'retentionDays' => $r->getRetentionDays(),
+                'totalOrganizations' => $r->getTotalOrganizations(),
+                'totalProjects' => $r->getTotalProjects(),
+                'totalUnseen' => $r->getTotalUnseen(),
+                'totalTickets' => $r->getTotalTickets(),
+                'totalFailures' => $r->getTotalFailures(),
+            ];
+        }
+
+        return $this->json([
+            'runs' => $rows,
+            'pagination' => [
+                'page' => $page,
+                'pageCount' => $pageCount,
+                'total' => $total,
+                'perPage' => $perPage,
+            ],
+        ]);
+    }
+
+    #[Route('/imap/fetch-inbox/runs/{id}', name: 'api_admin_imap_fetch_inbox_run_show', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function imapFetchInboxRunShow(int $id, ImapFetchRunRepository $imapFetchRunRepository): JsonResponse
+    {
+        $run = $imapFetchRunRepository->find($id);
+        if (!$run instanceof ImapFetchRun) {
+            return $this->json(['error' => 'not_found'], 404);
+        }
+
+        $projects = [];
+        foreach ($run->getProjects() as $p) {
+            $projects[] = [
+                'id' => $p->getId(),
+                'organizationId' => $p->getOrganization()?->getId(),
+                'organizationName' => $p->getOrganizationName(),
+                'projectId' => $p->getProject()?->getId(),
+                'projectName' => $p->getProjectName(),
+                'imapHost' => $p->getImapHost(),
+                'imapPort' => $p->getImapPort(),
+                'imapTls' => $p->isImapTls(),
+                'imapMailbox' => $p->getImapMailbox(),
+                'unseenCount' => $p->getUnseenCount(),
+                'ticketsCreated' => $p->getTicketsCreated(),
+                'failureCount' => $p->getFailureCount(),
+                'connectionError' => $p->getConnectionError(),
+                'mailboxError' => $p->getMailboxError(),
+                'failures' => $p->getFailuresJson(),
+            ];
+        }
+
+        usort($projects, static function (array $a, array $b): int {
+            $c = strcmp((string) $a['organizationName'], (string) $b['organizationName']);
+            if ($c !== 0) return $c;
+            return strcmp((string) $a['projectName'], (string) $b['projectName']);
+        });
+
+        return $this->json([
+            'run' => [
+                'id' => $run->getId(),
+                'startedAt' => $run->getStartedAt()->format(\DateTimeInterface::ATOM),
+                'finishedAt' => $run->getFinishedAt()?->format(\DateTimeInterface::ATOM),
+                'durationMs' => $run->getDurationMs(),
+                'projectFilterId' => $run->getProjectFilterId(),
+                'retentionDays' => $run->getRetentionDays(),
+                'totalOrganizations' => $run->getTotalOrganizations(),
+                'totalProjects' => $run->getTotalProjects(),
+                'totalUnseen' => $run->getTotalUnseen(),
+                'totalTickets' => $run->getTotalTickets(),
+                'totalFailures' => $run->getTotalFailures(),
+            ],
+            'projects' => $projects,
+        ]);
     }
 
     /**

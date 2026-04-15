@@ -23,6 +23,8 @@ final class ProjectAuditHelper
             'name' => $project->getName(),
             'description' => $project->getDescription(),
             'accentColor' => $project->getAccentColor(),
+            'accentTextColor' => $project->getAccentTextColor(),
+            'accentBorderColor' => $project->getAccentBorderColor(),
             'imapEnabled' => $project->isImapEnabled(),
             'imapHost' => $project->getImapHost(),
             'imapPort' => $project->getImapPort(),

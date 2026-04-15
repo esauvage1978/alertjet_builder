@@ -71,14 +71,9 @@ export default function LoginPage() {
           />
         </div>
         <div className="auth-field">
-          <div className="auth-field__label-row">
-            <label className="auth-field__label" htmlFor="password">
-              {i18n.form_password}
-            </label>
-            <Link className="auth-field__side-link" to="/mot-de-passe-oublie">
-              {i18n.auth_login_forgot_short}
-            </Link>
-          </div>
+          <label className="auth-field__label" htmlFor="password">
+            {i18n.form_password}
+          </label>
           <input
             id="password"
             className="auth-field__input"
@@ -93,10 +88,15 @@ export default function LoginPage() {
           {i18n.auth_login_submit}
         </button>
       </form>
-      <footer className="auth-card__links auth-card__links--footer">
-        <span className="auth-card__links-label">{i18n.auth_login_no_account}</span>
-        <Link to="/inscription" className="auth-card__links-cta">
-          {i18n.auth_login_register}
+      <footer className="auth-card__links auth-card__links--footer auth-card__links--stacked">
+        <div className="auth-card__links-register-row">
+          <span className="auth-card__links-label">{i18n.auth_login_no_account}</span>
+          <Link to="/inscription" className="auth-card__links-cta">
+            {i18n.auth_login_register}
+          </Link>
+        </div>
+        <Link className="auth-card__forgot-below-link" to="/mot-de-passe-oublie">
+          {i18n.auth_login_forgot}
         </Link>
       </footer>
     </>

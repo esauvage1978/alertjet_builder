@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 /**
@@ -9,6 +9,24 @@ import { NavLink, useLocation } from 'react-router-dom';
 export default function MainSidebarNav({ data }) {
   const location = useLocation();
   const { routes, i18n, organizations, currentOrganization: org, flags, spaPaths } = data;
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return window.localStorage.getItem('aj_sidebar_collapsed') === '1';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('aj_sidebar_collapsed', collapsed ? '1' : '0');
+    } catch {
+      // ignore
+    }
+    if (typeof document !== 'undefined') {
+      document.body.classList.toggle('sidebar-is-collapsed', collapsed);
+    }
+  }, [collapsed]);
 
   const sections = useMemo(() => buildNavSections({ flags, spaPaths, i18n, organizations, org }), [
     flags,
@@ -27,6 +45,16 @@ export default function MainSidebarNav({ data }) {
         </div>
       </a>
 
+      <button
+        type="button"
+        className="admin-sidebar-toggle"
+        onClick={() => setCollapsed((v) => !v)}
+        aria-label={collapsed ? 'Déplier le menu' : 'Réduire le menu'}
+        title={collapsed ? 'Déplier le menu' : 'Réduire le menu'}
+      >
+        <i className={`fas ${collapsed ? 'fa-angle-double-right' : 'fa-angle-double-left'}`} aria-hidden="true" />
+      </button>
+
       <div className="sidebar sidebar--stack main-sidebar__charte">
         <nav className="admin-nav sidebar__nav" aria-label="Navigation principale">
           {sections.map((section, si) => (
@@ -40,8 +68,9 @@ export default function MainSidebarNav({ data }) {
                   to={item.to}
                   end={item.end ?? false}
                   className={({ isActive }) => {
-                    const manual = typeof item.isActive === 'function' ? item.isActive(location.pathname) : false;
-                    const active = isActive || manual;
+                    const hasManual = typeof item.isActive === 'function';
+                    const manual = hasManual ? item.isActive(location.pathname) : false;
+                    const active = hasManual ? manual : isActive;
                     return `admin-nav-item${active ? ' active' : ''}`;
                   }}
                 >
@@ -178,6 +207,12 @@ function buildNavSections({ flags, spaPaths, i18n, organizations, org }) {
         to: spaPaths.organizationTickets,
         label: i18n.nav_tickets,
         icon: 'fa-ticket-alt',
+        // Ne pas activer sur /tickets/new (sinon double sélection).
+        isActive: (pathname) =>
+          (pathname === '/tickets' ||
+            pathname === '/tickets/' ||
+            /^\/tickets\/\d+\/?$/.test(pathname)) &&
+          !(pathname === '/tickets/new' || pathname === '/tickets/new/'),
       });
     }
   }
@@ -230,6 +265,23 @@ function buildNavSections({ flags, spaPaths, i18n, organizations, org }) {
           label: i18n.nav_admin_audit_errors,
           icon: 'fa-bug',
         },
+        {
+          id: 'adminOptions',
+          to: spaPaths.adminOptions,
+          label: i18n.nav_admin_options,
+          icon: 'fa-sliders-h',
+          isActive: (pathname) => pathname === '/admin/options' || pathname === '/admin/options/',
+        },
+            {
+              id: 'adminImapFetchInbox',
+              to: spaPaths.adminImapFetchInbox,
+              label: i18n.nav_admin_imap_fetch_inbox,
+              icon: 'fa-envelope-open-text',
+              isActive: (pathname) =>
+                pathname === '/admin/imap/fetch-inbox' ||
+                pathname === '/admin/imap/fetch-inbox/' ||
+                /^\/admin\/imap\/fetch-inbox\/\d+\/?$/.test(pathname),
+            },
       ],
     });
   }

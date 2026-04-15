@@ -26,3 +26,7 @@ validation.project_emergency_phone.max: 'The emergency field is too long (max. {
 validation.project_description.max: 'The description is too long (max. {{ limit }} characters).'
 validation.project_accent_color.not_blank: 'Please set a color (#RRGGBB).'
 validation.project_accent_color.invalid: 'Expected a color like #RRGGBB (e.g. #3b82f6).'
+validation.project_accent_text_color.not_blank: 'Please set a text color (#RRGGBB).'
+validation.project_accent_text_color.invalid: 'Text color must be #RRGGBB.'
+validation.project_accent_border_color.not_blank: 'Please set a border color (#RRGGBB).'
+validation.project_accent_border_color.invalid: 'Border color must be #RRGGBB.'

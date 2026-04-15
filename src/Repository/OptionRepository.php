@@ -46,4 +46,57 @@ final class OptionRepository extends ServiceEntityRepository
 
         return $list;
     }
+
+    public function getIntValue(string $category, string $optionName, ?string $domain, int $default): int
+    {
+        $qb = $this->createQueryBuilder('o')
+            ->andWhere('o.category = :cat')->setParameter('cat', $category)
+            ->andWhere('o.optionName = :name')->setParameter('name', $optionName)
+            ->setMaxResults(1);
+
+        if ($domain !== null) {
+            $qb->andWhere('o.domain = :dom')->setParameter('dom', $domain);
+        } else {
+            $qb->andWhere('o.domain IS NULL');
+        }
+
+        /** @var Option|null $opt */
+        $opt = $qb->getQuery()->getOneOrNullResult();
+        if (!$opt instanceof Option) {
+            return $default;
+        }
+
+        $raw = trim($opt->getOptionValue());
+        if ($raw === '') {
+            return $default;
+        }
+
+        $n = filter_var($raw, \FILTER_VALIDATE_INT);
+
+        return \is_int($n) ? $n : $default;
+    }
+
+    public function getTextValue(string $category, string $optionName, ?string $domain, string $default): string
+    {
+        $qb = $this->createQueryBuilder('o')
+            ->andWhere('o.category = :cat')->setParameter('cat', $category)
+            ->andWhere('o.optionName = :name')->setParameter('name', $optionName)
+            ->setMaxResults(1);
+
+        if ($domain !== null) {
+            $qb->andWhere('o.domain = :dom')->setParameter('dom', $domain);
+        } else {
+            $qb->andWhere('o.domain IS NULL');
+        }
+
+        /** @var Option|null $opt */
+        $opt = $qb->getQuery()->getOneOrNullResult();
+        if (!$opt instanceof Option) {
+            return $default;
+        }
+
+        $raw = trim($opt->getOptionValue());
+
+        return $raw !== '' ? $raw : $default;
+    }
 }

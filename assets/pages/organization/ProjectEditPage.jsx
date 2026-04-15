@@ -7,6 +7,12 @@ import { ErrorAlert } from '../../components/ui/ErrorAlert.jsx';
 import { LoadingState } from '../../components/ui/LoadingState.jsx';
 import { useAsyncResource } from '../../hooks/useAsyncResource.js';
 import { useBootstrap } from '../../context/BootstrapContext.jsx';
+import {
+  contrastTextForBackground,
+  darkenBorderHex,
+  normalizeHex,
+  randomAccentBackground,
+} from '../../js/projectAccentColors.js';
 
 /** URL longue affichée avec ellipse au milieu (cartes type workflow). */
 function formatWebhookUrlForDisplay(url) {
@@ -34,24 +40,6 @@ const DEFAULT_PHONE_SCHEDULE = {
   sun: { enabled: false, morning: { start: '08:00', end: '12:00' }, evening: { start: '14:00', end: '18:00' } },
 };
 
-/** Même palette que `Project::randomAccentColor()` (PHP). */
-const PROJECT_ACCENT_PALETTE = [
-  '#ff5a36',
-  '#3b82f6',
-  '#10b981',
-  '#8b5cf6',
-  '#f59e0b',
-  '#ec4899',
-  '#06b6d4',
-  '#84cc16',
-  '#ef4444',
-  '#6366f1',
-];
-
-function randomProjectAccentColor() {
-  return PROJECT_ACCENT_PALETTE[Math.floor(Math.random() * PROJECT_ACCENT_PALETTE.length)];
-}
-
 const PHONE_DAYS = [
   { key: 'mon', label: 'Lundi' },
   { key: 'tue', label: 'Mardi' },
@@ -61,6 +49,52 @@ const PHONE_DAYS = [
   { key: 'sat', label: 'Samedi' },
   { key: 'sun', label: 'Dimanche' },
 ];
+
+const ACCENT_PRESET_BACKGROUNDS = [
+  '#0ea5e9', // sky
+  '#0284c7',
+  '#2563eb', // blue
+  '#4f46e5', // indigo
+  '#7c3aed', // violet
+  '#a21caf', // fuchsia
+  '#db2777', // pink
+  '#e11d48', // rose
+  '#ef4444', // red
+  '#f97316', // orange
+  '#f59e0b', // amber
+  '#eab308', // yellow
+  '#84cc16', // lime
+  '#22c55e', // green
+  '#16a34a',
+  '#10b981', // emerald
+  '#14b8a6', // teal
+  '#06b6d4', // cyan
+  '#0891b2',
+  '#64748b', // slate
+  '#475569',
+  '#334155',
+  '#1f2937', // gray
+  '#111827',
+  '#3f3f46', // zinc
+  '#0f766e', // deep teal
+  '#166534', // deep green
+  '#7f1d1d', // deep red
+  '#9a3412', // deep orange
+  '#312e81', // deep indigo
+].map((x) => x.toLowerCase());
+
+/** Complète le message serveur pour le test IMAP (champ JSON `reason`). */
+function imapTestReasonHint(reason) {
+  if (!reason || typeof reason !== 'string') return null;
+  const map = {
+    host_port:
+      'Cause probable : nom d’hôte IMAP, port (993 avec TLS, 143 sans TLS) ou pare-feu.',
+    tls: 'Cause probable : option « Connexion TLS » ou certificat SSL du serveur.',
+    credentials: 'Cause probable : identifiant ou mot de passe du compte de messagerie.',
+    mailbox: 'Cause probable : nom du dossier (souvent INBOX ; certains fournisseurs utilisent un chemin précis).',
+  };
+  return map[reason] ?? null;
+}
 
 function safePhoneSchedule(v) {
   if (!v || typeof v !== 'object') return structuredClone(DEFAULT_PHONE_SCHEDULE);
@@ -85,6 +119,7 @@ const PANES = [
   { id: 'pe-pane-general', label: 'Général', icon: 'fa-sliders-h' },
   { id: 'pe-pane-members', label: 'Membres', icon: 'fa-users' },
   { id: 'pe-pane-indicators', label: 'Indicateurs', icon: 'fa-chart-line' },
+  { id: 'pe-pane-settings', label: 'Paramètres', icon: 'fa-cog' },
   { id: 'pe-pane-integrations', label: 'Intégrations', icon: 'fa-puzzle-piece' },
 ];
 
@@ -113,9 +148,18 @@ export default function ProjectEditPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [accentColor, setAccentColor] = useState('#64748b');
+  const [accentTextColor, setAccentTextColor] = useState('#ffffff');
+  const [accentBorderColor, setAccentBorderColor] = useState('#475569');
   const [ticketHandlerIds, setTicketHandlerIds] = useState([]);
   const [slaAck, setSlaAck] = useState('');
   const [slaResolve, setSlaResolve] = useState('');
+  const [slaIncidentAck, setSlaIncidentAck] = useState('120');
+  const [slaIncidentResolve, setSlaIncidentResolve] = useState('2880');
+  const [slaProblemAck, setSlaProblemAck] = useState('');
+  const [slaProblemResolve, setSlaProblemResolve] = useState('');
+  const [slaRequestAck, setSlaRequestAck] = useState('');
+  const [slaRequestResolve, setSlaRequestResolve] = useState('');
+  const [autoCloseResolvedAfterHours, setAutoCloseResolvedAfterHours] = useState('48');
   const [imapEnabled, setImapEnabled] = useState(false);
   const [imapHost, setImapHost] = useState('');
   const [imapPort, setImapPort] = useState('993');
@@ -138,13 +182,29 @@ export default function ProjectEditPage() {
     setName(p.name ?? '');
     setDescription(typeof p.description === 'string' ? p.description : '');
     {
-      const raw = p.accentColor;
-      const ok = typeof raw === 'string' && /^#[0-9A-Fa-f]{6}$/.test(raw.trim());
-      setAccentColor(ok ? raw.trim().toLowerCase() : randomProjectAccentColor());
+      const bgRaw = p.accentColor;
+      const bgOk = typeof bgRaw === 'string' && /^#[0-9A-Fa-f]{6}$/.test(bgRaw.trim());
+      const bg = bgOk ? bgRaw.trim().toLowerCase() : randomAccentBackground();
+      setAccentColor(bg);
+      const txtRaw = p.accentTextColor;
+      const txtOk = typeof txtRaw === 'string' && /^#[0-9A-Fa-f]{6}$/.test(txtRaw.trim());
+      setAccentTextColor(txtOk ? txtRaw.trim().toLowerCase() : contrastTextForBackground(bg));
+      const brRaw = p.accentBorderColor;
+      const brOk = typeof brRaw === 'string' && /^#[0-9A-Fa-f]{6}$/.test(brRaw.trim());
+      setAccentBorderColor(brOk ? brRaw.trim().toLowerCase() : darkenBorderHex(bg));
     }
     setTicketHandlerIds(Array.isArray(p.ticketHandlerIds) ? [...p.ticketHandlerIds] : []);
     setSlaAck(p.slaAckTargetMinutes != null ? String(p.slaAckTargetMinutes) : '');
     setSlaResolve(p.slaResolveTargetMinutes != null ? String(p.slaResolveTargetMinutes) : '');
+    setSlaIncidentAck(p.slaIncidentAckTargetMinutes != null ? String(p.slaIncidentAckTargetMinutes) : '120');
+    setSlaIncidentResolve(p.slaIncidentResolveTargetMinutes != null ? String(p.slaIncidentResolveTargetMinutes) : '2880');
+    setSlaProblemAck(p.slaProblemAckTargetMinutes != null ? String(p.slaProblemAckTargetMinutes) : '');
+    setSlaProblemResolve(p.slaProblemResolveTargetMinutes != null ? String(p.slaProblemResolveTargetMinutes) : '');
+    setSlaRequestAck(p.slaRequestAckTargetMinutes != null ? String(p.slaRequestAckTargetMinutes) : '');
+    setSlaRequestResolve(p.slaRequestResolveTargetMinutes != null ? String(p.slaRequestResolveTargetMinutes) : '');
+    setAutoCloseResolvedAfterHours(
+      p.autoCloseResolvedAfterHours != null ? String(p.autoCloseResolvedAfterHours) : '48',
+    );
     setImapEnabled(Boolean(p.imapEnabled));
     setImapHost(p.imapHost ?? '');
     setImapPort(String(p.imapPort ?? 993));
@@ -224,6 +284,13 @@ export default function ProjectEditPage() {
     );
   }
 
+  function syncTextAndBorderFromBackground() {
+    const bg = normalizeHex(accentColor);
+    if (!bg) return;
+    setAccentTextColor(contrastTextForBackground(bg));
+    setAccentBorderColor(darkenBorderHex(bg));
+  }
+
   async function onSubmit(ev) {
     ev.preventDefault();
     if (!data?.formPrefix || !data?.formCsrf || !orgToken || !projectId) return;
@@ -235,10 +302,19 @@ export default function ProjectEditPage() {
       [`${prefix}[name]`]: name.trim(),
       [`${prefix}[description]`]: description,
       [`${prefix}[accentColor]`]: accentColor,
+      [`${prefix}[accentTextColor]`]: accentTextColor,
+      [`${prefix}[accentBorderColor]`]: accentBorderColor,
       [`${prefix}[_active_tab]`]: activeTab,
       [`${prefix}[ticketHandlers][]`]: ticketHandlerIds,
       [`${prefix}[slaAckTargetMinutes]`]: slaAck,
       [`${prefix}[slaResolveTargetMinutes]`]: slaResolve,
+      [`${prefix}[slaIncidentAckTargetMinutes]`]: slaIncidentAck,
+      [`${prefix}[slaIncidentResolveTargetMinutes]`]: slaIncidentResolve,
+      [`${prefix}[slaProblemAckTargetMinutes]`]: slaProblemAck,
+      [`${prefix}[slaProblemResolveTargetMinutes]`]: slaProblemResolve,
+      [`${prefix}[slaRequestAckTargetMinutes]`]: slaRequestAck,
+      [`${prefix}[slaRequestResolveTargetMinutes]`]: slaRequestResolve,
+      [`${prefix}[autoCloseResolvedAfterHours]`]: autoCloseResolvedAfterHours,
       [`${prefix}[imapEnabled]`]: imapEnabled ? '1' : '0',
       [`${prefix}[imapTls]`]: imapTls ? '1' : '0',
       [`${prefix}[imapHost]`]: imapHost,
@@ -291,29 +367,49 @@ export default function ProjectEditPage() {
         { _token: data.testImapCsrf },
         { json: true },
       );
-      const ct = res.headers.get('Content-Type') || '';
-      if (!ct.includes('application/json')) {
-        throw new Error('Réponse inattendue du serveur.');
+      const ct = (res.headers.get('Content-Type') || '').toLowerCase();
+      const raw = await res.text();
+      let payload = null;
+      if (ct.includes('application/json')) {
+        try {
+          payload = raw ? JSON.parse(raw) : null;
+        } catch {
+          payload = null;
+        }
       }
-      const payload = await res.json();
+
+      if (!payload) {
+        const snippet = (raw || '').trim().slice(0, 240);
+        const hint =
+          snippet.startsWith('<!doctype') || snippet.startsWith('<html')
+            ? 'Le serveur a probablement renvoyé une page HTML (erreur/warning PHP).'
+            : "Le serveur a renvoyé une réponse non-JSON (souvent un warning PHP qui pollue la sortie).";
+        throw new Error(
+          `${hint} Détail: ${snippet !== '' ? snippet : `HTTP ${res.status}`}`,
+        );
+      }
+
       if (res.ok) {
         setImapTestFeedback({
           type: payload.ok ? 'success' : 'danger',
           message: typeof payload.message === 'string' ? payload.message : '',
+          reasonHint: payload.ok ? null : imapTestReasonHint(payload.reason),
         });
         return;
       }
+
       setImapTestFeedback({
         type: 'danger',
         message:
           typeof payload.message === 'string' && payload.message
             ? payload.message
             : `Erreur ${res.status}`,
+        reasonHint: imapTestReasonHint(payload?.reason),
       });
     } catch (e) {
       setImapTestFeedback({
         type: 'danger',
-        message: e.message || 'Erreur réseau',
+        message: e?.message || 'Erreur réseau',
       });
     } finally {
       setImapTestBusy(false);
@@ -471,29 +567,91 @@ export default function ProjectEditPage() {
                   spellCheck
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="pe-accent-color">Couleur du projet</label>
-                <div className="d-flex align-items-center flex-wrap" style={{ gap: '0.5rem' }}>
-                  <input
-                    id="pe-accent-color"
-                    type="color"
-                    className="form-control form-control-sm"
-                    style={{
-                      width: '3rem',
-                      height: '2rem',
-                      padding: '0.125rem',
-                      cursor: busy ? 'not-allowed' : 'pointer',
-                    }}
-                    value={accentColor}
-                    onChange={(e) => setAccentColor(e.target.value.toLowerCase())}
-                    disabled={busy}
-                    aria-label="Couleur du projet"
-                  />
-                  <span className="small text-muted font-monospace">{accentColor}</span>
-                </div>
-                <p className="op-project-edit__hint small mb-0 mt-1">
-                  Pastille et nom du projet dans la liste des tickets.
+              <div className="form-group mb-0">
+                <label className="d-block font-weight-bold">Pastille du projet</label>
+                <p className="op-project-edit__hint small mb-3">
+                  Choisissez un modèle. Il s’applique partout (listes projets, tickets) et reste lisible automatiquement.
                 </p>
+
+                <div
+                  className="rounded border bg-white p-3"
+                  style={{ borderColor: 'rgba(15, 23, 42, 0.08)' }}
+                >
+                  <div className="small text-muted mb-2">Modèles</div>
+                  <div className="d-flex flex-wrap" style={{ gap: '0.6rem' }} role="listbox" aria-label="Modèles de pastille">
+                    {ACCENT_PRESET_BACKGROUNDS.map((bg) => {
+                      const txt = contrastTextForBackground(bg);
+                      const br = darkenBorderHex(bg);
+                      const selected =
+                        normalizeHex(accentColor) === bg &&
+                        normalizeHex(accentTextColor) === txt &&
+                        normalizeHex(accentBorderColor) === br;
+                      return (
+                        <button
+                          key={bg}
+                          type="button"
+                          className={`btn btn-sm p-0 border-0 bg-transparent ${selected ? 'shadow-sm' : ''}`}
+                          onClick={() => {
+                            if (busy) return;
+                            setAccentColor(bg);
+                            setAccentTextColor(txt);
+                            setAccentBorderColor(br);
+                          }}
+                          disabled={busy}
+                          aria-selected={selected}
+                          role="option"
+                          title={bg}
+                          style={{
+                            outline: selected ? '2px solid rgba(37, 99, 235, 0.65)' : '1px solid rgba(15, 23, 42, 0.10)',
+                            outlineOffset: 2,
+                            borderRadius: 14,
+                          }}
+                        >
+                          <span
+                            className="d-inline-block text-truncate font-weight-bold"
+                            style={{
+                              maxWidth: 180,
+                              padding: '0.35rem 0.85rem',
+                              borderRadius: 999,
+                              backgroundColor: bg,
+                              color: txt,
+                              border: `2px solid ${br}`,
+                              fontSize: '0.825rem',
+                              lineHeight: 1.25,
+                            }}
+                          >
+                            {name.trim() || 'Nom du projet'}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-3 d-flex align-items-center justify-content-between flex-wrap" style={{ gap: '0.75rem' }}>
+                    <div className="small text-muted">
+                      Sélection actuelle : <span className="font-monospace">{accentColor}</span>
+                    </div>
+                    <div className="d-flex align-items-center" style={{ gap: '0.5rem' }}>
+                      <span className="small text-muted">Aperçu</span>
+                      <span
+                        className="d-inline-block text-truncate font-weight-bold shadow-sm"
+                        style={{
+                          maxWidth: 240,
+                          padding: '0.35rem 0.85rem',
+                          borderRadius: 999,
+                          backgroundColor: accentColor,
+                          color: accentTextColor,
+                          border: `2px solid ${accentBorderColor}`,
+                          fontSize: '0.875rem',
+                          lineHeight: 1.25,
+                        }}
+                        title={name.trim() || 'Nom du projet'}
+                      >
+                        {name.trim() || 'Nom du projet'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
               <p className="op-project-edit__meta small mb-0">
                 Créé le <time dateTime={p.createdAt}>{created}</time>
@@ -581,6 +739,113 @@ export default function ProjectEditPage() {
                     disabled={busy}
                   />
                 </div>
+              </div>
+
+              <hr className="my-4" />
+
+              <h2 className="op-project-edit__pane-title h6">SLA par type (minutes)</h2>
+              <p className="op-project-edit__hint small mb-3">
+                Exemple : prise en compte incident = 120 (2h), résolution incident = 2880 (48h). Laisse vide pour
+                utiliser les objectifs globaux.
+              </p>
+
+              <div className="row">
+                <div className="col-lg-4 mb-3">
+                  <div className="font-weight-bold mb-2">Incident</div>
+                  <div className="form-group">
+                    <label>Prise en compte</label>
+                    <input
+                      className="form-control form-control-sm"
+                      type="number"
+                      min={1}
+                      value={slaIncidentAck}
+                      onChange={(e) => setSlaIncidentAck(e.target.value)}
+                      disabled={busy}
+                    />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label>Résolution</label>
+                    <input
+                      className="form-control form-control-sm"
+                      type="number"
+                      min={1}
+                      value={slaIncidentResolve}
+                      onChange={(e) => setSlaIncidentResolve(e.target.value)}
+                      disabled={busy}
+                    />
+                  </div>
+                </div>
+                <div className="col-lg-4 mb-3">
+                  <div className="font-weight-bold mb-2">Problème</div>
+                  <div className="form-group">
+                    <label>Prise en compte</label>
+                    <input
+                      className="form-control form-control-sm"
+                      type="number"
+                      min={1}
+                      value={slaProblemAck}
+                      onChange={(e) => setSlaProblemAck(e.target.value)}
+                      disabled={busy}
+                    />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label>Résolution</label>
+                    <input
+                      className="form-control form-control-sm"
+                      type="number"
+                      min={1}
+                      value={slaProblemResolve}
+                      onChange={(e) => setSlaProblemResolve(e.target.value)}
+                      disabled={busy}
+                    />
+                  </div>
+                </div>
+                <div className="col-lg-4 mb-3">
+                  <div className="font-weight-bold mb-2">Demande</div>
+                  <div className="form-group">
+                    <label>Prise en compte</label>
+                    <input
+                      className="form-control form-control-sm"
+                      type="number"
+                      min={1}
+                      value={slaRequestAck}
+                      onChange={(e) => setSlaRequestAck(e.target.value)}
+                      disabled={busy}
+                    />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label>Résolution</label>
+                    <input
+                      className="form-control form-control-sm"
+                      type="number"
+                      min={1}
+                      value={slaRequestResolve}
+                      onChange={(e) => setSlaRequestResolve(e.target.value)}
+                      disabled={busy}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {activeTab === 'pe-pane-settings' ? (
+            <div className="pe-pane" id="pe-pane-settings">
+              <h2 className="op-project-edit__pane-title h6">Clôture automatique</h2>
+              <p className="op-project-edit__hint small mb-2">
+                Après résolution, le ticket est clôturé automatiquement au bout d’un délai (en heures). 0 = désactivé.
+              </p>
+              <div className="form-group" style={{ maxWidth: 320 }}>
+                <label htmlFor="pe-auto-close">Délai après résolution (heures)</label>
+                <input
+                  id="pe-auto-close"
+                  type="number"
+                  min={0}
+                  className="form-control form-control-sm"
+                  value={autoCloseResolvedAfterHours}
+                  onChange={(e) => setAutoCloseResolvedAfterHours(e.target.value)}
+                  disabled={busy}
+                />
               </div>
             </div>
           ) : null}
@@ -977,7 +1242,12 @@ export default function ProjectEditPage() {
                   }`}
                   role="status"
                 >
-                  {imapTestFeedback.message}
+                  <div className="mb-0">{imapTestFeedback.message}</div>
+                  {imapTestFeedback.reasonHint ? (
+                    <div className="mt-2 mb-0 small font-weight-normal border-top pt-2 border-light">
+                      {imapTestFeedback.reasonHint}
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
                     </div>

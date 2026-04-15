@@ -58,7 +58,7 @@ final class ManagerProjectFormType extends AbstractType
                 ],
             ])
             ->add('accentColor', TextType::class, [
-                'label' => 'form.manager_project.accent_color',
+                'label' => 'form.manager_project.accent_bg_color',
                 'required' => true,
                 'attr' => [
                     'class' => 'form-control form-control-sm',
@@ -68,10 +68,35 @@ final class ManagerProjectFormType extends AbstractType
                 ],
                 'constraints' => [
                     new NotBlank(message: 'validation.project_accent_color.not_blank'),
-                    new Regex([
-                        'pattern' => '/^#[0-9A-Fa-f]{6}$/',
-                        'message' => 'validation.project_accent_color.invalid',
-                    ]),
+                    new Regex(pattern: '/^#[0-9A-Fa-f]{6}$/', message: 'validation.project_accent_color.invalid'),
+                ],
+            ])
+            ->add('accentTextColor', TextType::class, [
+                'label' => 'form.manager_project.accent_text_color',
+                'required' => true,
+                'attr' => [
+                    'class' => 'form-control form-control-sm',
+                    'maxlength' => 7,
+                    'pattern' => '^#[0-9A-Fa-f]{6}$',
+                    'autocomplete' => 'off',
+                ],
+                'constraints' => [
+                    new NotBlank(message: 'validation.project_accent_text_color.not_blank'),
+                    new Regex(pattern: '/^#[0-9A-Fa-f]{6}$/', message: 'validation.project_accent_text_color.invalid'),
+                ],
+            ])
+            ->add('accentBorderColor', TextType::class, [
+                'label' => 'form.manager_project.accent_border_color',
+                'required' => true,
+                'attr' => [
+                    'class' => 'form-control form-control-sm',
+                    'maxlength' => 7,
+                    'pattern' => '^#[0-9A-Fa-f]{6}$',
+                    'autocomplete' => 'off',
+                ],
+                'constraints' => [
+                    new NotBlank(message: 'validation.project_accent_border_color.not_blank'),
+                    new Regex(pattern: '/^#[0-9A-Fa-f]{6}$/', message: 'validation.project_accent_border_color.invalid'),
                 ],
             ])
             ->add('ticketHandlers', EntityType::class, [
@@ -98,6 +123,62 @@ final class ManagerProjectFormType extends AbstractType
                 'attr' => ['class' => 'form-control form-control-sm', 'min' => 1, 'placeholder' => '480'],
                 'constraints' => [
                     new Range(min: 1, max: 525600, notInRangeMessage: 'validation.sla_minutes.range'),
+                ],
+            ])
+            ->add('slaIncidentAckTargetMinutes', IntegerType::class, [
+                'label' => false,
+                'required' => false,
+                'attr' => ['class' => 'form-control form-control-sm', 'min' => 1, 'placeholder' => '120'],
+                'constraints' => [
+                    new Range(min: 1, max: 525600, notInRangeMessage: 'validation.sla_minutes.range'),
+                ],
+            ])
+            ->add('slaIncidentResolveTargetMinutes', IntegerType::class, [
+                'label' => false,
+                'required' => false,
+                'attr' => ['class' => 'form-control form-control-sm', 'min' => 1, 'placeholder' => '2880'],
+                'constraints' => [
+                    new Range(min: 1, max: 525600, notInRangeMessage: 'validation.sla_minutes.range'),
+                ],
+            ])
+            ->add('slaProblemAckTargetMinutes', IntegerType::class, [
+                'label' => false,
+                'required' => false,
+                'attr' => ['class' => 'form-control form-control-sm', 'min' => 1],
+                'constraints' => [
+                    new Range(min: 1, max: 525600, notInRangeMessage: 'validation.sla_minutes.range'),
+                ],
+            ])
+            ->add('slaProblemResolveTargetMinutes', IntegerType::class, [
+                'label' => false,
+                'required' => false,
+                'attr' => ['class' => 'form-control form-control-sm', 'min' => 1],
+                'constraints' => [
+                    new Range(min: 1, max: 525600, notInRangeMessage: 'validation.sla_minutes.range'),
+                ],
+            ])
+            ->add('slaRequestAckTargetMinutes', IntegerType::class, [
+                'label' => false,
+                'required' => false,
+                'attr' => ['class' => 'form-control form-control-sm', 'min' => 1],
+                'constraints' => [
+                    new Range(min: 1, max: 525600, notInRangeMessage: 'validation.sla_minutes.range'),
+                ],
+            ])
+            ->add('slaRequestResolveTargetMinutes', IntegerType::class, [
+                'label' => false,
+                'required' => false,
+                'attr' => ['class' => 'form-control form-control-sm', 'min' => 1],
+                'constraints' => [
+                    new Range(min: 1, max: 525600, notInRangeMessage: 'validation.sla_minutes.range'),
+                ],
+            ])
+            ->add('autoCloseResolvedAfterHours', IntegerType::class, [
+                'label' => false,
+                'required' => false,
+                'attr' => ['class' => 'form-control form-control-sm', 'min' => 0, 'placeholder' => '48'],
+                'constraints' => [
+                    new Range(min: 0, max: 8760, notInRangeMessage: 'validation.sla_minutes.range'),
                 ],
             ])
             ->add('imapEnabled', CheckboxType::class, [
@@ -289,13 +370,30 @@ final class ManagerProjectFormType extends AbstractType
             if (($data['slaResolveTargetMinutes'] ?? '') === '') {
                 $data['slaResolveTargetMinutes'] = null;
             }
+            foreach ([
+                'slaIncidentAckTargetMinutes',
+                'slaIncidentResolveTargetMinutes',
+                'slaProblemAckTargetMinutes',
+                'slaProblemResolveTargetMinutes',
+                'slaRequestAckTargetMinutes',
+                'slaRequestResolveTargetMinutes',
+            ] as $k) {
+                if (($data[$k] ?? '') === '') {
+                    $data[$k] = null;
+                }
+            }
+            if (($data['autoCloseResolvedAfterHours'] ?? '') === '') {
+                unset($data['autoCloseResolvedAfterHours']);
+            }
             if (isset($data['description']) && \is_string($data['description']) && trim($data['description']) === '') {
                 $data['description'] = null;
             }
-            if (isset($data['accentColor']) && \is_string($data['accentColor'])) {
-                $ac = trim($data['accentColor']);
-                if ($ac !== '' && !str_starts_with($ac, '#')) {
-                    $data['accentColor'] = '#'.$ac;
+            foreach (['accentColor', 'accentTextColor', 'accentBorderColor'] as $accentKey) {
+                if (isset($data[$accentKey]) && \is_string($data[$accentKey])) {
+                    $ac = trim($data[$accentKey]);
+                    if ($ac !== '' && !str_starts_with($ac, '#')) {
+                        $data[$accentKey] = '#'.$ac;
+                    }
                 }
             }
             $event->setData($data);

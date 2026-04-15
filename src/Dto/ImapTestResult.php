@@ -13,6 +13,7 @@ final readonly class ImapTestResult
         public bool $success,
         public string $messageKey,
         public array $messageParameters = [],
+        public ?string $reason = null,
     ) {
     }
 }

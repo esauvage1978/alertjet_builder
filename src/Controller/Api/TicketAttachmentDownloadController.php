@@ -47,6 +47,7 @@ final class TicketAttachmentDownloadController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        return $this->file($path, $attachment->getOriginalFilename(), ResponseHeaderBag::DISPOSITION_ATTACHMENT);
+        // Inline to allow in-app preview (PDF/images) in an iframe/img.
+        return $this->file($path, $attachment->getOriginalFilename(), ResponseHeaderBag::DISPOSITION_INLINE);
     }
 }

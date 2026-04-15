@@ -6,57 +6,13 @@ import { PageCard } from '../../components/ui/PageCard.jsx';
 import { ErrorAlert } from '../../components/ui/ErrorAlert.jsx';
 import { LoadingState } from '../../components/ui/LoadingState.jsx';
 import { useAsyncResource } from '../../hooks/useAsyncResource.js';
+import { UserAvatar } from '../../components/ui/UserAvatar.jsx';
 import { useBootstrap } from '../../context/BootstrapContext.jsx';
-
-function clamp01(n) {
-  if (!Number.isFinite(n)) return 0;
-  return Math.min(1, Math.max(0, n));
-}
-
-function parseHexColor(hex) {
-  if (typeof hex !== 'string') return null;
-  const h = hex.trim();
-  if (!/^#[0-9A-Fa-f]{6}$/.test(h)) return null;
-  const r = Number.parseInt(h.slice(1, 3), 16);
-  const g = Number.parseInt(h.slice(3, 5), 16);
-  const b = Number.parseInt(h.slice(5, 7), 16);
-  return { r, g, b };
-}
-
-function srgbToLinear(u8) {
-  const x = u8 / 255;
-  return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
-}
-
-function relativeLuminance({ r, g, b }) {
-  const R = srgbToLinear(r);
-  const G = srgbToLinear(g);
-  const B = srgbToLinear(b);
-  return 0.2126 * R + 0.7152 * G + 0.0722 * B;
-}
-
-function textColorForBg(hex) {
-  const rgb = parseHexColor(hex);
-  if (!rgb) return '#111827';
-  const L = relativeLuminance(rgb);
-  // seuil empirique : au-dessus → texte sombre, sinon → texte clair
-  return L > 0.5 ? '#0f172a' : '#ffffff';
-}
-
-function mix(a, b, t) {
-  const tt = clamp01(t);
-  return Math.round(a + (b - a) * tt);
-}
-
-function borderColorForBg(hex) {
-  const rgb = parseHexColor(hex);
-  if (!rgb) return 'rgba(15, 23, 42, 0.16)';
-  // bordure légèrement plus sombre (mix vers noir)
-  const r = mix(rgb.r, 0, 0.25);
-  const g = mix(rgb.g, 0, 0.25);
-  const b = mix(rgb.b, 0, 0.25);
-  return `rgb(${r} ${g} ${b})`;
-}
+import {
+  contrastTextForBackground,
+  darkenBorderHex,
+  normalizeHex,
+} from '../../js/projectAccentColors.js';
 
 export default function ProjectsPage() {
   const { orgToken: orgTokenParam } = useParams();
@@ -485,6 +441,10 @@ export default function ProjectsPage() {
                         <i className="fas fa-folder" aria-hidden="true" />
                         <span>Projet</span>
                       </th>
+                      <th className="op-projects-thead__col-members wp-proj-th-icon wp-proj-th-center">
+                        <i className="fas fa-users" aria-hidden="true" />
+                        <span>Membres</span>
+                      </th>
                       <th className="wp-proj-th-icon wp-proj-th-center">
                         <i className="fas fa-puzzle-piece" aria-hidden="true" />
                         <span>Intégrations</span>
@@ -504,41 +464,59 @@ export default function ProjectsPage() {
                       const webhookOn = typeof ints.webhook === 'boolean' ? ints.webhook : true;
                       const phoneOn = Boolean(ints.phone);
                       const internalOn = Boolean(ints.internalForm);
-                      const accent = typeof p.accentColor === 'string' ? p.accentColor : null;
-                      const bg = accent && /^#[0-9A-Fa-f]{6}$/.test(accent.trim()) ? accent.trim().toLowerCase() : '#64748b';
-                      const fg = textColorForBg(bg);
-                      const border = borderColorForBg(bg);
+                      const bg = normalizeHex(p.accentColor) || '#64748b';
+                      const fg = normalizeHex(p.accentTextColor) || contrastTextForBackground(bg);
+                      const bd = normalizeHex(p.accentBorderColor) || darkenBorderHex(bg);
+                      const handlers = Array.isArray(p.handlers) ? p.handlers : [];
+                      const visibleHandlers = handlers.slice(0, 5);
+                      const moreHandlers = handlers.length > visibleHandlers.length ? handlers.length - visibleHandlers.length : 0;
                       return (
                       <tr key={p.id} className="ou-member-row op-project-row">
-                        <td>
-                          <div className="d-flex align-items-start op-project-row-main" style={{ gap: '0.65rem' }}>
+                        <td style={{ maxWidth: 360 }}>
+                          <Link
+                            to={`/projects/${projectToken}`}
+                            className="op-project-name op-project-name--link d-inline-block text-decoration-none"
+                            title={p.name}
+                          >
                             <span
-                              className="d-inline-flex align-items-center justify-content-center flex-shrink-0"
+                              className="d-inline-block text-truncate font-weight-bold align-middle"
                               style={{
-                                width: 26,
-                                height: 26,
+                                maxWidth: 'min(320px, 100%)',
+                                padding: '0.3rem 0.75rem',
                                 borderRadius: 999,
                                 backgroundColor: bg,
                                 color: fg,
-                                border: `1px solid ${border}`,
-                                fontWeight: 800,
-                                fontSize: '0.75rem',
-                                letterSpacing: '0.02em',
+                                border: `2px solid ${bd}`,
+                                fontSize: '0.8125rem',
+                                verticalAlign: 'middle',
                               }}
-                              title={`Couleur du projet : ${bg}`}
-                              aria-hidden
                             >
-                              {String(p.name || '?').trim().slice(0, 1).toUpperCase()}
+                              {p.name}
                             </span>
-                            <div>
-                              <Link
-                                to={`/projects/${projectToken}`}
-                                className="op-project-name op-project-name--link d-inline-block"
-                              >
-                                {p.name}
-                              </Link>
+                          </Link>
+                        </td>
+                        <td className="wp-proj-members-cell">
+                          {handlers.length > 0 ? (
+                            <div className="wp-proj-handlers wp-proj-handlers--cell" aria-label="Membres affectés aux tickets">
+                              {visibleHandlers.map((h) => (
+                                <span key={h.id ?? h.label} className="wp-proj-handler" title={h.label || ''}>
+                                  <UserAvatar
+                                    className="wp-proj-handler__avatar"
+                                    initials={h.initials}
+                                    bg={h.avatarColor}
+                                    fg={h.avatarForegroundColor}
+                                  />
+                                </span>
+                              ))}
+                              {moreHandlers > 0 ? (
+                                <span className="wp-proj-handler-more" title={`${moreHandlers} membre(s) supplémentaire(s)`}>
+                                  +{moreHandlers}
+                                </span>
+                              ) : null}
                             </div>
-                          </div>
+                          ) : (
+                            <span className="text-muted small">—</span>
+                          )}
                         </td>
                         <td className="wp-proj-count-cell">
                           <span className="op-int-icons" aria-label="Intégrations">
