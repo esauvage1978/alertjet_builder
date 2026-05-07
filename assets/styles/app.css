@@ -1749,9 +1749,9 @@ body.app-spa .main-footer .text-muted {
   line-height: 1.2;
 }
 
-/* Pas de corail sur le titre dans la sidebar (.text-brand-cyan du HTML) */
+/* Couleur « Builder » dans la sidebar (contraste sur fond sombre) */
 .app-spa .main-sidebar .admin-brand .app-brand-html span {
-  color: rgba(255, 255, 255, 0.92) !important;
+  color: #ff8f6b;
 }
 
 .app-spa .main-sidebar .admin-sidebar-toggle {

@@ -202,11 +202,7 @@ export default function AppShell() {
                       {i18n.breadcrumb_tickets}
                     </li>
                   ) : (
-                    <li
-                      className="breadcrumb-item active text-truncate main-header-breadcrumb__current"
-                      aria-current="page"
-                      dangerouslySetInnerHTML={{ __html: i18n.brand_html }}
-                    />
+                    null
                   )}
                 </ol>
               </nav>
