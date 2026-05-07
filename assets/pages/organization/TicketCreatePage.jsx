@@ -263,7 +263,6 @@ export default function TicketCreatePage() {
                             </span>
                             <div className="tc-type-card__title">
                               <span className="tc-type-card__name">{meta.title}</span>
-                              <span className="tc-type-card__pill">Recommandé</span>
                             </div>
                           </div>
                           <div className="tc-type-card__blurb">{meta.blurb}</div>
