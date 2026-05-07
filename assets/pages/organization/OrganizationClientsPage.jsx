@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { fetchJson, postForm } from '../../api/http.js';
 import { PageCard } from '../../components/ui/PageCard.jsx';
 import { ErrorAlert } from '../../components/ui/ErrorAlert.jsx';
@@ -161,15 +161,14 @@ export default function OrganizationClientsPage() {
     return <ErrorAlert message={loadError || 'Impossible de charger la page'} onRetry={reload} />;
   }
 
+  const i18n = (data && typeof data === 'object' && data.i18n && typeof data.i18n === 'object') ? data.i18n : {};
+
   const accesses = Array.isArray(data.accesses) ? data.accesses : [];
   const eligible = Array.isArray(data.eligibleUsers) ? data.eligibleUsers : [];
-  const roleOptions = useMemo(
-    () => [
-      { value: 'client', label: 'Client' },
-      { value: 'client_supervisor', label: 'Client (superviseur)' },
-    ],
-    [],
-  );
+  const roleOptions = [
+    { value: 'client', label: i18n.org_clients_role_client || 'Client' },
+    { value: 'client_supervisor', label: i18n.org_clients_role_client_supervisor || 'Client (superviseur)' },
+  ];
 
   return (
     <div className="webhook-projects-page op-project-edit">
@@ -184,7 +183,7 @@ export default function OrganizationClientsPage() {
             <form onSubmit={onAdd} className="d-flex flex-wrap align-items-end" style={{ gap: '0.5rem' }}>
               <div className="form-group mb-0">
                 <label htmlFor="oc-eligible" className="small text-muted mb-1 d-block">
-                  Membre (rôle Client)
+                  {i18n.org_clients_eligible_member_label || 'Membre (rôle Client)'}
                 </label>
                 <select
                   id="oc-eligible"
@@ -194,7 +193,7 @@ export default function OrganizationClientsPage() {
                   onChange={(e) => setSelectedUserId(e.target.value)}
                   disabled={busy}
                 >
-                  <option value="">— Choisir —</option>
+                  <option value="">{i18n.org_clients_choose_placeholder || '— Choisir —'}</option>
                   {eligible.map((u) => (
                     <option key={u.id} value={String(u.id)}>
                       {(u.displayName && String(u.displayName).trim()) || u.email}
@@ -203,43 +202,45 @@ export default function OrganizationClientsPage() {
                 </select>
               </div>
               <button type="submit" className="btn btn-sm btn-primary" disabled={busy || !selectedUserId}>
-                Autoriser l’accès
+                {i18n.org_clients_add_submit || 'Autoriser'}
               </button>
             </form>
           ) : null
         }
       >
         <p className="small text-muted mb-3">
-          Comptes au rôle « Client » autorisés pour le portail (formulaire interne). Géré ici, séparément de la
-          liste des utilisateurs.
+          {i18n.org_clients_intro ||
+            'Comptes au rôle « Client » autorisés pour le portail (formulaire interne). Géré ici, séparément de la liste des utilisateurs.'}
         </p>
         {eligible.length === 0 && accesses.length === 0 ? (
           <p className="small mb-0 text-muted">
-            Aucun membre avec le rôle Client à ajouter, et aucun accès enregistré. Assignez le rôle Client au compte
-            (hors de cette page), puis revenez autoriser l’accès ici.
+            {i18n.org_clients_no_eligible_hint ||
+              'Aucun membre avec le rôle Client à ajouter, et aucun accès enregistré. Assignez le rôle Client au compte (hors de cette page), puis revenez autoriser l’accès ici.'}
           </p>
         ) : null}
         {eligible.length === 0 && accesses.length > 0 ? (
-          <p className="small text-muted mb-3">Tous les membres « Client » éligibles ont déjà un accès enregistré.</p>
+          <p className="small text-muted mb-3">
+            {i18n.org_clients_all_eligible_already || 'Tous les membres « Client » éligibles ont déjà un accès enregistré.'}
+          </p>
         ) : null}
         <div className="table-responsive">
           <table className="table ou-members-table mb-0">
             <thead className="ou-members-thead">
               <tr>
-                <th>E-mail</th>
-                <th>Nom</th>
-                <th>Rôle</th>
-                <th className="text-center">Tickets</th>
-                <th className="text-center">Accès</th>
-                <th>Depuis</th>
-                <th className="text-right">Actions</th>
+                <th>{i18n.org_clients_th_email || 'E-mail'}</th>
+                <th>{i18n.org_clients_th_display_name || 'Nom'}</th>
+                <th>{i18n.org_clients_th_role || 'Rôle'}</th>
+                <th className="text-center">{i18n.org_clients_th_tickets || 'Tickets'}</th>
+                <th className="text-center">{i18n.org_clients_th_access || 'Accès'}</th>
+                <th>{i18n.org_clients_th_since || 'Depuis'}</th>
+                <th className="text-right">{i18n.org_clients_th_actions || 'Actions'}</th>
               </tr>
             </thead>
             <tbody>
               {accesses.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-muted small">
-                    Aucun accès enregistré.
+                    {i18n.org_clients_empty || 'Aucun accès enregistré.'}
                   </td>
                 </tr>
               ) : (
@@ -266,9 +267,9 @@ export default function OrganizationClientsPage() {
                     </td>
                     <td className="text-center">
                       {row.blockedAt ? (
-                        <span className="badge badge-danger">Bloqué</span>
+                        <span className="badge badge-danger">{i18n.org_clients_access_blocked || 'Bloqué'}</span>
                       ) : (
-                        <span className="badge badge-success">Actif</span>
+                        <span className="badge badge-success">{i18n.org_clients_access_active || 'Actif'}</span>
                       )}
                     </td>
                     <td>
@@ -280,18 +281,22 @@ export default function OrganizationClientsPage() {
                         className="btn btn-sm btn-outline-primary mr-2"
                         disabled={busy}
                         onClick={() => onSendReset(row.userId)}
-                        title="Renvoyer un e-mail pour définir / réinitialiser le mot de passe"
+                        title={i18n.org_clients_reset_title || 'Renvoyer un e-mail pour définir / réinitialiser le mot de passe'}
                       >
-                        Relancer e-mail
+                        {i18n.org_clients_send_reset || 'Relancer e-mail'}
                       </button>
                       <button
                         type="button"
                         className={`btn btn-sm ${row.blockedAt ? 'btn-outline-success' : 'btn-outline-warning'} mr-2`}
                         disabled={busy}
                         onClick={() => onToggleBlock(row.userId)}
-                        title={row.blockedAt ? 'Débloquer l’accès' : 'Bloquer l’accès'}
+                        title={
+                          row.blockedAt
+                            ? i18n.org_clients_unblock_title || 'Débloquer l’accès'
+                            : i18n.org_clients_block_title || 'Bloquer l’accès'
+                        }
                       >
-                        {row.blockedAt ? 'Débloquer' : 'Bloquer'}
+                        {row.blockedAt ? i18n.org_clients_unblock || 'Débloquer' : i18n.org_clients_block || 'Bloquer'}
                       </button>
                       <button
                         type="button"
@@ -299,7 +304,7 @@ export default function OrganizationClientsPage() {
                         disabled={busy}
                         onClick={() => onRemove(row.userId)}
                       >
-                        Retirer
+                        {i18n.org_clients_remove || 'Retirer'}
                       </button>
                     </td>
                   </tr>
