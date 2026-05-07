@@ -73,6 +73,7 @@ async function createInternalTicket(body) {
 export default function TicketCreatePage() {
   const loadFn = useCallback(async () => fetchTicketNewPayload(), []);
   const { data, error, loading, reload } = useAsyncResource(loadFn);
+  const [step, setStep] = useState(1); // 1 = type, 2 = details
   const [projectToken, setProjectToken] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -82,6 +83,7 @@ export default function TicketCreatePage() {
   const [dragActive, setDragActive] = useState(false);
   const [busy, setBusy] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [submittedOnce, setSubmittedOnce] = useState(false);
   const fileInputRef = useRef(null);
 
   const totalAttachmentBytes = useMemo(() => attachments.reduce((sum, f) => sum + (f?.size || 0), 0), [attachments]);
@@ -118,6 +120,13 @@ export default function TicketCreatePage() {
     }
   }, [firstProjectToken, projectToken]);
 
+  useEffect(() => {
+    // Si un seul projet est disponible, on évite l’étape « choix du projet ».
+    if (projects.length === 1 && step === 1) {
+      setStep(2);
+    }
+  }, [projects.length, step]);
+
   if (!data && loading) {
     return <LoadingState />;
   }
@@ -125,8 +134,49 @@ export default function TicketCreatePage() {
     return <ErrorAlert message={error || 'Impossible de charger la page'} onRetry={reload} />;
   }
 
+  const projectByToken = useMemo(() => {
+    const by = new Map(projects.map((p) => [String(p.publicToken), p]));
+    return (tok) => by.get(String(tok)) || null;
+  }, [projects]);
+  const selectedProject = projectToken ? projectByToken(projectToken) : null;
+
+  const typeMeta = useMemo(() => {
+    const defs = {
+      incident: {
+        title: 'Incident',
+        icon: 'fa-exclamation-triangle',
+        blurb: 'Une interruption ou dégradation non planifiée d’un service.',
+        examples: 'Ex: accès KO, erreur 500, lenteurs, email non reçu…',
+      },
+      problem: {
+        title: 'Problème',
+        icon: 'fa-bug',
+        blurb: 'La cause sous-jacente d’un ou plusieurs incidents (analyse).',
+        examples: 'Ex: incident récurrent, investigation, RCA…',
+      },
+      request: {
+        title: 'Demande',
+        icon: 'fa-handshake',
+        blurb: 'Une demande standard (information, accès, amélioration).',
+        examples: 'Ex: créer un accès, paramétrage, évolution…',
+      },
+    };
+    return defs;
+  }, []);
+
+  const missing = useMemo(() => {
+    const m = {
+      project: !projectToken,
+      title: title.trim() === '',
+      description: description.trim() === '',
+      type: !type,
+    };
+    return m;
+  }, [projectToken, title, description, type]);
+
   async function onSubmit(ev) {
     ev.preventDefault();
+    setSubmittedOnce(true);
     if (!data.formCsrf) return;
     if (!projectToken || !title.trim() || !description.trim() || !type) {
       setSaveError('Projet, titre, description et type sont obligatoires.');
@@ -166,6 +216,9 @@ export default function TicketCreatePage() {
               <i className="fas fa-plus-circle op-project-edit__title-icon mr-2" aria-hidden="true" />
               Nouveau ticket
             </h1>
+            <p className="mb-0 text-muted small tc-required-hint">
+              Les champs marqués <span className="tc-required-star" aria-hidden="true">*</span> sont obligatoires.
+            </p>
           </div>
           <Link to="/tickets" className="btn btn-sm op-project-edit__btn-back">
             <i className="fas fa-arrow-left mr-1" aria-hidden="true" />
@@ -187,191 +240,271 @@ export default function TicketCreatePage() {
               Aucun projet n’a le formulaire interne activé. Active-le dans les paramètres du projet, puis reviens ici.
             </p>
           ) : (
-            <form onSubmit={onSubmit}>
-            <div className="form-row">
-              <div className="form-group col-md-6">
-                <label htmlFor="tc-project">Projet</label>
-                <select
-                  id="tc-project"
-                  className="form-control"
-                  value={projectToken}
-                  onChange={(e) => setProjectToken(e.target.value)}
-                  disabled={busy}
-                >
-                  {projects.map((p) => (
-                    <option key={p.publicToken} value={p.publicToken}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group col-md-6">
-                <label htmlFor="tc-title">Titre</label>
-                <input
-                  id="tc-title"
-                  className="form-control"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Résumé du besoin / incident…"
-                  disabled={busy}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="tc-desc">Description</label>
-              <textarea
-                id="tc-desc"
-                className="form-control"
-                rows={6}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Contexte, symptômes, étapes, urgence, etc."
-                disabled={busy}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Pièces jointes</label>
-              <div
-                className={`tc-dropzone${dragActive ? ' is-dragging' : ''}`}
-                role="button"
-                tabIndex={0}
-                onClick={() => fileInputRef.current?.click()}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    fileInputRef.current?.click();
-                  }
-                }}
-                onDragEnter={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (busy) return;
-                  setDragActive(true);
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (busy) return;
-                  setDragActive(true);
-                }}
-                onDragLeave={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setDragActive(false);
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setDragActive(false);
-                  if (busy) return;
-                  addFiles(e.dataTransfer?.files);
-                }}
-                aria-label="Déposer des fichiers"
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  className="tc-dropzone__input"
-                  onChange={(e) => {
-                    addFiles(e.target.files);
-                    e.target.value = '';
-                  }}
-                  disabled={busy}
-                />
-                <div className="tc-dropzone__inner">
-                  <i className="fas fa-paperclip tc-dropzone__icon" aria-hidden="true" />
-                  <div className="tc-dropzone__text">
-                    <div className="tc-dropzone__title">Glisse-dépose tes fichiers ici</div>
-                    <div className="tc-dropzone__hint text-muted">ou clique pour sélectionner (jusqu’à 10)</div>
+            <>
+              {step === 1 ? (
+                <div className="tc-wizard">
+                  <div className="tc-wizard__stepTitle">
+                    <div className="tc-wizard__kicker">Étape 1/2</div>
+                    <h2 className="h5 mb-1">Quel type de ticket veux-tu créer ?</h2>
+                    <p className="mb-0 text-muted small">Choisis la catégorie la plus proche, tu pourras affiner ensuite.</p>
                   </div>
-                  <div className="tc-dropzone__meta text-muted small">
-                    {attachments.length > 0 ? (
-                      <span>
-                        {attachments.length} fichier{attachments.length > 1 ? 's' : ''} ·{' '}
-                        {Math.round(totalAttachmentBytes / 1024)} Ko
-                      </span>
-                    ) : (
-                      <span>Aucune pièce jointe</span>
-                    )}
+                  <div className="tc-type-cards" role="list">
+                    {TYPE_OPTIONS.map((o) => {
+                      const meta = typeMeta[o.value];
+                      const active = type === o.value;
+                      return (
+                        <button
+                          key={o.value}
+                          type="button"
+                          className={`tc-type-card ${active ? 'is-active' : ''}`}
+                          onClick={() => {
+                            setType(o.value);
+                            setStep(2);
+                          }}
+                          disabled={busy}
+                          role="listitem"
+                          aria-pressed={active}
+                        >
+                          <div className="tc-type-card__top">
+                            <span className={`tc-type-card__icon tc-type-card__icon--${o.value}`} aria-hidden="true">
+                              <i className={`fas ${meta.icon}`} />
+                            </span>
+                            <div className="tc-type-card__title">
+                              <span className="tc-type-card__name">{meta.title}</span>
+                              <span className="tc-type-card__pill">Recommandé</span>
+                            </div>
+                          </div>
+                          <div className="tc-type-card__blurb">{meta.blurb}</div>
+                          <div className="tc-type-card__examples">{meta.examples}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="tc-wizard__footer">
+                    <Link to="/tickets" className="btn btn-outline-secondary">
+                      Annuler
+                    </Link>
                   </div>
                 </div>
-              </div>
-
-              {attachments.length > 0 ? (
-                <ul className="tc-attachments list-unstyled mb-0 mt-2">
-                  {attachments.map((f, idx) => (
-                    <li key={`${f.name}|${f.size}|${f.lastModified}`} className="tc-attachment">
-                      <span className="tc-attachment__name" title={f.name}>
-                        {f.name}
+              ) : (
+                <form onSubmit={onSubmit}>
+                  <div className="tc-wizard__bar">
+                    <div className="tc-wizard__progress" aria-hidden="true">
+                      <div className="tc-wizard__progressFill" style={{ width: '100%' }} />
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-link tc-wizard__back"
+                      onClick={() => setStep(1)}
+                      disabled={busy || projects.length === 1}
+                      title={projects.length === 1 ? 'Type modifiable, projet unique' : 'Revenir au choix du type'}
+                    >
+                      <i className="fas fa-arrow-left mr-1" aria-hidden="true" />
+                      Changer le type
+                    </button>
+                    <div className="tc-wizard__currentType">
+                      <span className={`tc-type-badge tc-type-badge--${type}`}>
+                        <i className={`fas ${typeMeta[type]?.icon || 'fa-ticket-alt'} mr-1`} aria-hidden="true" />
+                        {typeMeta[type]?.title || 'Ticket'}
                       </span>
-                      <span className="tc-attachment__size text-muted small">{Math.round((f.size || 0) / 1024)} Ko</span>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-link tc-attachment__remove"
-                        onClick={() => removeAttachmentAt(idx)}
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group col-md-6">
+                      <label htmlFor="tc-project">
+                        Projet <span className="tc-required-star" aria-hidden="true">*</span>
+                      </label>
+                      {projects.length <= 1 ? (
+                        <div className="te-readonly-field" aria-label="Projet">
+                          {selectedProject?.name || '—'}
+                        </div>
+                      ) : (
+                        <select
+                          id="tc-project"
+                          className={`form-control ${submittedOnce && missing.project ? 'is-invalid' : ''}`}
+                          value={projectToken}
+                          onChange={(e) => setProjectToken(e.target.value)}
+                          disabled={busy}
+                          required
+                        >
+                          {projects.map((p) => (
+                            <option key={p.publicToken} value={p.publicToken}>
+                              {p.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                      {submittedOnce && missing.project ? <div className="invalid-feedback">Choisis un projet.</div> : null}
+                    </div>
+                    <div className="form-group col-md-6">
+                      <label htmlFor="tc-title">
+                        Titre <span className="tc-required-star" aria-hidden="true">*</span>
+                      </label>
+                      <input
+                        id="tc-title"
+                        className={`form-control ${submittedOnce && missing.title ? 'is-invalid' : ''}`}
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Résumé clair en une phrase"
                         disabled={busy}
-                        aria-label={`Retirer ${f.name}`}
-                      >
-                        Retirer
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
+                        required
+                        aria-required="true"
+                      />
+                      {submittedOnce && missing.title ? <div className="invalid-feedback">Le titre est obligatoire.</div> : null}
+                    </div>
+                  </div>
 
-            <div className="tc-pickers-row d-flex flex-wrap align-items-center">
-              <div className="te-priority-picker" role="group" aria-label="Priorité">
-                {PRIORITY_OPTIONS.map((o) => (
-                  <button
-                    key={o.value}
-                    type="button"
-                    className={`te-priority-chip te-priority-chip--${o.value} ${priority === o.value ? 'is-active' : ''}`}
-                    onClick={() => setPriority(o.value)}
-                    disabled={busy}
-                  >
-                    {o.label}
-                  </button>
-                ))}
-              </div>
+                  <div className="form-group">
+                    <label htmlFor="tc-desc">
+                      Description <span className="tc-required-star" aria-hidden="true">*</span>
+                    </label>
+                    <textarea
+                      id="tc-desc"
+                      className={`form-control ${submittedOnce && missing.description ? 'is-invalid' : ''}`}
+                      rows={6}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Contexte, symptômes, étapes pour reproduire, impact, urgence…"
+                      disabled={busy}
+                      required
+                      aria-required="true"
+                    />
+                    {submittedOnce && missing.description ? (
+                      <div className="invalid-feedback">La description est obligatoire.</div>
+                    ) : null}
+                    <div className="text-muted small mt-1 tc-desc-help">
+                      Astuce: commence par l’<strong>impact</strong> (quoi / qui), puis les <strong>étapes</strong> et enfin le <strong>résultat attendu</strong>.
+                    </div>
+                  </div>
 
-              <div className="te-ticket-header__divider" aria-hidden="true" />
+                  <div className="form-group">
+                    <label>Pièces jointes</label>
+                    <div
+                      className={`tc-dropzone${dragActive ? ' is-dragging' : ''}`}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => fileInputRef.current?.click()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          fileInputRef.current?.click();
+                        }
+                      }}
+                      onDragEnter={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (busy) return;
+                        setDragActive(true);
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (busy) return;
+                        setDragActive(true);
+                      }}
+                      onDragLeave={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDragActive(false);
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDragActive(false);
+                        if (busy) return;
+                        addFiles(e.dataTransfer?.files);
+                      }}
+                      aria-label="Déposer des fichiers"
+                    >
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        className="tc-dropzone__input"
+                        onChange={(e) => {
+                          addFiles(e.target.files);
+                          e.target.value = '';
+                        }}
+                        disabled={busy}
+                      />
+                      <div className="tc-dropzone__inner">
+                        <i className="fas fa-paperclip tc-dropzone__icon" aria-hidden="true" />
+                        <div className="tc-dropzone__text">
+                          <div className="tc-dropzone__title">Ajoute des captures / logs</div>
+                          <div className="tc-dropzone__hint text-muted">glisse-dépose ou clique (jusqu’à 10 fichiers)</div>
+                        </div>
+                        <div className="tc-dropzone__meta text-muted small">
+                          {attachments.length > 0 ? (
+                            <span>
+                              {attachments.length} fichier{attachments.length > 1 ? 's' : ''} ·{' '}
+                              {Math.round(totalAttachmentBytes / 1024)} Ko
+                            </span>
+                          ) : (
+                            <span>Aucune pièce jointe</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-              <div className="te-type-chips" role="group" aria-label="Type">
-                {TYPE_OPTIONS.map((o) => (
-                  <button
-                    key={o.value}
-                    type="button"
-                    className={`te-type-chip te-type-chip--${o.value} ${type === o.value ? 'is-active' : ''}`}
-                    onClick={() => setType(o.value)}
-                    disabled={busy}
-                  >
-                    <i className={`fas ${o.icon} mr-1`} aria-hidden="true" />
-                    {o.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+                    {attachments.length > 0 ? (
+                      <ul className="tc-attachments list-unstyled mb-0 mt-2">
+                        {attachments.map((f, idx) => (
+                          <li key={`${f.name}|${f.size}|${f.lastModified}`} className="tc-attachment">
+                            <span className="tc-attachment__name" title={f.name}>
+                              {f.name}
+                            </span>
+                            <span className="tc-attachment__size text-muted small">
+                              {Math.round((f.size || 0) / 1024)} Ko
+                            </span>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-link tc-attachment__remove"
+                              onClick={() => removeAttachmentAt(idx)}
+                              disabled={busy}
+                              aria-label={`Retirer ${f.name}`}
+                            >
+                              Retirer
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
 
-            <div className="tc-actions-row d-flex flex-wrap align-items-center">
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={busy || !projectToken || !title.trim() || !description.trim() || !type}
-              >
-                <i className="fas fa-check mr-1" aria-hidden="true" />
-                {busy ? 'Création…' : 'Créer le ticket'}
-              </button>
-              <Link to="/tickets" className="btn btn-outline-secondary">
-                Annuler
-              </Link>
-            </div>
-            </form>
+                  <div className="tc-pickers-row d-flex flex-wrap align-items-center">
+                    <div className="te-priority-picker" role="group" aria-label="Priorité">
+                      <span className="te-type-picker__label mr-2">Priorité</span>
+                      {PRIORITY_OPTIONS.map((o) => (
+                        <button
+                          key={o.value}
+                          type="button"
+                          className={`te-priority-chip te-priority-chip--${o.value} ${priority === o.value ? 'is-active' : ''}`}
+                          onClick={() => setPriority(o.value)}
+                          disabled={busy}
+                        >
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="tc-actions-row d-flex flex-wrap align-items-center">
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={busy || !projectToken || !title.trim() || !description.trim() || !type}
+                    >
+                      <i className="fas fa-check mr-1" aria-hidden="true" />
+                      {busy ? 'Création…' : 'Créer le ticket'}
+                    </button>
+                    <Link to="/tickets" className="btn btn-outline-secondary">
+                      Annuler
+                    </Link>
+                  </div>
+                </form>
+              )}
+            </>
           )}
         </div>
       </PageCard>

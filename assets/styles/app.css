@@ -5511,6 +5511,189 @@ a.op-project-name--link:hover {
   font-weight: 600;
 }
 
+/* =============================================================================
+   Wizard création de ticket (ludique / visuel)
+   ============================================================================= */
+.tc-required-hint {
+  margin-top: 0.35rem;
+}
+
+.tc-required-star {
+  color: #ef4444;
+  font-weight: 900;
+}
+
+.tc-wizard__kicker {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(12, 25, 41, 0.55);
+  margin-bottom: 0.35rem;
+}
+
+.tc-type-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 992px) {
+  .tc-type-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.tc-type-card {
+  appearance: none;
+  border: 1px solid rgba(12, 25, 41, 0.12);
+  background: #fff;
+  border-radius: 1rem;
+  padding: 0.95rem 0.95rem 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06);
+  min-height: 168px;
+}
+
+.tc-type-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 48px rgba(2, 6, 23, 0.12);
+  border-color: rgba(12, 25, 41, 0.22);
+}
+
+.tc-type-card.is-active {
+  border-color: rgba(255, 90, 54, 0.55);
+  box-shadow: 0 22px 62px rgba(255, 90, 54, 0.16);
+}
+
+.tc-type-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-bottom: 0.65rem;
+}
+
+.tc-type-card__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(12, 25, 41, 0.85);
+  background: rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(12, 25, 41, 0.12);
+  flex-shrink: 0;
+}
+
+.tc-type-card__icon--incident {
+  background: rgba(234, 179, 8, 0.18);
+  border-color: rgba(234, 179, 8, 0.35);
+  color: rgba(133, 77, 14, 0.98);
+}
+.tc-type-card__icon--problem {
+  background: rgba(139, 92, 246, 0.16);
+  border-color: rgba(139, 92, 246, 0.34);
+  color: rgba(88, 28, 135, 0.98);
+}
+.tc-type-card__icon--request {
+  background: rgba(34, 197, 94, 0.16);
+  border-color: rgba(34, 197, 94, 0.32);
+  color: rgba(21, 128, 61, 0.98);
+}
+
+.tc-type-card__title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.tc-type-card__name {
+  font-weight: 900;
+  font-size: 1rem;
+  color: rgba(12, 25, 41, 0.92);
+  line-height: 1.15;
+}
+
+.tc-type-card__pill {
+  display: inline-flex;
+  width: fit-content;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(255, 90, 54, 0.12);
+  border: 1px solid rgba(255, 90, 54, 0.20);
+  color: rgba(180, 55, 24, 0.98);
+}
+
+.tc-type-card__blurb {
+  font-weight: 700;
+  color: rgba(12, 25, 41, 0.72);
+  line-height: 1.35;
+  margin-bottom: 0.45rem;
+}
+
+.tc-type-card__examples {
+  color: rgba(12, 25, 41, 0.58);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.tc-wizard__footer {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tc-wizard__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.tc-wizard__progress {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.tc-wizard__progressFill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, rgba(255, 90, 54, 1) 0%, rgba(255, 143, 107, 1) 100%);
+}
+
+.tc-wizard__back {
+  font-weight: 800;
+  color: rgba(12, 25, 41, 0.72);
+  text-decoration: none;
+}
+
+.tc-wizard__currentType {
+  flex-shrink: 0;
+}
+
+.tc-type-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  font-weight: 900;
+  font-size: 0.85rem;
+  border: 1px solid rgba(12, 25, 41, 0.12);
+  background: rgba(15, 23, 42, 0.03);
+  color: rgba(12, 25, 41, 0.8);
+}
+
 .te-ticket-header .op-project-edit-tabs {
   margin: 0 !important;
 }
