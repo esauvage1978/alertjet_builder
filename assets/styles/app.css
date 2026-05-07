@@ -5661,7 +5661,20 @@ a.op-project-name--link:hover {
 .tc-wizard__progressFill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, rgba(255, 90, 54, 1) 0%, rgba(255, 143, 107, 1) 100%);
+  background: linear-gradient(90deg, var(--tc-accent, rgba(255, 90, 54, 1)) 0%, var(--tc-accent-soft, rgba(255, 143, 107, 1)) 100%);
+}
+
+.tc-wizard--incident {
+  --tc-accent: rgba(234, 179, 8, 1);
+  --tc-accent-soft: rgba(252, 211, 77, 1);
+}
+.tc-wizard--problem {
+  --tc-accent: rgba(139, 92, 246, 1);
+  --tc-accent-soft: rgba(167, 139, 250, 1);
+}
+.tc-wizard--request {
+  --tc-accent: rgba(34, 197, 94, 1);
+  --tc-accent-soft: rgba(74, 222, 128, 1);
 }
 
 .tc-wizard__back {
@@ -5719,10 +5732,28 @@ a.op-project-name--link:hover {
 }
 
 .tc-priority-card.is-active {
-  border-color: rgba(255, 90, 54, 0.55);
-  box-shadow: 0 22px 62px rgba(255, 90, 54, 0.16);
+  border-color: color-mix(in srgb, var(--tc-accent, rgba(255, 90, 54, 1)) 55%, transparent);
+  box-shadow: 0 22px 62px color-mix(in srgb, var(--tc-accent, rgba(255, 90, 54, 1)) 18%, transparent);
 }
 
+.tc-accent-btn {
+  background: var(--tc-accent, #ff5a36);
+  border: 1px solid color-mix(in srgb, var(--tc-accent, #ff5a36) 70%, #000);
+  color: #fff;
+  font-weight: 800;
+  border-radius: 0.6rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--tc-accent, #ff5a36) 22%, transparent);
+}
+
+.tc-accent-btn:hover:not(:disabled) {
+  filter: brightness(0.98);
+  color: #fff;
+}
+
+.tc-accent-btn:disabled {
+  opacity: 0.65;
+}
 .tc-priority-card__top {
   display: flex;
   align-items: flex-start;
