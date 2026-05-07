@@ -159,13 +159,6 @@ export default function TicketCreatePage() {
     }
   }, [firstProjectToken, projectToken]);
 
-  useEffect(() => {
-    // Si un seul projet est disponible, on évite l’étape « choix du projet ».
-    if (projects.length === 1 && step === 1) {
-      setStep(2);
-    }
-  }, [projects.length, step]);
-
   if (!data && loading) {
     return <LoadingState />;
   }
@@ -295,8 +288,8 @@ export default function TicketCreatePage() {
                       type="button"
                       className="btn btn-sm btn-link tc-wizard__back"
                       onClick={() => setStep(1)}
-                      disabled={busy || projects.length === 1}
-                      title={projects.length === 1 ? 'Type modifiable, projet unique' : 'Revenir au choix du type'}
+                      disabled={busy}
+                      title="Revenir au choix du type"
                     >
                       <i className="fas fa-arrow-left mr-1" aria-hidden="true" />
                       Changer le type
