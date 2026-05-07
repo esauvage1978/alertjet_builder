@@ -15,7 +15,12 @@ final class SpaController extends AbstractController
     #[Route('/app/login', name: 'app_login', methods: ['GET'], priority: 40)]
     public function loginPage(): Response
     {
-        return $this->render('spa.html.twig');
+        $resp = $this->render('spa.html.twig');
+        // Le shell HTML doit toujours refléter les derniers bundles Vite (hashés).
+        $resp->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        $resp->headers->set('Pragma', 'no-cache');
+
+        return $resp;
     }
 
     /** Ancienne URL ; conservée pour les favoris et liens externes. */
@@ -29,6 +34,11 @@ final class SpaController extends AbstractController
     #[Route('/app/{reactPath}', name: 'app_spa_catch', requirements: ['reactPath' => '.+'], methods: ['GET'], priority: -50)]
     public function app(): Response
     {
-        return $this->render('spa.html.twig');
+        $resp = $this->render('spa.html.twig');
+        // Le shell HTML doit toujours refléter les derniers bundles Vite (hashés).
+        $resp->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        $resp->headers->set('Pragma', 'no-cache');
+
+        return $resp;
     }
 }
