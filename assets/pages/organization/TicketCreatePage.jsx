@@ -392,22 +392,6 @@ export default function TicketCreatePage() {
                     <button
                       type="button"
                       className="btn btn-sm btn-link tc-wizard__back"
-                      onClick={() => setStep(1)}
-                      disabled={busy}
-                      title="Revenir au choix du type"
-                    >
-                      <i className="fas fa-arrow-left mr-1" aria-hidden="true" />
-                      Changer le type
-                    </button>
-                    <div className="tc-wizard__currentType">
-                      <span className={`tc-type-badge tc-type-badge--${type}`}>
-                        <i className={`fas ${typeMeta[type]?.icon || 'fa-ticket-alt'} mr-1`} aria-hidden="true" />
-                        {typeMeta[type]?.title || 'Ticket'}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-link tc-wizard__back"
                       onClick={() => setStep(2)}
                       disabled={busy}
                       title="Revenir au choix de la priorité"
@@ -415,6 +399,12 @@ export default function TicketCreatePage() {
                       <i className="fas fa-bolt mr-1" aria-hidden="true" />
                       Priorité
                     </button>
+                    <div className="tc-wizard__currentType">
+                      <span className={`tc-type-badge tc-type-badge--${type}`}>
+                        <i className={`fas ${typeMeta[type]?.icon || 'fa-ticket-alt'} mr-1`} aria-hidden="true" />
+                        {typeMeta[type]?.title || 'Ticket'}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="form-row">
