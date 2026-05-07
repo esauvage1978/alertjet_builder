@@ -1451,7 +1451,11 @@ body.app-spa .card-body {
 
 body.app-spa .main-footer {
   color: #374151;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid var(--topbar-border, #dee2e6);
+  background-color: var(--topbar-bg, #fff);
+  margin-top: 1rem;
+  padding: 0.9rem 1.25rem;
+  border-radius: 0.85rem 0.85rem 0 0;
 }
 
 body.app-spa .main-footer .text-muted {
