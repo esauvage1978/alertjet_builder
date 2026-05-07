@@ -114,31 +114,11 @@ export default function TicketCreatePage() {
     [projects],
   );
 
-  useEffect(() => {
-    if (!projectToken && firstProjectToken) {
-      setProjectToken(firstProjectToken);
-    }
-  }, [firstProjectToken, projectToken]);
-
-  useEffect(() => {
-    // Si un seul projet est disponible, on évite l’étape « choix du projet ».
-    if (projects.length === 1 && step === 1) {
-      setStep(2);
-    }
-  }, [projects.length, step]);
-
-  if (!data && loading) {
-    return <LoadingState />;
-  }
-  if (!data) {
-    return <ErrorAlert message={error || 'Impossible de charger la page'} onRetry={reload} />;
-  }
-
   const projectByToken = useMemo(() => {
     const by = new Map(projects.map((p) => [String(p.publicToken), p]));
     return (tok) => by.get(String(tok)) || null;
   }, [projects]);
-  const selectedProject = projectToken ? projectByToken(projectToken) : null;
+  const selectedProject = useMemo(() => (projectToken ? projectByToken(projectToken) : null), [projectByToken, projectToken]);
 
   const typeMeta = useMemo(() => {
     const defs = {
@@ -165,14 +145,33 @@ export default function TicketCreatePage() {
   }, []);
 
   const missing = useMemo(() => {
-    const m = {
+    return {
       project: !projectToken,
       title: title.trim() === '',
       description: description.trim() === '',
       type: !type,
     };
-    return m;
   }, [projectToken, title, description, type]);
+
+  useEffect(() => {
+    if (!projectToken && firstProjectToken) {
+      setProjectToken(firstProjectToken);
+    }
+  }, [firstProjectToken, projectToken]);
+
+  useEffect(() => {
+    // Si un seul projet est disponible, on évite l’étape « choix du projet ».
+    if (projects.length === 1 && step === 1) {
+      setStep(2);
+    }
+  }, [projects.length, step]);
+
+  if (!data && loading) {
+    return <LoadingState />;
+  }
+  if (!data) {
+    return <ErrorAlert message={error || 'Impossible de charger la page'} onRetry={reload} />;
+  }
 
   async function onSubmit(ev) {
     ev.preventDefault();
