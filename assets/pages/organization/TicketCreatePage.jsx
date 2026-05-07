@@ -353,7 +353,10 @@ export default function TicketCreatePage() {
                           key={o.value}
                           type="button"
                           className={`tc-priority-card tc-priority-card--${o.value} ${active ? 'is-active' : ''}`}
-                          onClick={() => setPriority(o.value)}
+                          onClick={() => {
+                            setPriority(o.value);
+                            setStep(3);
+                          }}
                           disabled={busy}
                           role="listitem"
                           aria-pressed={active}
@@ -373,14 +376,10 @@ export default function TicketCreatePage() {
                     })}
                   </div>
 
-                  <div className="tc-wizard__footer tc-wizard__footer--split">
+                  <div className="tc-wizard__footer">
                     <Link to="/tickets" className="btn btn-outline-secondary">
                       Annuler
                     </Link>
-                    <button type="button" className="btn btn-primary" onClick={() => setStep(3)} disabled={busy}>
-                      Continuer
-                      <i className="fas fa-arrow-right ml-2" aria-hidden="true" />
-                    </button>
                   </div>
                 </div>
               ) : (
