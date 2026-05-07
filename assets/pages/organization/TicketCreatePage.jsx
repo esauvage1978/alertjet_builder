@@ -73,7 +73,7 @@ async function createInternalTicket(body) {
 export default function TicketCreatePage() {
   const loadFn = useCallback(async () => fetchTicketNewPayload(), []);
   const { data, error, loading, reload } = useAsyncResource(loadFn);
-  const [step, setStep] = useState(1); // 1 = type, 2 = details
+  const [step, setStep] = useState(1); // 1 = type, 2 = priority, 3 = details
   const [projectToken, setProjectToken] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -144,6 +144,35 @@ export default function TicketCreatePage() {
     return defs;
   }, []);
 
+  const priorityMeta = useMemo(() => {
+    return {
+      low: {
+        title: 'Basse',
+        icon: 'fa-leaf',
+        blurb: 'Impact faible, non bloquant.',
+        meaning: 'Traitement “quand possible” (idéalement dans la journée).',
+      },
+      medium: {
+        title: 'Moyenne',
+        icon: 'fa-flag',
+        blurb: 'Impact limité, contournement possible.',
+        meaning: 'À traiter rapidement (dans un délai raisonnable).',
+      },
+      high: {
+        title: 'Haute',
+        icon: 'fa-fire',
+        blurb: 'Impact important, service dégradé.',
+        meaning: 'Prioritaire: investigation et action dès que possible.',
+      },
+      critical: {
+        title: 'Critique',
+        icon: 'fa-skull-crossbones',
+        blurb: 'Impact majeur, bloquant / arrêt de service.',
+        meaning: 'Urgent: mobilisation immédiate.',
+      },
+    };
+  }, []);
+
   const missing = useMemo(() => {
     return {
       project: !projectToken,
@@ -152,6 +181,12 @@ export default function TicketCreatePage() {
       type: !type,
     };
   }, [projectToken, title, description, type]);
+
+  const progressPct = useMemo(() => {
+    if (step === 1) return 33;
+    if (step === 2) return 66;
+    return 100;
+  }, [step]);
 
   useEffect(() => {
     if (!projectToken && firstProjectToken) {
@@ -236,7 +271,7 @@ export default function TicketCreatePage() {
               {step === 1 ? (
                 <div className="tc-wizard">
                   <div className="tc-wizard__stepTitle">
-                    <div className="tc-wizard__kicker">Étape 1/2</div>
+                    <div className="tc-wizard__kicker">Étape 1/3</div>
                     <h2 className="h5 mb-1">Quel type de ticket veux-tu créer ?</h2>
                     <p className="mb-0 text-muted small">Choisis la catégorie la plus proche, tu pourras affiner ensuite.</p>
                   </div>
@@ -277,11 +312,82 @@ export default function TicketCreatePage() {
                     </Link>
                   </div>
                 </div>
+              ) : step === 2 ? (
+                <div className="tc-wizard">
+                  <div className="tc-wizard__bar">
+                    <div className="tc-wizard__progress" aria-hidden="true">
+                      <div className="tc-wizard__progressFill" style={{ width: `${progressPct}%` }} />
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-link tc-wizard__back"
+                      onClick={() => setStep(1)}
+                      disabled={busy}
+                      title="Revenir au choix du type"
+                    >
+                      <i className="fas fa-arrow-left mr-1" aria-hidden="true" />
+                      Type
+                    </button>
+                    <div className="tc-wizard__currentType">
+                      <span className={`tc-type-badge tc-type-badge--${type}`}>
+                        <i className={`fas ${typeMeta[type]?.icon || 'fa-ticket-alt'} mr-1`} aria-hidden="true" />
+                        {typeMeta[type]?.title || 'Ticket'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="tc-wizard__stepTitle">
+                    <div className="tc-wizard__kicker">Étape 2/3</div>
+                    <h2 className="h5 mb-1">Quelle priorité pour ce ticket ?</h2>
+                    <p className="mb-0 text-muted small">
+                      Base-toi sur l’<strong>impact</strong> et l’<strong>urgence</strong>. Tu pourras la changer après.
+                    </p>
+                  </div>
+
+                  <div className="tc-priority-cards" role="list" aria-label="Choix de priorité">
+                    {PRIORITY_OPTIONS.map((o) => {
+                      const meta = priorityMeta[o.value];
+                      const active = priority === o.value;
+                      return (
+                        <button
+                          key={o.value}
+                          type="button"
+                          className={`tc-priority-card tc-priority-card--${o.value} ${active ? 'is-active' : ''}`}
+                          onClick={() => setPriority(o.value)}
+                          disabled={busy}
+                          role="listitem"
+                          aria-pressed={active}
+                        >
+                          <div className="tc-priority-card__top">
+                            <span className={`tc-priority-card__icon tc-priority-card__icon--${o.value}`} aria-hidden="true">
+                              <i className={`fas ${meta.icon}`} />
+                            </span>
+                            <div className="tc-priority-card__title">
+                              <span className="tc-priority-card__name">{meta.title}</span>
+                            </div>
+                          </div>
+                          <div className="tc-priority-card__blurb">{meta.blurb}</div>
+                          <div className="tc-priority-card__meaning">{meta.meaning}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="tc-wizard__footer tc-wizard__footer--split">
+                    <Link to="/tickets" className="btn btn-outline-secondary">
+                      Annuler
+                    </Link>
+                    <button type="button" className="btn btn-primary" onClick={() => setStep(3)} disabled={busy}>
+                      Continuer
+                      <i className="fas fa-arrow-right ml-2" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <form onSubmit={onSubmit}>
                   <div className="tc-wizard__bar">
                     <div className="tc-wizard__progress" aria-hidden="true">
-                      <div className="tc-wizard__progressFill" style={{ width: '100%' }} />
+                      <div className="tc-wizard__progressFill" style={{ width: `${progressPct}%` }} />
                     </div>
                     <button
                       type="button"
@@ -299,6 +405,16 @@ export default function TicketCreatePage() {
                         {typeMeta[type]?.title || 'Ticket'}
                       </span>
                     </div>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-link tc-wizard__back"
+                      onClick={() => setStep(2)}
+                      disabled={busy}
+                      title="Revenir au choix de la priorité"
+                    >
+                      <i className="fas fa-bolt mr-1" aria-hidden="true" />
+                      Priorité
+                    </button>
                   </div>
 
                   <div className="form-row">
@@ -463,21 +579,13 @@ export default function TicketCreatePage() {
                     ) : null}
                   </div>
 
-                  <div className="tc-pickers-row d-flex flex-wrap align-items-center">
-                    <div className="te-priority-picker" role="group" aria-label="Priorité">
-                      <span className="te-type-picker__label mr-2">Priorité</span>
-                      {PRIORITY_OPTIONS.map((o) => (
-                        <button
-                          key={o.value}
-                          type="button"
-                          className={`te-priority-chip te-priority-chip--${o.value} ${priority === o.value ? 'is-active' : ''}`}
-                          onClick={() => setPriority(o.value)}
-                          disabled={busy}
-                        >
-                          {o.label}
-                        </button>
-                      ))}
-                    </div>
+                  <div className="tc-priority-summary">
+                    <span className="tc-priority-summary__label">Priorité</span>
+                    <span className={`tc-priority-summary__badge tc-priority-summary__badge--${priority}`}>
+                      <i className={`fas ${priorityMeta[priority]?.icon || 'fa-flag'} mr-1`} aria-hidden="true" />
+                      {priorityMeta[priority]?.title || '—'}
+                    </span>
+                    <span className="tc-priority-summary__hint text-muted small">{priorityMeta[priority]?.blurb}</span>
                   </div>
 
                   <div className="tc-actions-row d-flex flex-wrap align-items-center">
