@@ -571,15 +571,6 @@ export default function TicketCreatePage() {
                     ) : null}
                   </div>
 
-                  <div className="tc-priority-summary">
-                    <span className="tc-priority-summary__label">Priorité</span>
-                    <span className={`tc-priority-summary__badge tc-priority-summary__badge--${priority}`}>
-                      <i className={`fas ${priorityMeta[priority]?.icon || 'fa-flag'} mr-1`} aria-hidden="true" />
-                      {priorityMeta[priority]?.title || '—'}
-                    </span>
-                    <span className="tc-priority-summary__hint text-muted small">{priorityMeta[priority]?.blurb}</span>
-                  </div>
-
                   <div className="tc-actions-row d-flex flex-wrap align-items-center">
                     <button
                       type="submit"
