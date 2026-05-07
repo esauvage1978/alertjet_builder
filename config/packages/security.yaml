@@ -6,6 +6,7 @@ security:
         ROLE_ADMIN: ROLE_USER
         ROLE_GESTIONNAIRE: ROLE_USER
         ROLE_CLIENT: ROLE_USER
+        ROLE_CLIENT_SUPERVISEUR: ROLE_CLIENT
 
     providers:
         app_user_provider:

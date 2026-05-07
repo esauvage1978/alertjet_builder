@@ -426,6 +426,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if (\in_array('ROLE_GESTIONNAIRE', $roles, true)) {
             return 'manager';
         }
+        if (\in_array('ROLE_CLIENT_SUPERVISEUR', $roles, true)) {
+            return 'client_supervisor';
+        }
         if (\in_array('ROLE_CLIENT', $roles, true)) {
             return 'client';
         }
@@ -457,6 +460,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
         if (\in_array('ROLE_GESTIONNAIRE', $roles, true)) {
             return 'badge-role-manager';
+        }
+        if (\in_array('ROLE_CLIENT_SUPERVISEUR', $roles, true)) {
+            return 'badge-info';
         }
         if (\in_array('ROLE_CLIENT', $roles, true)) {
             return 'badge-warning';

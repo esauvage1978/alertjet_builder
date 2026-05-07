@@ -88,6 +88,7 @@ class TicketRepository extends ServiceEntityRepository
         ?int $projectId,
         ?string $assigneeFilter,
         int $currentUserId,
+        ?string $restrictClientEmail,
         int $page,
         int $perPage,
     ): array {
@@ -98,7 +99,18 @@ class TicketRepository extends ServiceEntityRepository
             ->where('p.organization = :org')
             ->setParameter('org', $organization);
 
-        $this->applyOrganizationTicketFilters($qb, $search, $status, $priority, $source, $type, $projectId, $assigneeFilter, $currentUserId);
+        $this->applyOrganizationTicketFilters(
+            $qb,
+            $search,
+            $status,
+            $priority,
+            $source,
+            $type,
+            $projectId,
+            $assigneeFilter,
+            $currentUserId,
+            $restrictClientEmail,
+        );
 
         $countQb = clone $qb;
         $total = (int) $countQb
@@ -128,6 +140,7 @@ class TicketRepository extends ServiceEntityRepository
         ?int $projectId,
         ?string $assigneeFilter,
         int $currentUserId,
+        ?string $restrictClientEmail,
     ): void {
         if ($search !== null && trim($search) !== '') {
             $q = '%'.$this->escapeLike(trim($search)).'%';
@@ -163,6 +176,11 @@ class TicketRepository extends ServiceEntityRepository
             } elseif (ctype_digit($assigneeFilter)) {
                 $qb->andWhere('asg.id = :filterAssigneeUser')->setParameter('filterAssigneeUser', (int) $assigneeFilter);
             }
+        }
+
+        if ($restrictClientEmail !== null && trim($restrictClientEmail) !== '') {
+            // Portail client: visibilité restreinte aux tickets rattachés au contact.
+            $qb->andWhere('oc.email = :clientEmail')->setParameter('clientEmail', trim($restrictClientEmail));
         }
     }
 

@@ -89,6 +89,11 @@ final class OrganizationTicketsController extends AbstractController
             }
         }
 
+        $roles = $user->getRoles();
+        $isClient = \in_array('ROLE_CLIENT', $roles, true);
+        $isClientSupervisor = \in_array('ROLE_CLIENT_SUPERVISEUR', $roles, true);
+        $restrictClientEmail = ($isClient && !$isClientSupervisor && !$user->isAdministratorOrManager()) ? $user->getEmail() : null;
+
         $result = $this->ticketRepository->paginateForOrganization(
             $organization,
             $search,
@@ -99,6 +104,7 @@ final class OrganizationTicketsController extends AbstractController
             $projectId,
             $assigneeFilter,
             $uid,
+            $restrictClientEmail,
             $page,
             $perPage,
         );

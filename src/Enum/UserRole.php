@@ -10,6 +10,7 @@ enum UserRole: string
     case Gestionnaire = 'ROLE_GESTIONNAIRE';
     case Utilisateur = 'ROLE_USER';
     case Client = 'ROLE_CLIENT';
+    case ClientSuperviseur = 'ROLE_CLIENT_SUPERVISEUR';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum UserRole: string
             self::Gestionnaire => 'Gestionnaire',
             self::Utilisateur => 'Utilisateur',
             self::Client => 'Client',
+            self::ClientSuperviseur => 'Client (superviseur)',
         };
     }
 }

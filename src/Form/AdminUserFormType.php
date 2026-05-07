@@ -54,6 +54,7 @@ final class AdminUserFormType extends AbstractType
                     'form.admin_user.role_manager' => 'ROLE_GESTIONNAIRE',
                     'form.admin_user.role_user' => 'ROLE_USER',
                     'form.admin_user.role_client' => 'ROLE_CLIENT',
+                    'form.admin_user.role_client_supervisor' => 'ROLE_CLIENT_SUPERVISEUR',
                 ],
                 'placeholder' => false,
                 'attr' => ['class' => 'form-control'],
@@ -126,6 +127,9 @@ final class AdminUserFormType extends AbstractType
         }
         if (\in_array('ROLE_GESTIONNAIRE', $roles, true)) {
             return 'ROLE_GESTIONNAIRE';
+        }
+        if (\in_array('ROLE_CLIENT_SUPERVISEUR', $roles, true)) {
+            return 'ROLE_CLIENT_SUPERVISEUR';
         }
         if (\in_array('ROLE_CLIENT', $roles, true)) {
             return 'ROLE_CLIENT';
