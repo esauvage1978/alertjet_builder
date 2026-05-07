@@ -313,7 +313,7 @@ export default function TicketCreatePage() {
                   </div>
                 </div>
               ) : step === 2 ? (
-                <div className={`tc-wizard tc-wizard--${type}`}>
+                <div className="tc-wizard">
                   <div className="tc-wizard__bar">
                     <div className="tc-wizard__progress" aria-hidden="true">
                       <div className="tc-wizard__progressFill" style={{ width: `${progressPct}%` }} />
@@ -377,12 +377,7 @@ export default function TicketCreatePage() {
                     <Link to="/tickets" className="btn btn-outline-secondary">
                       Annuler
                     </Link>
-                    <button
-                      type="button"
-                      className="btn tc-accent-btn"
-                      onClick={() => setStep(3)}
-                      disabled={busy}
-                    >
+                    <button type="button" className="btn btn-primary" onClick={() => setStep(3)} disabled={busy}>
                       Continuer
                       <i className="fas fa-arrow-right ml-2" aria-hidden="true" />
                     </button>
@@ -390,7 +385,7 @@ export default function TicketCreatePage() {
                 </div>
               ) : (
                 <form onSubmit={onSubmit}>
-                  <div className={`tc-wizard__bar tc-wizard--${type}`}>
+                  <div className="tc-wizard__bar">
                     <div className="tc-wizard__progress" aria-hidden="true">
                       <div className="tc-wizard__progressFill" style={{ width: `${progressPct}%` }} />
                     </div>
