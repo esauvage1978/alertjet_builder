@@ -396,8 +396,10 @@ export default function TicketCreatePage() {
                       disabled={busy}
                       title="Revenir au choix de la priorité"
                     >
-                      <i className="fas fa-bolt mr-1" aria-hidden="true" />
-                      Priorité
+                      <span className={`tc-priority-chip tc-priority-chip--${priority}`}>
+                        <i className={`fas ${priorityMeta[priority]?.icon || 'fa-flag'} mr-1`} aria-hidden="true" />
+                        {priorityMeta[priority]?.title || 'Priorité'}
+                      </span>
                     </button>
                     <div className="tc-wizard__currentType">
                       <span className={`tc-type-badge tc-type-badge--${type}`}>
