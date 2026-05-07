@@ -39,7 +39,9 @@ export default function MainSidebarNav({ data }) {
   return (
     <>
       <a href={routes.spa} className="admin-brand">
-        <span className="admin-brand-mark" aria-hidden />
+        <span className="admin-brand-mark" aria-hidden>
+          <span className="admin-brand-mark__text">AJ</span>
+        </span>
         <div className="admin-brand-text">
           <span className="app-brand-html d-block" dangerouslySetInnerHTML={{ __html: i18n.brand_html }} />
         </div>
@@ -178,6 +180,20 @@ function buildNavSections({ flags, spaPaths, i18n, organizations, org }) {
 
   const ticketStackItems = [];
   if (hasOrgContext) {
+    if (spaPaths.organizationTickets) {
+      ticketStackItems.push({
+        id: 'tickets',
+        to: spaPaths.organizationTickets,
+        label: i18n.nav_tickets,
+        icon: 'fa-ticket-alt',
+        // Ne pas activer sur /tickets/new (sinon double sélection).
+        isActive: (pathname) =>
+          (pathname === '/tickets' ||
+            pathname === '/tickets/' ||
+            /^\/tickets\/\d+\/?$/.test(pathname)) &&
+          !(pathname === '/tickets/new' || pathname === '/tickets/new/'),
+      });
+    }
     if (flags.showTicketCreateEntry && spaPaths.organizationTicketNew) {
       ticketStackItems.push({
         id: 'ticketNew',
@@ -199,20 +215,6 @@ function buildNavSections({ flags, spaPaths, i18n, organizations, org }) {
           /^\/projects\/[^/]+(\/edit)?\/?$/.test(pathname) ||
           /^\/organization\/[^/]+\/projects\/?$/.test(pathname) ||
           /^\/organization\/[^/]+\/projects\/[^/]+(\/edit)?\/?$/.test(pathname),
-      });
-    }
-    if (spaPaths.organizationTickets) {
-      ticketStackItems.push({
-        id: 'tickets',
-        to: spaPaths.organizationTickets,
-        label: i18n.nav_tickets,
-        icon: 'fa-ticket-alt',
-        // Ne pas activer sur /tickets/new (sinon double sélection).
-        isActive: (pathname) =>
-          (pathname === '/tickets' ||
-            pathname === '/tickets/' ||
-            /^\/tickets\/\d+\/?$/.test(pathname)) &&
-          !(pathname === '/tickets/new' || pathname === '/tickets/new/'),
       });
     }
   }

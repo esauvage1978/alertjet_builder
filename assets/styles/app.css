@@ -1718,10 +1718,21 @@ body.app-spa .main-footer .text-muted {
   width: 42px;
   height: 42px;
   border-radius: var(--radius-sm, 8px);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.06) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--coral, #ff5a36) 0%, #ff8f6b 100%);
+  border: 1px solid rgba(255, 90, 54, 0.18);
+  box-shadow: 0 10px 26px rgba(255, 90, 54, 0.25);
   flex-shrink: 0;
+}
+
+.app-spa .main-sidebar .admin-brand-mark__text {
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-size: 0.95rem;
+  line-height: 1;
 }
 
 .app-spa .main-sidebar .admin-brand-text {
