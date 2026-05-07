@@ -357,10 +357,13 @@ org.users.flash_resend_not_applicable: 'Aucune invitation en attente pour ce com
 
 org.clients.flash_added: 'Accès client enregistré.'
 org.clients.flash_removed: 'Accès client retiré.'
+org.clients.flash_updated: 'Accès client mis à jour.'
+org.clients.flash_reset_sent: 'E-mail de réinitialisation envoyé.'
 org.clients.error_user: 'Utilisateur introuvable ou non membre de l’organisation.'
 org.clients.error_not_client_role: 'Ce membre n’a pas le rôle Client.'
 org.clients.error_already: 'Cet accès est déjà enregistré.'
 org.clients.error_not_granted: 'Aucun accès enregistré pour ce membre.'
+org.clients.error_bad_role: 'Rôle invalide.'
 org.clients.page_title: 'Accès clients'
 org.clients.intro: 'Comptes au rôle « Client » autorisés à utiliser le formulaire interne (selon les projets où il est activé). Géré ici, séparément de la liste des utilisateurs.'
 org.clients.th_email: 'E-mail'

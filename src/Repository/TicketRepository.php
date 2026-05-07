@@ -215,4 +215,42 @@ class TicketRepository extends ServiceEntityRepository
 
         return array_values(array_unique($ids));
     }
+
+    /**
+     * Compteur de tickets par email de contact, au sein d’une organisation.
+     *
+     * @param list<string> $emails
+     *
+     * @return array<string, int> map email => count
+     */
+    public function countByOrganizationAndContactEmails(Organization $organization, array $emails): array
+    {
+        $emails = array_values(array_unique(array_filter(array_map(static fn ($e) => mb_strtolower(trim((string) $e)), $emails))));
+        if ($emails === []) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('t')
+            ->select('LOWER(oc.email) AS email, COUNT(t.id) AS cnt')
+            ->innerJoin('t.project', 'p')
+            ->innerJoin('t.organizationContact', 'oc')
+            ->where('p.organization = :org')
+            ->andWhere('LOWER(oc.email) IN (:emails)')
+            ->setParameter('org', $organization)
+            ->setParameter('emails', $emails)
+            ->groupBy('email')
+            ->getQuery()
+            ->getArrayResult();
+
+        $out = [];
+        foreach ($rows as $r) {
+            $email = isset($r['email']) ? (string) $r['email'] : '';
+            if ($email === '') {
+                continue;
+            }
+            $out[$email] = (int) ($r['cnt'] ?? 0);
+        }
+
+        return $out;
+    }
 }

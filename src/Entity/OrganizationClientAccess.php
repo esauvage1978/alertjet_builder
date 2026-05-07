@@ -31,6 +31,9 @@ class OrganizationClientAccess
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $blockedAt = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -68,5 +71,22 @@ class OrganizationClientAccess
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getBlockedAt(): ?\DateTimeImmutable
+    {
+        return $this->blockedAt;
+    }
+
+    public function setBlockedAt(?\DateTimeImmutable $blockedAt): self
+    {
+        $this->blockedAt = $blockedAt;
+
+        return $this;
+    }
+
+    public function isBlocked(): bool
+    {
+        return $this->blockedAt !== null;
     }
 }

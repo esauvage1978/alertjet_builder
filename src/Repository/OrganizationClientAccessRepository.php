@@ -22,10 +22,12 @@ class OrganizationClientAccessRepository extends ServiceEntityRepository
 
     public function userHasAccess(User $user, Organization $organization): bool
     {
-        return null !== $this->findOneBy([
+        $row = $this->findOneBy([
             'user' => $user,
             'organization' => $organization,
         ]);
+
+        return $row !== null && !$row->isBlocked();
     }
 
     /**
